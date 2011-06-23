@@ -29,7 +29,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.table.DefaultTableModel;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
@@ -55,7 +55,7 @@ public class ImageTableModel extends DefaultTableModel
         }
     }
     
-    public static final File IMAGE_BASE_FOLDER = GameFileSystem.INSTANCE.getImagesFolder();
+    public static final File IMAGE_BASE_FOLDER = RFDynHUDEditor.FILESYSTEM.getImagesFolder();
     
     public static final int ROW_HEIGHT = 50;
     private static final BufferedImage FOLDER_IMAGE = readFolderImage();

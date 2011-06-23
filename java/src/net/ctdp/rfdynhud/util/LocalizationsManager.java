@@ -163,15 +163,15 @@ public class LocalizationsManager
         }
     }
     
-    private void update()
+    void update( GameFileSystem fileSystem )
     {
         if ( map.size() > 0 )
             return;
         
         if ( ResourceManager.isCompleteIDEMode() )
-            update( GameFileSystem.INSTANCE.getPluginINI(), GameFileSystem.INSTANCE.getPluginFolder() );
+            update( fileSystem.getPluginINI(), fileSystem.getPluginFolder() );
         else
-            update( GameFileSystem.INSTANCE.getPluginINI(), new File( GameFileSystem.INSTANCE.getPluginFolder(), "widget_sets" ) );
+            update( fileSystem.getPluginINI(), new File( fileSystem.getPluginFolder(), "widget_sets" ) );
     }
     
     public final String getLocalization( Class<? extends Widget> widgetClass, String key )
@@ -198,7 +198,7 @@ public class LocalizationsManager
     
     private LocalizationsManager()
     {
-        update();
+        //update( GameFileSystem.INSTANCE );
     }
     
     public static final LocalizationsManager INSTANCE = new LocalizationsManager();

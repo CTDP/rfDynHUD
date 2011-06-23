@@ -24,7 +24,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.util.__UtilHelper;
 
 import org.jagatoo.util.io.FileUtils;
 
@@ -224,7 +224,10 @@ public class FilenameProperty extends Property
         
         this.defaultValue = defaultValue;
         
-        this.base = base;
+        if ( !base.isAbsolute() )
+            this.base = new File( __UtilHelper.configFolder, base.getPath().replace( '/', '\\' ) );
+        else
+            this.base = base;
         this.basePath = FileUtils.getCanonicalFile( base ).getAbsolutePath() + File.separator;
         
         this.extensions = extensions;
@@ -244,7 +247,7 @@ public class FilenameProperty extends Property
      */
     protected FilenameProperty( String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
     {
-        this( name, nameForDisplay, defaultValue, extensions, extensionDescs, GameFileSystem.INSTANCE.getConfigFolder(), readonly );
+        this( name, nameForDisplay, defaultValue, extensions, extensionDescs, __UtilHelper.configFolder, readonly );
     }
     
     /**

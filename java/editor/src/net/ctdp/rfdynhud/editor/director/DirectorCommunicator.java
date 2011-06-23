@@ -543,6 +543,7 @@ public class DirectorCommunicator implements Runnable
                 }
                 catch ( IOException e )
                 {
+                    running = false;
                     manager.log( e );
                 }
             }

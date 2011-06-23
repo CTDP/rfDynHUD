@@ -29,12 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jagatoo.util.classes.ClassSearcher;
-import org.jagatoo.util.classes.SuperClassCriterium;
-
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+
+import org.jagatoo.util.classes.ClassSearcher;
+import org.jagatoo.util.classes.SuperClassCriterium;
 
 /**
  * Creates {@link Widget} instances by class name.
@@ -118,13 +117,13 @@ public class WidgetFactory
     /**
      * Finds all publicly available and non-abstract {@link Widget} classes.
      * 
+     * @param widgetSetsFolder
+     * 
      * @return all non-abstract {@link Widget} classes in the classpath.
      */
     @SuppressWarnings( "unchecked" )
-    private static List<Class<Widget>> findWidgetClasses()
+    private static List<Class<Widget>> findWidgetClasses( File widgetSetsFolder )
     {
-        File widgetSetsFolder = GameFileSystem.INSTANCE.getWidgetSetsFolder();
-        
         List<Class<?>> classes_;
         if ( ( widgetSetsFolder != null ) && widgetSetsFolder.exists() )
         {
@@ -167,12 +166,12 @@ public class WidgetFactory
         return ( classes );
     }
     
-    private static void init()
+    public static void init( File widgetSetsFolder )
     {
         if ( widgetClasses != null )
             return;
         
-        widgetClasses = findWidgetClasses();
+        widgetClasses = findWidgetClasses( widgetSetsFolder );
         
         widgetClassNameClassMap = new HashMap<String, Class<Widget>>();
         for ( Class<Widget> clazz : widgetClasses )
@@ -184,8 +183,6 @@ public class WidgetFactory
     @SuppressWarnings( "unchecked" )
     public static final Class<Widget>[] getWidgetClasses()
     {
-        init();
-        
         return ( widgetClasses.toArray( new Class[ widgetClasses.size() ] ) );
     }
     
@@ -209,8 +206,6 @@ public class WidgetFactory
      */
     private static Widget createWidget( Class<Widget> clazz, String name, WidgetsConfiguration widgetsConfig, boolean loadingAssembled )
     {
-        init();
-        
         Widget widget = null;
         
         try
@@ -282,8 +277,6 @@ public class WidgetFactory
      */
     public static Class<Widget> getWidgetClass( String className )
     {
-        init();
-        
         Class<Widget> clazz = widgetClassNameClassMap.get( className );
         
         if ( clazz == null )

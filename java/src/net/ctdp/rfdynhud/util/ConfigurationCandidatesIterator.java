@@ -21,7 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 
 public class ConfigurationCandidatesIterator implements Iterator<File>
@@ -119,10 +118,8 @@ public class ConfigurationCandidatesIterator implements Iterator<File>
         addSpecificCandidates( configFolder, modName, "overlay", vehicleClass, vehicleName, sessionType );
     }
     
-    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
+    public void collectCandidates( File configFolder, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
-        final File configFolder = GameFileSystem.INSTANCE.getConfigFolder();
-        
         if ( smallMonitor )
         {
             addSmallMonitorCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );

@@ -43,7 +43,7 @@ import net.ctdp.rfdynhud.util.RFDHLog;
  */
 public class TelemetryData
 {
-    final TelemetryDataCapsule data = new TelemetryDataCapsule();
+    final TelemetryDataCapsule data;
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
@@ -1489,9 +1489,10 @@ public class TelemetryData
     
     // unsigned char mExpansion[32];
     
-    TelemetryData( LiveGameData gameData )
+    TelemetryData( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory )
     {
         this.gameData = gameData;
+        this.data = gdFactory.newTelemetryDataCapsule( gameData );
         
         registerListener( TopspeedRecorder.MASTER_TOPSPEED_RECORDER );
         registerListener( LifetimeManager.INSTANCE );

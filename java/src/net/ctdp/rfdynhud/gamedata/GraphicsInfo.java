@@ -27,7 +27,7 @@ import java.io.OutputStream;
  */
 public class GraphicsInfo
 {
-    final GraphicsInfoCapsule data = new GraphicsInfoCapsule();
+    final GraphicsInfoCapsule data;
     
     private final LiveGameData gameData;
     
@@ -224,8 +224,19 @@ public class GraphicsInfo
         return ( data.getAmbientColor() );
     }
     
-    GraphicsInfo( LiveGameData gameData )
+    /**
+     * Gets the currently viewed vehicle.
+     * 
+     * @return the currently viewed vehicle or <code>null</code>, if N/A.
+     */
+    public final VehicleScoringInfo getViewedVehicleScoringInfo()
+    {
+        return ( data.getViewedVehicleScoringInfo() );
+    }
+    
+    GraphicsInfo( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory )
     {
         this.gameData = gameData;
+        this.data = gdFactory.newGraphicsInfoCapsule( gameData );
     }
 }

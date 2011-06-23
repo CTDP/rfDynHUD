@@ -25,7 +25,6 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
@@ -316,7 +315,7 @@ public class ConfigurationLoader implements PropertyLoader
      * 
      * @throws IOException if anything went wrong.
      */
-    public void loadConfiguration( InputStream in, String name, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode ) throws IOException
+    public void loadConfiguration( InputStream in, String name, final WidgetsConfiguration widgetsConfig, final LiveGameData gameData, final boolean isEditorMode ) throws IOException
     {
         clearConfiguration( widgetsConfig, gameData, isEditorMode );
         
@@ -667,8 +666,8 @@ public class ConfigurationLoader implements PropertyLoader
         RFDHLog.println( "Loading configuration file from \"" + file.getAbsolutePath() + "\"..." );
         
         String name = null;
-        if ( file.getName().startsWith( GameFileSystem.INSTANCE.getConfigPath() + File.pathSeparator ) )
-            name = file.getName().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+        if ( file.getName().startsWith( gameData.getFileSystem().getConfigPath() + File.pathSeparator ) )
+            name = file.getName().substring( gameData.getFileSystem().getConfigPath().length() + 1 );
         
         loadConfiguration( new FileInputStream( file ), name, widgetsConfig, gameData, isEditorMode );
         
@@ -773,6 +772,7 @@ public class ConfigurationLoader implements PropertyLoader
      * </ul>
      * Then it checks, if that file is newer than the already loaded one.
      * 
+     * @param configFolder
      * @param smallMonitor
      * @param bigMonitor
      * @param isInGarage
@@ -785,7 +785,7 @@ public class ConfigurationLoader implements PropertyLoader
      * @param isEditorMode
      * @param force
      */
-    void reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
+    void reloadConfiguration( File configFolder, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
     {
         if ( force || !widgetsConfig.isValid() )
         {
@@ -803,7 +803,7 @@ public class ConfigurationLoader implements PropertyLoader
                 
                 ConfigurationCandidatesIterator it = getCandidatesIterator();
                 it.reset();
-                it.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
+                it.collectCandidates( configFolder, smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
                 
                 while ( it.hasNext() )
                 {

@@ -27,8 +27,8 @@ import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.util.AbstractThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
@@ -41,9 +41,10 @@ import net.ctdp.rfdynhud.util.TimingUtil;
  */
 public class ScoringInfo
 {
-    final ScoringInfoCapsule data = new ScoringInfoCapsule();
-    
     private final LiveGameData gameData;
+    private final _LiveGameDataObjectsFactory gdFactory;
+    
+    final ScoringInfoCapsule data;
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
@@ -160,7 +161,7 @@ public class ScoringInfo
     private String playerFilename = null;
     private String trackName = null;
     
-    private ThreeLetterCodeGenerator tlcGenerator = AbstractThreeLetterCodeGenerator.initThreeLetterCodeGenerator( GameFileSystem.INSTANCE.getPluginINI().getGeneralThreeLetterCodeGeneratorClass() );
+    private ThreeLetterCodeGenerator tlcGenerator;
     
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
@@ -194,7 +195,7 @@ public class ScoringInfo
             
             for ( int i = oldCount; i < numVehicles; i++ )
             {
-                tmp[i] = new VehicleScoringInfoCapsule();
+                tmp[i] = gdFactory.newVehicleScoringInfoCapsule( gameData );
             }
             
             vehicleScoringInfoCapsules = tmp;
@@ -320,8 +321,9 @@ public class ScoringInfo
                         
                         //if ( vsi.getBestLapTime() > 0f )
                         {
-                            vsi.fastestLaptime = new Laptime( 0, -1f, -1f, -1f, false, false, true );
-                            vsi.fastestLaptime.laptime = vsi.getBestLapTime();
+                            Laptime lt = new Laptime( vsi.getDriverId(), 0, -1f, -1f, -1f, false, false, true );
+                            lt.laptime = vsi.getBestLapTime();
+                            vsi.setFastestLaptime( lt );
                         }
                         
                         changedVSIs.add( new Object[] { +1, vsi } );
@@ -333,10 +335,28 @@ public class ScoringInfo
                         
                         RFDHLog.debug( "[DEBUG]: Player rejoined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ), ", fastest lap: " + TimingUtil.getTimeAsLaptimeString( vsi.getBestLapTime() ) );
                         
-                        if ( ( vsi.fastestLaptime == null ) && ( vsi.getBestLapTime() > 0f ) )
+                        if ( ( vsi._getFastestLaptime() == null ) && ( vsi.getBestLapTime() > 0f ) )
                         {
-                            vsi.fastestLaptime = new Laptime( 0, -1f, -1f, -1f, false, false, true );
-                            vsi.fastestLaptime.laptime = vsi.getBestLapTime();
+                            Laptime lt = new Laptime( vsi.getDriverId(), 0, -1f, -1f, -1f, false, false, true );
+                            lt.laptime = vsi.getBestLapTime();
+                            vsi.setFastestLaptime( lt );
+                        }
+                        else if ( vsi.getBestLapTime() < 0f )
+                        {
+                            // Player seems to have changed his unique ID.
+                            
+                            Laptime lt = new Laptime( vsi.getDriverId(), 0, -1f, -1f, -1f, false, false, true );
+                            lt.laptime = vsi.getBestLapTime();
+                            vsi.setFastestLaptime( lt );
+                            
+                            for ( int i = 0; i < vsi.laptimes.size(); i++ )
+                            {
+                                lt = vsi.laptimes.get( i );
+                                lt.sector1 = -1f;
+                                lt.sector2 = -1f;
+                                lt.sector3 = -1f;
+                                lt.laptime = -1f;
+                            }
                         }
                         
                         changedVSIs.add( new Object[] { +2, vsi } );
@@ -354,12 +374,12 @@ public class ScoringInfo
                 {
                     somethingWrong++;
                     vehicleScoringInfo[i] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
-                    vehicleScoringInfo[i].data = new VehicleScoringInfoCapsule();
+                    vehicleScoringInfo[i].data = gdFactory.newVehicleScoringInfoCapsule( gameData );
                 }
                 else if ( vehicleScoringInfo[i].data == null )
                 {
                     somethingWrong++;
-                    vehicleScoringInfo[i].data = new VehicleScoringInfoCapsule();
+                    vehicleScoringInfo[i].data = gdFactory.newVehicleScoringInfoCapsule( gameData );
                 }
             }
             
@@ -598,7 +618,7 @@ public class ScoringInfo
                 lastGamePhase = null;
             }
             
-            if ( getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
+            if ( ( getNumVehicles() > 0 ) && getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
             {
                 updateRaceLengthPercentage( editorPresets != null );
                 rlpUpdated = true;
@@ -1462,9 +1482,6 @@ public class ScoringInfo
         this.controlledViewedVSI = controlledViewedVSI;
     }
     
-    private final TelemVect3 camPos = new TelemVect3();
-    private final TelemVect3 carPos = new TelemVect3();
-    
     /**
      * Gets the viewed's VehicleScroingInfo (this is just a guess, but should be correct).
      * 
@@ -1474,14 +1491,6 @@ public class ScoringInfo
     {
         if ( controlledViewedVSI != null )
             return ( controlledViewedVSI );
-        
-        if ( fixedViewedVSI )
-            return ( getPlayersVehicleScoringInfo() );
-        
-        GraphicsInfo gi = gameData.getGraphicsInfo();
-        
-        //if ( !gi.isUpdatedInRealtimeMode() )
-        //    return ( getPlayersVehicleScoringInfo() );
         
         if ( viewedVSI == null )
         {
@@ -1501,28 +1510,21 @@ public class ScoringInfo
                     }
                 }
             }
-            
-            // Not found! Search the regular way...
-            
-            gi.getCameraPosition( camPos );
-            camPos.x *= -1f;
-            camPos.y *= -1f;
-            camPos.z *= -1f;
-            
-            float closestDist = Float.MAX_VALUE;
-            
-            for ( short i = 0; i < n; i++ )
-            {
-                vehicleScoringInfo2[i].getWorldPosition( carPos );
-                
-                float dist = carPos.getDistanceToSquared( camPos );
-                
-                if ( dist < closestDist )
-                {
-                    closestDist = dist;
-                    viewedVSI = vehicleScoringInfo2[i];
-                }
-            }
+        }
+        
+        // Not found! Search the regular way...
+        
+        if ( fixedViewedVSI )
+            return ( getPlayersVehicleScoringInfo() );
+        
+        GraphicsInfo gi = gameData.getGraphicsInfo();
+        
+        //if ( !gi.isUpdatedInRealtimeMode() )
+        //    return ( getPlayersVehicleScoringInfo() );
+        
+        if ( viewedVSI == null )
+        {
+            viewedVSI = gi.getViewedVehicleScoringInfo();
         }
         
         return ( viewedVSI );
@@ -1768,10 +1770,14 @@ public class ScoringInfo
         return ( controlledCompareVSI );
     }
     
-    ScoringInfo( LiveGameData gameData, GameEventsManager eventsManager )
+    ScoringInfo( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory, GameEventsManager eventsManager )
     {
         this.gameData = gameData;
+        this.gdFactory = gdFactory;
+        this.data = gdFactory.newScoringInfoCapsule( gameData );
         this.eventsManager = eventsManager;
+        
+        this.tlcGenerator = AbstractThreeLetterCodeGenerator.initThreeLetterCodeGenerator( gameData.getFileSystem().getPluginINI().getGeneralThreeLetterCodeGeneratorClass() );
         
         registerListener( LaptimesRecorder.INSTANCE );
         registerListener( FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER );

@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.plugins.director;
 
+import java.io.File;
+
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.util.ConfigurationCandidatesIterator;
 
@@ -35,9 +37,9 @@ public class NullingConfigurationCandidatesIterator extends ConfigurationCandida
     }
     
     @Override
-    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
+    public void collectCandidates( File configFolder, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
         if ( !nulling )
-            super.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
+            super.collectCandidates( configFolder, smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
     }
 }

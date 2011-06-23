@@ -39,6 +39,8 @@ public class Laptime
         ;
     }
     
+    private final int driverId;
+    
     private LapType type = LapType.UNKNOWN;
     int lap;
     float sector1 = -1f;
@@ -49,6 +51,11 @@ public class Laptime
     boolean isOutLap = false;
     Boolean isInLap = null;
     boolean finished = false;
+    
+    public final int getDriverId()
+    {
+        return ( driverId );
+    }
     
     void setType( LapType type )
     {
@@ -143,13 +150,15 @@ public class Laptime
         return ( "lap: " + getLap() + ", sec1: " + getSector1() + ", sec2: " + getSector2() + ", sec3: " + getSector3() + ", laptime: " + getLapTime() + ( isOutlap() == Boolean.TRUE ? ", OUTLAP" : ( isOutlap() == null ? ", UNKNOWN" : ", REGULAR" ) ) + ( isInlap() == Boolean.TRUE ? ", INLAP" : ( isInlap() == null ? ", UNKNOWN" : ", REGULAR" ) ) );
     }
     
-    public Laptime( int lap )
+    public Laptime( int driverId, int lap )
     {
+        this.driverId = driverId;
         this.lap = lap;
     }
     
-    public Laptime( int lap, float sector1, float sector2, float sector3, boolean isOutLap, boolean isInLap, boolean finished )
+    public Laptime( int driverId, int lap, float sector1, float sector2, float sector3, boolean isOutLap, boolean isInLap, boolean finished )
     {
+        this.driverId = driverId;
         this.lap = lap;
         this.sector1 = sector1;
         this.sector2 = sector2;

@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.etv2010._base;
 
 import java.awt.Font;
+import java.io.File;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
@@ -46,7 +47,7 @@ public abstract class ETVWidgetBase extends Widget
         }
     };
     
-    protected final FilenameProperty imagesIni = new FilenameProperty( "imagesIni", null, "etv2010/general/etv_2010_images.ini", new String[] { "ini" }, new String[] { "ini files" }, GameFileSystem.INSTANCE.getImagesFolder(), false )
+    protected final FilenameProperty imagesIni = new FilenameProperty( "imagesIni", null, "etv2010/general/etv_2010_images.ini", new String[] { "ini" }, new String[] { "ini files" }, new File( GameFileSystem.IMAGES_FOLDER_NAME ), false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )

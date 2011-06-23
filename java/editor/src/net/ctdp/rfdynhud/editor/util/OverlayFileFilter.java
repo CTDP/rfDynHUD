@@ -21,7 +21,7 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 
 /**
  * Insert class comment here.
@@ -41,7 +41,7 @@ public class OverlayFileFilter extends FileFilter implements java.io.FileFilter
             {
                 if ( name.equals( ".svn" ) )
                     return ( false );
-                else if ( f.getParentFile().equals( GameFileSystem.INSTANCE.getConfigFolder() ) && name.equals( "data" ) )
+                else if ( f.getParentFile().equals( RFDynHUDEditor.FILESYSTEM.getConfigFolder() ) && name.equals( "data" ) )
                     return ( false );
             }
             else

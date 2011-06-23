@@ -24,7 +24,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -33,7 +32,10 @@ import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.RFDHLog;
+import net.ctdp.rfdynhud.util.__UtilHelper;
+import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetFactory;
 
 import org.jagatoo.util.versioning.Version;
 
@@ -44,6 +46,14 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
+    static
+    {
+        ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
+        //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
+        //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
+        //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
+    }
+    
     public static final Version VERSION = new Version( 1, 2, 1, "Beta", 101 );
     
     private final SupportedGames gameId;
@@ -124,7 +134,7 @@ public class RFDynHUD
         {
             inputDeviceManager.decodeData( deviceData );
             
-            inputMappings = inputMappingsManager.loadMappings( inputDeviceManager );
+            inputMappings = inputMappingsManager.loadMappings( gameData.getFileSystem(), inputDeviceManager );
             
             __WCPrivilegedAccess.setInputMappings( drawingManager.getWidgetsConfiguration(), inputMappings );
         }
@@ -245,25 +255,24 @@ public class RFDynHUD
             throw new Error( "Unsupported game" );
         
         this.gameId = gameId;
-        __GameIDHelper.initGameID( gameId );
-        
-        ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
-        //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
-        //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
-        //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
         
         RFDHLog.print( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
         
         this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY );
         RFDHLog.println( " done." );
         
-        FontUtils.loadCustomFonts();
-        
-        this.eventsManager = new GameEventsManager( this, drawingManager );
-        
-        this.gameData = new LiveGameData( gameId, drawingManager.getWidgetsConfiguration().getGameResolution(), eventsManager );
-        eventsManager.setGameData( this.gameData, drawingManager.getRenderListenersManager() );
+        this.eventsManager = new GameEventsManager( gameId, this, drawingManager );
+        this.gameData = eventsManager.getGameData();
         this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
+        
+        __UtilHelper.configFolder = gameData.getFileSystem().getConfigFolder();
+        __UtilHelper.bordersBolder = gameData.getFileSystem().getBordersFolder();
+        __UtilHelper.imagesFolder = gameData.getFileSystem().getImagesFolder();
+        __UtilHelper.editorPropertyDisplayNameGeneratorClass = gameData.getFileSystem().getPluginINI().getEditorPropertyDisplayNameGeneratorClass();
+        __UtilPrivilegedAccess.updateLocalizationsManager( gameData.getFileSystem() );
+        WidgetFactory.init( gameData.getFileSystem().getWidgetSetsFolder() );
+        
+        FontUtils.loadCustomFonts( gameData.getFileSystem() );
         
         this.inputDeviceManager = new InputDeviceManager();
         this.inputMappingsManager = new InputMappingsManager( this );

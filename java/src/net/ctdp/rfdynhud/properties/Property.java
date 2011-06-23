@@ -19,8 +19,8 @@ package net.ctdp.rfdynhud.properties;
 
 import java.net.URL;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.util.RFDHLog;
+import net.ctdp.rfdynhud.util.__UtilHelper;
 
 import org.jagatoo.util.strings.StringUtils;
 
@@ -57,7 +57,7 @@ public abstract class Property
     {
         if ( displayNameGenerator == null )
         {
-            String className = GameFileSystem.INSTANCE.getPluginINI().getEditorPropertyDisplayNameGeneratorClass();
+            String className = __UtilHelper.editorPropertyDisplayNameGeneratorClass;
             if ( className == null )
             {
                 displayNameGenerator = newDefaultDisplayNameGenerator();

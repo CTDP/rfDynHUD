@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.properties;
 import net.ctdp.rfdynhud.render.BorderCache;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.util.StringMapping;
+import net.ctdp.rfdynhud.util.__UtilHelper;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -203,7 +204,7 @@ public class BorderProperty extends Property
                 if ( borderValue == null )
                     borderValue = borderAlias;
                 
-                border = BorderCache.getBorder( borderValue, paddingTop, paddingLeft, paddingRight, paddingBottom );
+                border = BorderCache.getBorder( __UtilHelper.bordersBolder, borderValue, paddingTop, paddingLeft, paddingRight, paddingBottom );
             }
         }
         

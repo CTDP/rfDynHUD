@@ -25,7 +25,6 @@ import javax.swing.table.DefaultTableModel;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.WidgetSelectionListener;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
@@ -351,7 +350,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     
     private void loadBindings( final InputDeviceManager devManager )
     {
-        File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), InputMappingsManager.CONFIG_FILE_NAME );
+        File configFile = new File( RFDynHUDEditor.FILESYSTEM.getConfigFolder(), InputMappingsManager.CONFIG_FILE_NAME );
         
         if ( !configFile.exists() )
         {
@@ -385,7 +384,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     {
         try
         {
-            IniWriter writer = new IniWriter( new File( GameFileSystem.INSTANCE.getConfigFolder(), InputMappingsManager.CONFIG_FILE_NAME ) );
+            IniWriter writer = new IniWriter( new File( RFDynHUDEditor.FILESYSTEM.getConfigFolder(), InputMappingsManager.CONFIG_FILE_NAME ) );
             
             for ( int i = 0; i < rows.size(); i++ )
             {

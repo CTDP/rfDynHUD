@@ -27,7 +27,7 @@ import java.io.OutputStream;
  */
 public class CommentaryRequestInfo
 {
-    final CommentaryRequestInfoCapsule data = new CommentaryRequestInfoCapsule();
+    final CommentaryRequestInfoCapsule data;
     
     private final LiveGameData gameData;
     
@@ -189,8 +189,9 @@ public class CommentaryRequestInfo
         return ( data.getSkipChecks() );
     }
     
-    CommentaryRequestInfo( LiveGameData gameData )
+    CommentaryRequestInfo( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory )
     {
         this.gameData = gameData;
+        this.data = gdFactory.newCommentaryRequestInfoCapsule( gameData );
     }
 }

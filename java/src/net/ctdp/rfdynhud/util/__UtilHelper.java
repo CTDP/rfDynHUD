@@ -49,4 +49,10 @@ public class __UtilHelper
     public static final File PLUGIN_FOLDER = extractPluginFolder();
     public static final PluginINI PLUGIN_INI = new PluginINI( PLUGIN_FOLDER );
     public static final File LOG_FOLDER = PLUGIN_INI.getGeneralLogFolder();
+    
+    public static File configFolder = null;
+    public static File bordersBolder = null;
+    public static File imagesFolder = null;
+    public static String editorPropertyDisplayNameGeneratorClass;// GameFileSystem.INSTANCE.getPluginINI().getEditorPropertyDisplayNameGeneratorClass()
+    //__UtilPrivilegedAccess.updateLocalizationsManager
 }

@@ -41,14 +41,14 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     
     static void calcAvgLaptime( VehicleScoringInfo vsi )
     {
-        if ( vsi.fastestLaptime == null )
+        if ( vsi._getFastestLaptime() == null )
         {
             vsi.oldAverageLaptime = null;
             vsi.averageLaptime = null;
             return;
         }
         
-        float fastest = vsi.fastestLaptime.getLapTime();
+        float fastest = vsi._getFastestLaptime().getLapTime();
         float accepted = fastest * 1.06f;
         
         float sumS1 = 0f;
@@ -86,7 +86,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             {
                 vsi.oldAverageLaptime = null;
                 
-                vsi.averageLaptime = new Laptime( 0 );
+                vsi.averageLaptime = new Laptime( vsi.getDriverId(), 0 );
                 vsi.averageLaptime.isInLap = false;
                 vsi.averageLaptime.isOutLap = false;
                 vsi.averageLaptime.finished = true;
@@ -95,7 +95,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             {
                 if ( vsi.oldAverageLaptime == null )
                 {
-                    vsi.oldAverageLaptime = new Laptime( vsi.averageLaptime.lap );
+                    vsi.oldAverageLaptime = new Laptime( vsi.getDriverId(), vsi.averageLaptime.lap );
                     vsi.oldAverageLaptime.isInLap = false;
                     vsi.oldAverageLaptime.isOutLap = false;
                     vsi.oldAverageLaptime.finished = true;
@@ -134,7 +134,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             
             if ( vsi.isLapJustStarted() )
             {
-                Laptime laptime = new Laptime( lapsCompleted + 1 );
+                Laptime laptime = new Laptime( vsi.getDriverId(), lapsCompleted + 1 );
                 ArrayList<Laptime> laps = addLaptime( vsi, lapsCompleted, laptime );
                 
                 Laptime last = ( lapsCompleted == 0 ) ? null : laps.get( lapsCompleted - 1 );
@@ -159,10 +159,10 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                     }
                     else
                     {
-                        Laptime fastestLaptime = vsi.fastestLaptime;
+                        Laptime fastestLaptime = vsi._getFastestLaptime();
                         if ( ( fastestLaptime == null ) || ( fastestLaptime.getLapTime() < 0f ) || ( last.getLapTime() < fastestLaptime.getLapTime() ) )
                         {
-                            vsi.fastestLaptime = last;
+                            vsi.setFastestLaptime( last );
                         }
                     }
                     
@@ -189,7 +189,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 
                 if ( laptime == null )
                 {
-                    laptime = new Laptime( lapsCompleted + 1 );
+                    laptime = new Laptime( vsi.getDriverId(), lapsCompleted + 1 );
                     addLaptime( vsi, lapsCompleted, laptime );
                 }
                 
@@ -224,7 +224,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 
                 if ( laptime == null )
                 {
-                    laptime = new Laptime( lapsCompleted + 1 );
+                    laptime = new Laptime( vsi.getDriverId(), lapsCompleted + 1 );
                     addLaptime( vsi, lapsCompleted, laptime );
                 }
                 

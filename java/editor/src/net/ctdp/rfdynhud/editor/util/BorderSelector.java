@@ -69,6 +69,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
@@ -156,7 +157,7 @@ public class BorderSelector extends DefaultTableModel
     
     private static boolean verifyIniFile( String name )
     {
-        BorderWrapper bw = BorderCache.getBorder( name, null, null, null, null );
+        BorderWrapper bw = BorderCache.getBorder( RFDynHUDEditor.FILESYSTEM.getBordersFolder(), name, null, null, null, null );
         
         return ( bw.hasBorder() );
     }
@@ -209,7 +210,7 @@ public class BorderSelector extends DefaultTableModel
             
             String filename = (String)value;
             
-            BorderWrapper bw = BorderCache.getBorder( filename, null, null, null, null );
+            BorderWrapper bw = BorderCache.getBorder( RFDynHUDEditor.FILESYSTEM.getBordersFolder(), filename, null, null, null, null );
             BorderRenderer br = bw.getRenderer();
             
             if ( br instanceof ImageBorderRenderer )

@@ -39,6 +39,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
@@ -195,7 +197,7 @@ public class StrategyTool
     {
         try
         {
-            Float cached = __GDPrivilegedAccess.loadFuelUsageFromCache( modName, trackName, vehicleName );
+            Float cached = __GDPrivilegedAccess.loadFuelUsageFromCache( RFDynHUDEditor.FILESYSTEM, modName, trackName, vehicleName );
             
             if ( cached != null )
                 return ( cached.floatValue() );
@@ -209,11 +211,13 @@ public class StrategyTool
     
     private StrategyTool( JFrame owner )
     {
-        ProfileInfo profileInfo = new ProfileInfo();
+        LiveGameData gameData = new LiveGameData( RFDynHUDEditor.GAME_ID, null, null );
+        
+        ProfileInfo profileInfo = gameData.getProfileInfo();
         __GDPrivilegedAccess.updateProfileInfo( profileInfo );
-        ModInfo modInfo = new ModInfo( profileInfo );
+        ModInfo modInfo = gameData.getModInfo();
         __GDPrivilegedAccess.updateModInfo( modInfo );
-        TrackInfo trackInfo = new TrackInfo( profileInfo );
+        TrackInfo trackInfo = gameData.getTrackInfo();
         __GDPrivilegedAccess.updateTrackInfo( trackInfo );
         
         this.frame = new JDialog( owner, "Strategy Calculator" );

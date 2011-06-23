@@ -37,6 +37,11 @@ public class __GDPrivilegedAccess
     public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
     public static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = DataCache.INPUT_ACTION_RESET_LAPTIMES_CACHE;
     
+    public static final _LiveGameDataObjectsFactory getGameDataObjectsFactory( LiveGameData gameData )
+    {
+        return ( gameData.getGameDataObjectsFactory() );
+    }
+    
     public static final boolean updateProfileInfo( ProfileInfo profileInfo )
     {
         return ( profileInfo.update() );
@@ -165,9 +170,9 @@ public class __GDPrivilegedAccess
         vect.z = z;
     }
     
-    public static Float loadFuelUsageFromCache( final String modName, final String trackName, final String teamName )
+    public static Float loadFuelUsageFromCache( GameFileSystem fileSystem, final String modName, final String trackName, final String teamName )
     {
-        return ( DataCache.loadFuelUsageFromCache( modName, trackName, teamName ) );
+        return ( DataCache.loadFuelUsageFromCache( fileSystem, modName, trackName, teamName ) );
     }
     
     public static final boolean setGameResolution( int gameResX, int gameResY, WidgetsConfiguration widgetsConfig )

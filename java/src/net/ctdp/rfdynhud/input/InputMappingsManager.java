@@ -265,11 +265,11 @@ public class InputMappingsManager
         return ( new Object[] { mapping, getComponentNameForTable( mapping ) } );
     }
     
-    public InputMappings loadMappings( final InputDeviceManager devManager )
+    public InputMappings loadMappings( final GameFileSystem fileSystem, final InputDeviceManager devManager )
     {
         try
         {
-            File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), CONFIG_FILE_NAME );
+            File configFile = new File( fileSystem.getConfigFolder(), CONFIG_FILE_NAME );
             
             final ArrayList<Object[]> rawBindings = new ArrayList<Object[]>();
             String lastDevice = null;

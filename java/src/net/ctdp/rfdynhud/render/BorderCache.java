@@ -20,13 +20,12 @@ package net.ctdp.rfdynhud.render;
 import java.io.File;
 import java.util.HashMap;
 
-import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
-
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.TextureManager;
+
+import org.jagatoo.util.errorhandling.ParsingException;
+import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * The {@link BorderCache} is used to load borders only once.
@@ -209,6 +208,7 @@ public class BorderCache
     /**
      * Gets or creates a TexturedBorder with the given side widths.
      * 
+     * @param bordersBolder
      * @param iniFilename the ini filename
      * @param paddingTop top padding property
      * @param paddingLeft left padding property
@@ -217,7 +217,7 @@ public class BorderCache
      * 
      * @return the border
      */
-    public static BorderWrapper getBorder( String iniFilename, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
+    public static BorderWrapper getBorder( File bordersBolder, String iniFilename, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
         if ( ( iniFilename == null ) || iniFilename.equals( "<NONE>" ) )
         {
@@ -236,7 +236,7 @@ public class BorderCache
         if ( File.separatorChar != '\\' )
             iniFilename = iniFilename.replace( '\\', File.separatorChar );
         
-        File iniFile = new File( GameFileSystem.INSTANCE.getBordersFolder(), iniFilename );
+        File iniFile = new File( bordersBolder, iniFilename );
         
         if ( !iniFile.exists() || !iniFile.isFile() || !iniFile.getName().toLowerCase().endsWith( ".ini" ) )
         {
@@ -270,7 +270,7 @@ public class BorderCache
                 return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
-            File imageFile = new File( GameFileSystem.INSTANCE.getBordersFolder(), textureName );
+            File imageFile = new File( bordersBolder, textureName );
             TextureImage2D texture = TextureManager.getImage( imageFile.getAbsolutePath(), false ).getTextureImage();
             
             border = new Object[] { new ImageBorderRenderer( textureName, texture ), parseMeasuresFromIni( iniFile ) };

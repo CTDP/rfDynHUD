@@ -17,131 +17,43 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import net.ctdp.rfdynhud.util.RFDHLog;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * Parses {@link VehicleInfo} from a .VEH file.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class VehicleInfoParser extends AbstractIniParser
+abstract class VehicleInfoParser
 {
-    private final String filename;
-    private final VehicleInfo info;
+    protected final String filename;
+    protected final VehicleInfo info;
     
-    @Override
-    protected boolean acceptMissingTrailingQuote()
-    {
-        return ( true );
-    }
+    /**
+     * Parses the given file.
+     * 
+     * @param file
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public abstract void parse( File file ) throws IOException, ParsingException;
     
-    private static final Throwable getRootCause( Throwable t )
-    {
-        if ( t.getCause() == null )
-            return ( t );
-        
-        return ( getRootCause( t.getCause() ) );
-    }
+    /**
+     * Parses the given file.
+     * 
+     * @param url
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public abstract void parse( URL url ) throws IOException, ParsingException;
     
-    @Override
-    protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
-    {
-        try
-        {
-            if ( group == null )
-            {
-                if ( key.equalsIgnoreCase( "Number" ) )
-                {
-                    info.carNumber = Integer.parseInt( value );
-                }
-                else if ( key.equalsIgnoreCase( "Team" ) )
-                {
-                    info.setTeamName( value );
-                }
-                else if ( key.equalsIgnoreCase( "PitGroup" ) )
-                {
-                    info.pitGroup = value;
-                }
-                else if ( key.equalsIgnoreCase( "Driver" ) )
-                {
-                    info.driverName = value;
-                }
-                else if ( key.equalsIgnoreCase( "Description" ) )
-                {
-                    info.driverDescription = value;
-                }
-                else if ( key.equalsIgnoreCase( "Engine" ) )
-                {
-                    info.engineName = value;
-                }
-                else if ( key.equalsIgnoreCase( "Manufacturer" ) )
-                {
-                    info.manufacturer = value;
-                }
-                else if ( key.equalsIgnoreCase( "Classes" ) )
-                {
-                    info.classes = value;
-                }
-                else if ( key.equalsIgnoreCase( "FullTeamName" ) )
-                {
-                    info.fullTeamName = value;
-                }
-                else if ( key.equalsIgnoreCase( "TeamFounded" ) )
-                {
-                    info.teamFounded = value;
-                }
-                else if ( key.equalsIgnoreCase( "TeamHeadquarters" ) )
-                {
-                    info.teamHeadquarters = value;
-                }
-                else if ( key.equalsIgnoreCase( "TeamStarts" ) )
-                {
-                    if ( value.length() > 0 )
-                        info.teamStarts = value;
-                }
-                else if ( key.equalsIgnoreCase( "TeamPoles" ) )
-                {
-                    if ( value.length() > 0 )
-                        info.teamPoles = value;
-                }
-                else if ( key.equalsIgnoreCase( "TeamWins" ) )
-                {
-                    if ( value.length() > 0 )
-                        info.teamWins = value;
-                }
-                else if ( key.equalsIgnoreCase( "TeamWorldChampionships" ) )
-                {
-                    if ( value.length() > 0 )
-                        info.teamWorldChampionships = value;
-                }
-                else if ( key.equalsIgnoreCase( "Category" ) )
-                {
-                    info.category = value;
-                }
-            }
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( "WARNING: Parsing exception in VEH file \"" + filename + "\" in line #" + lineNr + "(" + getRootCause( t ).getClass().getSimpleName() + "). Message: " + t.getMessage() );
-        }
-        
-        return ( true );
-    }
-    
-    @Override
-    protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
-    {
-        RFDHLog.exception( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
-        RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
-        RFDHLog.exception( t );
-        
-        return ( true );
-    }
-    
-    public VehicleInfoParser( String filename, VehicleInfo info )
+    protected VehicleInfoParser( String filename, VehicleInfo info )
     {
         this.filename = filename;
         this.info = info;

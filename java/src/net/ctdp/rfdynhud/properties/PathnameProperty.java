@@ -23,7 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.util.__UtilHelper;
 
 import org.jagatoo.util.io.FileUtils;
 
@@ -233,7 +233,7 @@ public class PathnameProperty extends Property
      */
     protected PathnameProperty( String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        this( name, nameForDisplay, defaultValue, GameFileSystem.INSTANCE.getConfigFolder(), readonly );
+        this( name, nameForDisplay, defaultValue, __UtilHelper.configFolder, readonly );
     }
     
     /**

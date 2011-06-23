@@ -26,11 +26,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -130,7 +130,7 @@ public class BorderCellEditor extends ValueCellEditor<Property, JPanel, JButton>
                     JFrame frame = (JFrame)getTable().getRootPane().getParent();
                     if ( borderSelector == null )
                     {
-                        borderSelector = new BorderSelector( GameFileSystem.INSTANCE.getBordersFolder() );
+                        borderSelector = new BorderSelector( RFDynHUDEditor.FILESYSTEM.getBordersFolder() );
                     }
                     
                     String result = borderSelector.showDialog( frame, ( (Widget)getProperty().getKeeper() ).getConfiguration(), (String)getProperty().getValue() );

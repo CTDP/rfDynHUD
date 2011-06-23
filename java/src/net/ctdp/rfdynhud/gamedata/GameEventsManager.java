@@ -48,7 +48,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     public static boolean simulationMode = false;
     private final RFDynHUD rfDynHUD;
     private final WidgetsDrawingManager widgetsManager;
-    private LiveGameData gameData = null;
+    private final LiveGameData gameData;
     
     private boolean running = false;
     
@@ -94,6 +94,11 @@ public class GameEventsManager implements ConfigurationLoadListener
     private final ConfigurationLoader loader = new ConfigurationLoader( this );
     private boolean texturesRequested = false;
     
+    public final LiveGameData getGameData()
+    {
+        return ( gameData );
+    }
+    
     public final boolean hasWaitingWidgets()
     {
         return ( eventsDispatcher.hasWaitingWidgets() );
@@ -102,21 +107,6 @@ public class GameEventsManager implements ConfigurationLoadListener
     public final ConfigurationLoader getConfigurationLoader()
     {
         return ( loader );
-    }
-    
-    /**
-     * Sets live game data instance.
-     * 
-     * @param gameData
-     * @param renderListenersManager
-     */
-    public void setGameData( LiveGameData gameData, WidgetsManager renderListenersManager )
-    {
-        this.gameData = gameData;
-        this.eventsDispatcher = new GameEventsDispatcher();
-        eventsDispatcher.setWidgetsConfiguration( widgetsManager.getWidgetsConfiguration() );
-        this.renderListenersManager = renderListenersManager;
-        __RenderPrivilegedAccess.setConfigurationAndLoader( widgetsManager.getWidgetsConfiguration(), loader, renderListenersManager );
     }
     
     private void validateInputBindings()
@@ -325,7 +315,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             
             if ( ( playerVEHFile != null ) && playerVEHFile.exists() )
             {
-                new VehicleInfoParser( playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() ).parse( playerVEHFile );
+                gameData.getGameDataObjectsFactory().newVehicleInfoParser( playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() ).parse( playerVEHFile );
             }
         }
         catch ( Throwable t )
@@ -402,7 +392,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
             if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
                 vehicleName = null;
-            __UtilPrivilegedAccess.reloadConfiguration( loader, smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
+            __UtilPrivilegedAccess.reloadConfiguration( loader, gameData.getFileSystem().getConfigFolder(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
             
             if ( texturesRequested )
             {
@@ -469,7 +459,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getScoringInfo().getThreeLetterCodeGenerator() );
+            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
             __GDPrivilegedAccess.updateInfo( gameData );
             
             if ( gameData.getProfileInfo().isValid() )
@@ -481,7 +471,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                     File cchFile = gameData.getProfileInfo().getCCHFile();
                     File playerVEHFile = gameData.getProfileInfo().getVehicleFile();
                     String trackName = gameData.getTrackInfo().getTrackName();
-                    File setupFile = GameFileSystem.INSTANCE.locateSetupFile( gameData );
+                    File setupFile = gameData.getFileSystem().locateSetupFile( gameData );
                     
                     if ( ( cchFile == null ) || !cchFile.exists() )
                         loadPhysicsAndSetup = false;
@@ -617,7 +607,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getScoringInfo().getThreeLetterCodeGenerator() );
+            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
             
             __GDPrivilegedAccess.updateInfo( gameData );
             
@@ -1170,12 +1160,20 @@ public class GameEventsManager implements ConfigurationLoadListener
     /**
      * Creates a new {@link GameEventsManager}.
      * 
+     * @param gameId
      * @param rfDynHUD the main {@link RFDynHUD} instance
-     * @param widgetsManager the widgets manager
+     * @param drawingManager the widgets drawing manager
      */
-    public GameEventsManager( RFDynHUD rfDynHUD, WidgetsDrawingManager widgetsManager )
+    public GameEventsManager( SupportedGames gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager )
     {
         this.rfDynHUD = rfDynHUD;
-        this.widgetsManager = widgetsManager;
+        this.widgetsManager = drawingManager;
+        
+        this.gameData = new LiveGameData( gameId, drawingManager.getWidgetsConfiguration().getGameResolution(), this );
+        
+        this.eventsDispatcher = GameEventsDispatcher.createGameEventsDispatcher( gameData.getFileSystem() );
+        eventsDispatcher.setWidgetsConfiguration( widgetsManager.getWidgetsConfiguration() );
+        this.renderListenersManager = widgetsManager.getRenderListenersManager();
+        __RenderPrivilegedAccess.setConfigurationAndLoader( widgetsManager.getWidgetsConfiguration(), loader, renderListenersManager );
     }
 }

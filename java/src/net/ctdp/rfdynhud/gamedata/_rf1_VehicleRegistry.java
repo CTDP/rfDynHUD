@@ -32,8 +32,10 @@ import org.jagatoo.util.strings.StringUtils;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class VehicleRegistry
+class _rf1_VehicleRegistry
 {
+    private final _LiveGameDataObjectsFactory gdFactory;
+    
     private final ArrayList<VehicleInfo> vehicles = new ArrayList<VehicleInfo>();
     private final HashMap<String, VehicleInfo> driverVehileMap = new HashMap<String, VehicleInfo>();
     
@@ -53,7 +55,7 @@ class VehicleRegistry
                 VehicleInfo vi = new VehicleInfo();
                 try
                 {
-                    new VehicleInfoParser( file.getName(), vi ).parse( file );
+                    gdFactory.newVehicleInfoParser( file.getName(), vi ).parse( file );
                     
                     if ( vehicleFilter == null )
                     {
@@ -137,7 +139,7 @@ class VehicleRegistry
             {
                 URL file = __EDPrivilegedAccess.editorClassLoader.getResource( "data/game_data/vehicles/" + filename );
                 
-                new VehicleInfoParser( filename, vi ).parse( file );
+                gdFactory.newVehicleInfoParser( filename, vi ).parse( file );
                 
                 this.vehicles.add( vi );
             }
@@ -169,7 +171,8 @@ class VehicleRegistry
         return ( driverVehileMap.get( vehicleName ) );
     }
     
-    public VehicleRegistry()
+    public _rf1_VehicleRegistry( _LiveGameDataObjectsFactory gdFactory )
     {
+        this.gdFactory = gdFactory;
     }
 }

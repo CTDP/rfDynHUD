@@ -17,277 +17,28 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import org.jagatoo.util.ini.AbstractIniParser;
-import org.jagatoo.util.ini.IniLine;
-import org.jagatoo.util.io.FileUtils;
-
-import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * Model of mod information
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ModInfo
+public abstract class ModInfo
 {
-    private final ProfileInfo profileInfo;
+    protected String modName = null;
+    protected File rfmFile = null;
+    protected File vehiclesDir = null;
+    protected String[] vehicleFilter = null;
+    protected int maxOpponents = -1;
+    protected float raceDuration = -1f;
     
-    private String modName = null;
-    private File rfmFile = null;
-    private File vehiclesDir = null;
-    private String[] vehicleFilter = null;
-    private int maxOpponents = -1;
-    private float raceDuration = -1f;
+    protected abstract void updateImpl();
     
-    private final VehicleRegistry vehicleRegistry = new VehicleRegistry();
-    
-    final VehicleRegistry getVehicleRegistry()
+    protected final void update()
     {
-        return ( vehicleRegistry );
-    }
-    
-    /**
-     * 
-     * @param line
-     * @param keyLength
-     * @return
-     */
-    private static String parseValuePart( String line, int keyLength )
-    {
-        IniLine iniLine = new IniLine();
-        try
-        {
-            if ( !AbstractIniParser.parseLine( 0, null, line, "=", iniLine, null ) )
-                return ( null );
-            
-            return ( iniLine.getValue() );
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( t );
-            return ( null );
-        }
-    }
-    
-    private static String[] parseVehicleFilter( String line )
-    {
-        // 'line' is trimmed and starts with "Vehicle Filter".
-        
-        ArrayList<String> vehicleFilter = new ArrayList<String>();
-        
-        String value = parseValuePart( line, 14 );
-        
-        if ( value != null )
-        {
-            value = value.toLowerCase();
-            
-            if ( value.startsWith( "or:" ) )
-                value = value.substring( 3 ).trim();
-            
-            String[] vf = value.split( " " );
-            
-            for ( int i = 0; i < vf.length; i++ )
-            {
-                String vf2 = vf[i].trim();
-                
-                if ( !vf2.equals( "" ) )
-                {
-                    if ( vf2.indexOf( ',' ) >= 0 )
-                    {
-                        String[] vf3 = vf2.split( "," );
-                        for ( int j = 0; j < vf3.length; j++ )
-                        {
-                            vf3[j] = vf3[j].trim();
-                            
-                            if ( !vf3[j].equals( "" ) )
-                                vehicleFilter.add( vf3[j] );
-                        }
-                    }
-                    else
-                    {
-                        vehicleFilter.add( vf2 );
-                    }
-                }
-            }
-        }
-        
-        return ( vehicleFilter.toArray( new String[ vehicleFilter.size() ] ) );
-    }
-    
-    private static File parseVehiclesDir( String line )
-    {
-        // 'line' is trimmed and starts with "VehiclesDir".
-        
-        File vehiclesDir = null;
-        
-        String value = parseValuePart( line, 11 );
-        
-        if ( value != null )
-        {
-            try
-            {
-                vehiclesDir = new File( value );
-                if ( !vehiclesDir.isAbsolute() )
-                    vehiclesDir = new File( GameFileSystem.INSTANCE.getGameFolder(), value );
-                
-                if ( vehiclesDir.exists() )
-                    vehiclesDir = FileUtils.getCanonicalFile( vehiclesDir );
-            }
-            catch ( Throwable t )
-            {
-                RFDHLog.exception( t );
-            }
-        }
-        
-        return ( vehiclesDir );
-    }
-    
-    private static int parseMaxOpponents( String line )
-    {
-        // 'line' is trimmed and starts with "Max Opponents".
-        
-        int maxOpponents = 0;
-        
-        String value = parseValuePart( line, 13 );
-        
-        if ( value != null )
-        {
-            try
-            {
-                int mo = Integer.parseInt( value );
-                
-                maxOpponents = Math.max( maxOpponents, mo );
-            }
-            catch ( NumberFormatException e )
-            {
-                RFDHLog.exception( e );
-            }
-        }
-        
-        return ( maxOpponents );
-    }
-    
-    private static float parseRaceTime( String line )
-    {
-        // 'line' is trimmed and starts with "RaceTime".
-        
-        float raceTime = -1f;
-        
-        String value = parseValuePart( line, 8 );
-        
-        if ( value != null )
-        {
-            try
-            {
-                float rt = Float.parseFloat( value );
-                
-                raceTime = Math.max( raceTime, rt );
-            }
-            catch ( NumberFormatException e )
-            {
-                RFDHLog.exception( e );
-            }
-        }
-        
-        return ( raceTime );
-    }
-    
-    private void parseRFM( File rfmFile )
-    {
-        maxOpponents = Integer.MAX_VALUE;
-        raceDuration = -1f;
-        
-        BufferedReader br = null;
-        
-        try
-        {
-            br = new BufferedReader( new FileReader( rfmFile ) );
-            
-            String lastLine = null;
-            String line;
-            String[] groupStack = new String[ 16 ]; // should be enough
-            int level = 0;
-            while ( ( line = br.readLine() ) != null )
-            {
-                line = line.trim();
-                
-                if ( line.length() == 0 )
-                    continue;
-                
-                if ( line.startsWith( "//" ) || line.startsWith( "#" ) )
-                    continue;
-                
-                int p = line.indexOf( '{' );
-                if ( p >= 0 )
-                {
-                    groupStack[level++] = lastLine;
-                    p++;
-                }
-                p = Math.max( 0, p );
-                int p2 = line.indexOf( '}', p );
-                if ( p2 >= 0 )
-                {
-                    groupStack[--level] = null;
-                    p = p2 + 1;
-                }
-                p = Math.max( 0, p );
-                p2 = line.indexOf( '{', p );
-                if ( p2 >= 0 )
-                {
-                    groupStack[level++] = lastLine;
-                    p = p2 + 1;
-                }
-                
-                String lLine = line.toLowerCase();
-                
-                if ( ( level == 0 ) && lLine.startsWith( "vehicle filter" ) )
-                {
-                    vehicleFilter = parseVehicleFilter( line );
-                }
-                else if ( ( level == 1 ) && groupStack[0].equalsIgnoreCase( "ConfigOverrides" ) && lLine.startsWith( "vehiclesdir" ) )
-                {
-                    vehiclesDir = parseVehiclesDir( line );
-                }
-                else if ( lLine.startsWith( "max opponents" ) )
-                {
-                    maxOpponents = parseMaxOpponents( line );
-                }
-                else if ( lLine.startsWith( "racetime" ) && ( level == 1 ) && "DefaultScoring".equalsIgnoreCase( groupStack[0] ) )
-                {
-                    raceDuration = parseRaceTime( line ) * 60f;
-                }
-                
-                lastLine = line;
-            }
-        }
-        catch ( IOException e )
-        {
-            RFDHLog.exception( e );
-        }
-        finally
-        {
-            if ( br != null )
-                try { br.close(); } catch ( IOException e ) {}
-        }
-    }
-    
-    void update()
-    {
-        this.modName = profileInfo.getModName();
-        this.rfmFile = new File( new File( GameFileSystem.INSTANCE.getGameFolder(), "rfm" ), modName + ".rfm" );
-        this.vehiclesDir = new File( new File( GameFileSystem.INSTANCE.getGameFolder(), "GameData" ), "Vehicles" );
-        this.vehicleFilter = null;
-        
-        parseRFM( rfmFile );
-        
-        if ( vehiclesDir != null )
-            vehicleRegistry.update( vehicleFilter, vehiclesDir );
+        updateImpl();
     }
     
     /**
@@ -331,6 +82,15 @@ public class ModInfo
     }
     
     /**
+     * Gets the VehicleInfo corresponding to the given driver.
+     * 
+     * @param vsi
+     * 
+     * @return the VehicleInfo corresponding to the given driver.
+     */
+    public abstract VehicleInfo getVehicleInfoForDriver( VehicleScoringInfo vsi );
+    
+    /**
      * Gets the 'max opponents' setting from the mod's RFM.
      * 
      * @return the 'max opponents' setting from the mod's RFM.
@@ -352,22 +112,21 @@ public class ModInfo
     
     /**
      * Creates a new ModInfo instance.
-     * 
-     * @param profileInfo
      */
-    public ModInfo( ProfileInfo profileInfo )
+    protected ModInfo()
     {
-        this.profileInfo = profileInfo;
     }
     
     /**
      * Gets the RFM filenames of all installed mods.
      * 
+     * @param fileSystem
+     * 
      * @return the RFM filenames of all installed mods.
      */
-    public static String[] getInstalledModNames()
+    public static String[] getInstalledModNames( GameFileSystem fileSystem )
     {
-        File[] rfms = new File( GameFileSystem.INSTANCE.getGameFolder(), "rfm" ).listFiles();
+        File[] rfms = new File( fileSystem.getGameFolder(), "rfm" ).listFiles();
         
         if ( rfms == null )
             return ( null );

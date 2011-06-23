@@ -28,7 +28,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
@@ -70,14 +69,14 @@ public class WidgetsEditorPanelSettings implements PropertiesKeeper
     
     public final File getScreenshotSetFolder()
     {
-        File backgroundsFolder = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
+        File backgroundsFolder = new File( RFDynHUDEditor.FILESYSTEM.getEditorFolder(), "backgrounds" );
         
         return ( new File( backgroundsFolder, screenshotSet ) );
     }
     
     public void setScreenshotSet( String screenshotSet )
     {
-        File backgroundsFolder = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
+        File backgroundsFolder = new File( RFDynHUDEditor.FILESYSTEM.getEditorFolder(), "backgrounds" );
         
         if ( !backgroundsFolder.exists() )
         {
@@ -121,7 +120,7 @@ public class WidgetsEditorPanelSettings implements PropertiesKeeper
     {
         ArrayList<String> list = new ArrayList<String>();
         
-        File root = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
+        File root = new File( RFDynHUDEditor.FILESYSTEM.getEditorFolder(), "backgrounds" );
         for ( File f : root.listFiles() )
         {
             if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )

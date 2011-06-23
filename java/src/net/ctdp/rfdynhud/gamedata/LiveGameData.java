@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.RFDHLog;
+import net.ctdp.rfdynhud.util.__UtilHelper;
 
 /**
  * Complete model of live game data.
@@ -28,6 +29,10 @@ import net.ctdp.rfdynhud.util.RFDHLog;
 public class LiveGameData
 {
     private final SupportedGames gameId;
+    
+    private final _LiveGameDataObjectsFactory gdFactory;
+    
+    private final GameFileSystem fileSystem;
     
     private final GameResolution gameResolution;
     
@@ -200,6 +205,16 @@ public class LiveGameData
     public final SupportedGames getGameID()
     {
         return ( gameId );
+    }
+    
+    final _LiveGameDataObjectsFactory getGameDataObjectsFactory()
+    {
+        return ( gdFactory );
+    }
+    
+    public final GameFileSystem getFileSystem()
+    {
+        return ( fileSystem );
     }
     
     /**
@@ -464,16 +479,20 @@ public class LiveGameData
         
         this.gameId = gameId;
         
-        this.gameResolution = gameResolution;
-        this.telemetryData = new TelemetryData( this );
-        this.scoringInfo = new ScoringInfo( this, eventsManager );
-        this.graphicsInfo = new GraphicsInfo( this );
-        this.commentaryInfo = new CommentaryRequestInfo( this );
+        this.gdFactory = _LiveGameDataObjectsFactory.get( gameId );
         
-        this.profileInfo = new ProfileInfo();
-        this.modInfo = new ModInfo( profileInfo );
+        this.fileSystem = gdFactory.newGameFileSystem( __UtilHelper.PLUGIN_INI );
+        
+        this.gameResolution = gameResolution;
+        this.telemetryData = new TelemetryData( this, gdFactory );
+        this.scoringInfo = new ScoringInfo( this, gdFactory, eventsManager );
+        this.graphicsInfo = new GraphicsInfo( this, gdFactory );
+        this.commentaryInfo = new CommentaryRequestInfo( this, gdFactory );
+        
+        this.profileInfo = gdFactory.newProfileInfo( this );
+        this.modInfo = gdFactory.newModInfo( this );
         this.vehicleInfo = new VehicleInfo();
-        this.trackInfo = new TrackInfo( profileInfo );
+        this.trackInfo = gdFactory.newTrackInfo( this );
         
         VehicleSetupParser.loadDefaultSetup( physics, setup );
     }

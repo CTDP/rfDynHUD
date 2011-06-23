@@ -35,6 +35,11 @@ import net.ctdp.rfdynhud.util.__UtilHelper;
  */
 public abstract class GameFileSystem
 {
+    public static final String WIDGET_SETS_FOLDER_NAME = "widget_sets";
+    public static final String SUB_PLUGINS_FOLDER_NAME = "plugins";
+    public static final String BORDERS_FOLDER_NAME = "data/borders";
+    public static final String IMAGES_FOLDER_NAME = "data/images";
+    
     private final File pluginFolder = __UtilHelper.PLUGIN_FOLDER;
     private final String pluginPath = pluginFolder.getAbsolutePath();
     private final PluginINI pluginINI;
@@ -117,9 +122,9 @@ public abstract class GameFileSystem
      * 
      * @return the widget sets' folder.
      */
-    protected File findWidgetSetsFolder( PluginINI pluginINI, File pluginFolder )
+    protected final File findWidgetSetsFolder( PluginINI pluginINI, File pluginFolder )
     {
-        return ( new File( pluginFolder, "widget_sets" ).getAbsoluteFile() );
+        return ( new File( pluginFolder, WIDGET_SETS_FOLDER_NAME ).getAbsoluteFile() );
     }
     
     /**
@@ -130,9 +135,9 @@ public abstract class GameFileSystem
      * 
      * @return the sub plugins' folder.
      */
-    protected File findSubPluginsFolder( PluginINI pluginINI, File pluginFolder )
+    protected final File findSubPluginsFolder( PluginINI pluginINI, File pluginFolder )
     {
-        return ( new File( pluginFolder, "plugins" ).getAbsoluteFile() );
+        return ( new File( pluginFolder, SUB_PLUGINS_FOLDER_NAME ).getAbsoluteFile() );
     }
     
     /**
@@ -159,7 +164,7 @@ public abstract class GameFileSystem
      */
     protected File findBordersFolder( PluginINI pluginINI, File pluginFolder, File configFolder )
     {
-        return ( new File( new File( configFolder, "data" ), "borders" ).getAbsoluteFile() );
+        return ( new File( configFolder, BORDERS_FOLDER_NAME.replace( '/', '\\' ) ).getAbsoluteFile() );
     }
     
     /**
@@ -173,7 +178,7 @@ public abstract class GameFileSystem
      */
     protected File findImagesFolder( PluginINI pluginINI, File pluginFolder, File configFolder )
     {
-        return ( new File( new File( configFolder, "data" ), "images" ).getAbsoluteFile() );
+        return ( new File( configFolder, IMAGES_FOLDER_NAME.replace( '/', '\\' ) ).getAbsoluteFile() );
     }
     
     /**
@@ -479,17 +484,4 @@ public abstract class GameFileSystem
         
         this.gameScreenshotsFolder = findGameScreenshotsFolder( pluginINI, gameFolder );
     }
-    
-    private static GameFileSystem createInstance( SupportedGames gameId, PluginINI pluginINI )
-    {
-        if ( gameId == SupportedGames.rFactor )
-            return ( new GameFileSystemRFactor( pluginINI ) );
-        
-        throw new Error( "Unsupported game: " + gameId );
-    }
-    
-    /**
-     * This is the public singleton instance of this class.
-     */
-    public static final GameFileSystem INSTANCE = GameFileSystem.createInstance( __GameIDHelper.gameId, __UtilHelper.PLUGIN_INI );
 }

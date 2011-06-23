@@ -64,7 +64,7 @@ public class Track
     
     private final Waypoint[] waypointsTrack;
     private final Waypoint[] waypointsPitlane;
-    private final float sector1Length, sector2Length, trackLength;
+    private final float sector1Length, sector2Length, trackLength, pitlaneLength;
     private final float minXPos, maxXPos, minYPos, maxYPos, minZPos, maxZPos;
     private final float maxWidth;
     
@@ -111,6 +111,26 @@ public class Track
     public final float getTrackLength()
     {
         return ( trackLength );
+    }
+    
+    public final float getPitlaneLength()
+    {
+        return ( pitlaneLength );
+    }
+    
+    public final float getMinXPos()
+    {
+        return ( minXPos );
+    }
+    
+    public final float getMinYPos()
+    {
+        return ( minYPos );
+    }
+    
+    public final float getMinZPos()
+    {
+        return ( minZPos );
     }
     
     /**
@@ -236,20 +256,56 @@ public class Track
     
     /**
      * @param pitlane waypoint of main track or pitlane?
+     * @param waypointIndex the index of the waypoint
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * @param point output buffer
+     */
+    public final void getWaypointPosition( boolean pitlane, int waypointIndex, float scale, Point2D.Float point )
+    {
+        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        
+        point.setLocation( ( -minXPos + wp.posX ) * scale, ( -minZPos + wp.posZ ) * scale );
+    }
+    
+    /**
+     * @param pitlane waypoint of main track or pitlane?
+     * @param waypointIndex the index of the waypoint
+     * @param vector output buffer
+     */
+    public final void getWaypointVector( boolean pitlane, int waypointIndex, Point2D.Float vector )
+    {
+        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        
+        vector.setLocation( wp.vecX, wp.vecZ );
+    }
+    
+    /**
+     * @param pitlane waypoint of main track or pitlane?
      * @param trackDistance the distance along the track in meters
      * @param scale the scale. See {@link #getScale(int, int)}
      * @param point output buffer
      */
     public final void getInterpolatedPosition( boolean pitlane, float trackDistance, float scale, Point2D.Float point )
     {
-        while ( trackDistance < 0f )
-            trackDistance += trackLength;
-        
-        trackDistance = trackDistance % trackLength;
+        if ( pitlane )
+        {
+            if ( trackDistance < 0 )
+                trackDistance = 0;
+            
+            if ( trackDistance > pitlaneLength )
+                trackDistance = pitlaneLength;
+        }
+        else
+        {
+            while ( trackDistance < 0f )
+                trackDistance += trackLength;
+            
+            trackDistance = trackDistance % trackLength;
+        }
         
         Waypoint[] waypoints = pitlane ? waypointsPitlane : waypointsTrack;
-        
-        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / trackLength );
+        float tl = pitlane ? pitlaneLength : trackLength;
+        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / tl );
         
         Waypoint wp0 = waypoints[waypointIndex];
         while ( ( waypointIndex > 0 ) && ( wp0.lapDistance > trackDistance ) )
@@ -267,13 +323,13 @@ public class Track
         {
             wp1 = waypoints[waypointIndex];
             wp0 = waypoints[waypoints.length - 1];
-            float delta = wp0.lapDistance + ( trackLength - wp1.lapDistance );
-            alpha = ( ( trackLength - wp1.lapDistance ) + trackDistance ) / delta;
+            float delta = wp0.lapDistance + ( tl - wp1.lapDistance );
+            alpha = ( ( tl - wp1.lapDistance ) + trackDistance ) / delta;
         }
         else if ( waypointIndex == waypoints.length - 1 )
         {
             wp1 = waypoints[0];
-            float delta = ( trackLength - wp0.lapDistance ) + wp1.lapDistance;
+            float delta = ( tl - wp0.lapDistance ) + wp1.lapDistance;
             alpha = ( trackDistance - wp0.lapDistance ) / delta;
         }
         else
@@ -300,12 +356,27 @@ public class Track
      */
     public final boolean getInterpolatedVector( boolean pitlane, float trackDistance, TelemVect3 vector )
     {
-        if ( ( trackDistance < 0f ) || ( trackDistance > trackLength ) )
-            return ( false );
+        //if ( ( trackDistance < 0f ) || ( trackDistance > trackLength ) )
+        //    return ( false );
+        if ( pitlane )
+        {
+            if ( trackDistance < 0 )
+                trackDistance = 0;
+            
+            if ( trackDistance > pitlaneLength )
+                trackDistance = pitlaneLength;
+        }
+        else
+        {
+            while ( trackDistance < 0f )
+                trackDistance += trackLength;
+            
+            trackDistance = trackDistance % trackLength;
+        }
         
         Waypoint[] waypoints = pitlane ? waypointsPitlane : waypointsTrack;
-        
-        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / trackLength );
+        float tl = pitlane ? pitlaneLength : trackLength;
+        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / tl );
         
         Waypoint wp0 = waypoints[waypointIndex];
         while ( ( waypointIndex > 0 ) && ( wp0.lapDistance > trackDistance ) )
@@ -449,7 +520,7 @@ public class Track
                         pc.firstOfFirstSector = tmp;
                     }
                     
-                    if ( ( currentWP.sector == 1 ) && ( pc.firstOfFirstSector[branchID] == -1 ) )
+                    if ( ( currentWP.sector == 1 ) && ( ( pc.firstOfFirstSector[branchID] == -1 ) || ( currentWP.lapDistance < pc.waypoints[branchID][pc.firstOfFirstSector[branchID]].lapDistance ) ) )
                         pc.firstOfFirstSector[branchID] = pc.numWaypoints[branchID];
                     
                     pc.waypoints[branchID][pc.numWaypoints[branchID]++] = currentWP;
@@ -614,13 +685,14 @@ public class Track
         return ( pc );
     }
     
-    protected Track( Waypoint[] waypointsTrack, Waypoint[] waypointsPitlane, float sector1Length, float sector2Length, float trackLength, float minXPos, float maxXPos, float minYPos, float maxYPos, float minZPos, float maxZPos, float maxWidth )
+    protected Track( Waypoint[] waypointsTrack, Waypoint[] waypointsPitlane, float sector1Length, float sector2Length, float trackLength, float pitlaneLength, float minXPos, float maxXPos, float minYPos, float maxYPos, float minZPos, float maxZPos, float maxWidth )
     {
         this.waypointsTrack = waypointsTrack;
         this.waypointsPitlane = waypointsPitlane;
         this.sector1Length = sector1Length;
         this.sector2Length = sector2Length;
         this.trackLength = trackLength;
+        this.pitlaneLength = pitlaneLength;
         this.minXPos = minXPos;
         this.maxXPos = maxXPos;
         this.minYPos = minYPos;
@@ -672,6 +744,16 @@ public class Track
         }
     }
     
+    private static Waypoint[] fixOrder( Waypoint[] waypoints, int numWaypoints, int firstOfFirstSector )
+    {
+        Waypoint[] result = new Waypoint[ numWaypoints ];
+        
+        System.arraycopy( waypoints, firstOfFirstSector, result, 0, numWaypoints - firstOfFirstSector );
+        System.arraycopy( waypoints, 0, result, numWaypoints - firstOfFirstSector, firstOfFirstSector );
+        
+        return ( result );
+    }
+    
     /**
      * Parses an AIW file and returns a {@link Track} instance.
      * 
@@ -685,13 +767,8 @@ public class Track
     {
         ParseContainer pc = parseAIW( aiw );
         
-        Waypoint[] waypointsTrack = new Waypoint[ pc.numWaypoints[0] ];
-        System.arraycopy( pc.waypoints[0], pc.firstOfFirstSector[0], waypointsTrack, 0, waypointsTrack.length - pc.firstOfFirstSector[0] );
-        System.arraycopy( pc.waypoints[0], 0, waypointsTrack, waypointsTrack.length - pc.firstOfFirstSector[0], pc.firstOfFirstSector[0] );
-        
-        Waypoint[] waypointsPitlane = new Waypoint[ pc.numWaypoints[1] ];
-        System.arraycopy( pc.waypoints[1], pc.firstOfFirstSector[1], waypointsPitlane, 0, waypointsPitlane.length - pc.firstOfFirstSector[1] );
-        System.arraycopy( pc.waypoints[1], 0, waypointsPitlane, waypointsPitlane.length - pc.firstOfFirstSector[1], pc.firstOfFirstSector[1] );
+        Waypoint[] waypointsTrack = fixOrder( pc.waypoints[0], pc.numWaypoints[0], pc.firstOfFirstSector[0] );
+        Waypoint[] waypointsPitlane = fixOrder( pc.waypoints[1], pc.numWaypoints[1], pc.firstOfFirstSector[1] );
         
         pc.minXPos = Float.MAX_VALUE;
         pc.maxXPos = -Float.MAX_VALUE;
@@ -701,6 +778,15 @@ public class Track
         fixWaypoints( waypointsTrack, pc );
         fixWaypoints( waypointsPitlane, pc );
         
-        return ( new Track( waypointsTrack, waypointsPitlane, pc.sector1Length, pc.sector2Length, pc.trackLength, pc.minXPos, pc.maxXPos, pc.minYPos, pc.maxYPos, pc.minZPos, pc.maxZPos, pc.maxWidth ) );
+        float maxWPLDPit = -Float.MIN_VALUE;
+        for ( int i = 0; i < waypointsPitlane.length; i++ )
+        {
+            if ( waypointsPitlane[i].lapDistance > maxWPLDPit )
+            {
+                maxWPLDPit = waypointsPitlane[i].lapDistance;
+            }
+        }
+        
+        return ( new Track( waypointsTrack, waypointsPitlane, pc.sector1Length, pc.sector2Length, pc.trackLength, maxWPLDPit, pc.minXPos, pc.maxXPos, pc.minYPos, pc.maxYPos, pc.minZPos, pc.maxZPos, pc.maxWidth ) );
     }
 }

@@ -25,7 +25,7 @@ import net.ctdp.rfdynhud.util.PluginINI;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
-class GameFileSystemRFactor extends GameFileSystem
+class _rf1_GameFileSystem extends GameFileSystem
 {
     private static boolean isRoot( File folder )
     {
@@ -157,7 +157,7 @@ class GameFileSystemRFactor extends GameFileSystem
         return ( getPathFromGameConfigINI( "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" ) );
     }
     
-    public GameFileSystemRFactor( PluginINI pluginINI )
+    public _rf1_GameFileSystem( PluginINI pluginINI )
     {
         super( pluginINI );
     }

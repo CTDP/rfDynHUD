@@ -40,7 +40,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
@@ -78,7 +77,7 @@ public class PreviewAndScreenshotManager
         
         try
         {
-            File folder = GameFileSystem.INSTANCE.getGameScreenshotsFolder();
+            File folder = RFDynHUDEditor.FILESYSTEM.getGameScreenshotsFolder();
             folder.mkdirs();
             
             String filenameBase = ( currentConfigFile == null ) ? "rfDynHUD_screenshot_" : "rfDynHUD_" + currentConfigFile.getName().replace( ".", "_" ) + "_";

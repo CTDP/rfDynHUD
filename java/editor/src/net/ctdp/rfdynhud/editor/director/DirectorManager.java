@@ -50,7 +50,6 @@ import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleControl;
 import net.ctdp.rfdynhud.properties.Property;
@@ -431,8 +430,8 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
         JFileChooser fc = new JFileChooser();
         if ( initialFile == null )
         {
-            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
-            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "director_widget_states_sets.ini" ) );
+            fc.setCurrentDirectory( RFDynHUDEditor.FILESYSTEM.getConfigFolder() );
+            fc.setSelectedFile( new File( RFDynHUDEditor.FILESYSTEM.getConfigFolder(), "director_widget_states_sets.ini" ) );
         }
         else if ( initialFile.isFile() )
         {

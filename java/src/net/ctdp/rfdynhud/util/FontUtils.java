@@ -232,9 +232,9 @@ public class FontUtils
         return ( (Boolean)_parseFont( str, -1, false, true, throwException, logException ) );
     }
     
-    public static void loadCustomFonts()
+    public static void loadCustomFonts( GameFileSystem fileSystem )
     {
-        File folder = new File( ResourceManager.isCompleteIDEMode() ? GameFileSystem.INSTANCE.getConfigFolder().getParentFile() : GameFileSystem.INSTANCE.getPluginFolder(), "fonts" );
+        File folder = new File( ResourceManager.isCompleteIDEMode() ? fileSystem.getConfigFolder().getParentFile() : fileSystem.getPluginFolder(), "fonts" );
         
         if ( !folder.exists() )
             return;

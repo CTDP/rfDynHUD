@@ -910,7 +910,7 @@ class VehicleSetupParser
     {
         if ( lastProfileUpdateId < gameData.getProfileInfo().getUpdateId() )
         {
-            file = GameFileSystem.INSTANCE.locateSetupFile( gameData );
+            file = gameData.getFileSystem().locateSetupFile( gameData );
             lastLastModified = -1L;
             lastProfileUpdateId = gameData.getProfileInfo().getUpdateId();
         }

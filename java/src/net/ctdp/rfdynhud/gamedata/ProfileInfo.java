@@ -18,29 +18,14 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import java.io.File;
-import java.io.FileFilter;
-
-import net.ctdp.rfdynhud.util.RFDHLog;
-
-import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * Model of the current player's profile information
  * 
  * @author Marvin Froehlich
  */
-public class ProfileInfo
+public abstract class ProfileInfo
 {
-    private static final FileFilter DIRECTORY_FILE_FILTER = new FileFilter()
-    {
-        @Override
-        public boolean accept( File pathname )
-        {
-            return ( pathname.isDirectory() );
-        }
-    };
-    
     /**
      * Model of measurement units (everything but speed)
      * 
@@ -184,36 +169,27 @@ public class ProfileInfo
         }
     }
     
-    public static final File USERDATA_FOLDER = GameFileSystem.INSTANCE.getPathFromGameConfigINI( "SaveDir", "UserData" );
-    
-    private File profileFolder = null;
-    private File plrFile = null;
-    private long plrLastModified = -1L;
-    
     private long updateId = 0L;
     
-    private File lastUsedTrackFile = null;
+    protected String raceCastEmail = null; // The email you are registered with on racecast.rfactor.net
+    protected String raceCastPassword = null; // Your password on racecast.rfactor.net
+    protected File vehFile = null;
+    protected String teamName = null;
+    protected String nationality = null;
+    protected String birthDate = null;
+    protected String location = null;
+    protected String modName = null; // The current rFactor game file (*.RFM) to load
+    protected String helmet = null;
+    protected Integer uniqueID = null; // Helps to uniquely identify in multiplayer (along with name) if leaving and coming back
+    protected Integer startingDriver = null; // Zero-based index of starting driver (0=driver1, 1=driver2, 2=driver3, etc.)
+    protected Integer aiControlsDriver = null; // Bitfield defining which drivers the AI controls (0=none, 1=driver1, 2=driver2, 3=driver1+driver2, etc.)
+    protected Float driverHotswapDelay = null; // Delay in seconds between switching controls to AI or remote driver
     
-    private String raceCastEmail = null; // The email you are registered with on racecast.rfactor.net
-    private String raceCastPassword = null; // Your password on racecast.rfactor.net
-    private File vehFile = null;
-    private String teamName = null;
-    private String nationality = null;
-    private String birthDate = null;
-    private String location = null;
-    private String modName = null; // The current rFactor game file (*.RFM) to load
-    private String helmet = null;
-    private Integer uniqueID = null; // Helps to uniquely identify in multiplayer (along with name) if leaving and coming back
-    private Integer startingDriver = null; // Zero-based index of starting driver (0=driver1, 1=driver2, 2=driver3, etc.)
-    private Integer aiControlsDriver = null; // Bitfield defining which drivers the AI controls (0=none, 1=driver1, 2=driver2, 3=driver1+driver2, etc.)
-    private Float driverHotswapDelay = null; // Delay in seconds between switching controls to AI or remote driver
-    
-    private Float multiRaceLength = null;
-    private Boolean showCurrentLap = null;
-    private Integer numReconLaps = null;
-    private Integer formationLapFlag = null;
-    private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
-    private SpeedUnits speedUnits = SpeedUnits.KPH;
+    protected Float multiRaceLength = null;
+    protected Boolean showCurrentLap = null;
+    protected Integer numReconLaps = null;
+    protected MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+    protected SpeedUnits speedUnits = SpeedUnits.KPH;
     
     /**
      * Gets whether this information in this instance is valid for the current session.
@@ -221,39 +197,10 @@ public class ProfileInfo
      * 
      * @return whether this information in this instance is valid for the current session.
      */
-    public final boolean isValid()
-    {
-        return ( plrFile != null );
-    }
+    public abstract boolean isValid();
     
-    private static File findPLRFile()
+    protected void reset()
     {
-        File[] profileCandidates = USERDATA_FOLDER.listFiles( DIRECTORY_FILE_FILTER );
-        
-        if ( profileCandidates == null )
-            return ( null );
-        
-        File plrFile = null;
-        for ( File p : profileCandidates )
-        {
-            File plr = new File( p, p.getName() + ".PLR" );
-            if ( plr.exists() && plr.isFile() )
-            {
-                if ( plrFile == null )
-                    plrFile = plr;
-                else if ( plr.lastModified() > plrFile.lastModified() )
-                    plrFile = plr;
-            }
-        }
-        
-        return ( plrFile );
-    }
-    
-    private void reset()
-    {
-        profileFolder = null;
-        plrFile = null;
-        
         raceCastEmail = null;
         raceCastPassword = null;
         vehFile = null;
@@ -268,194 +215,33 @@ public class ProfileInfo
         aiControlsDriver = null;
         driverHotswapDelay = null;
         
-        lastUsedTrackFile = null;
         multiRaceLength = 1.0f;
         showCurrentLap = true;
         numReconLaps = 0;
-        formationLapFlag = 1;
         measurementUnits = MeasurementUnits.METRIC;
         speedUnits = SpeedUnits.KPH;
     }
     
-    boolean update()
+    /**
+     * Updates the information from the game.
+     * 
+     * @return whether anything has been updated.
+     */
+    protected abstract boolean updateImpl();
+    
+    /**
+     * Updates the information from the game.
+     * 
+     * @return whether anything has been updated.
+     */
+    public final boolean update()
     {
-        final GameFileSystem fileSystem = GameFileSystem.INSTANCE;
+        boolean result = updateImpl();
         
-        File plrFile = findPLRFile();
+        if ( result )
+            updateId++;
         
-        if ( plrFile == null )
-        {
-            RFDHLog.error( "ERROR: No Profile with PLR file found under \"" + USERDATA_FOLDER.getAbsolutePath() + "\". Plugin unusable!" );
-            
-            reset();
-            return ( false );
-        }
-        
-        if ( ( this.plrFile != null ) && plrFile.equals( this.plrFile ) && ( plrFile.lastModified() == plrLastModified ) )
-        {
-            return ( true );
-        }
-        
-        reset();
-        
-        RFDHLog.printlnEx( "INFO: Using PLR file \"" + plrFile.getAbsolutePath() + "\"" );
-        
-        try
-        {
-            new AbstractIniParser()
-            {
-                @Override
-                protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
-                {
-                    if ( group == null )
-                    {
-                    }
-                    else if ( group.equalsIgnoreCase( "SCENE" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "Scene File" ) )
-                        {
-                            lastUsedTrackFile = new File( value );
-                            
-                            if ( !lastUsedTrackFile.isAbsolute() )
-                                lastUsedTrackFile = new File( fileSystem.getGameFolder(), value );
-                        }
-                    }
-                    else if ( group.equalsIgnoreCase( "DRIVER" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "RaceCast Email" ) )
-                        {
-                            raceCastEmail = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "RaceCast Password" ) )
-                        {
-                            raceCastPassword = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Vehicle File" ) )
-                        {
-                            vehFile = new File( GameFileSystem.INSTANCE.getGameFolder(), value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Team" ) )
-                        {
-                            teamName = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Nationality" ) )
-                        {
-                            nationality = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Birth Date" ) )
-                        {
-                            birthDate = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Location" ) )
-                        {
-                            location = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Game Description" ) )
-                        {
-                            value = value.trim();
-                            if ( value.toLowerCase().endsWith( ".rfm" ) )
-                                modName = value.substring( 0, value.length() - 4 );
-                            else
-                                modName = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Helmet" ) )
-                        {
-                            helmet = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Unique ID" ) )
-                        {
-                            uniqueID = Integer.parseInt( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Starting Driver" ) )
-                        {
-                            startingDriver = Integer.parseInt( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "AI Controls Driver" ) )
-                        {
-                            aiControlsDriver = Integer.parseInt( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Driver Hotswap Delay" ) )
-                        {
-                            driverHotswapDelay = Float.parseFloat( value );
-                        }
-                    }
-                    else if ( group.equalsIgnoreCase( "Game Options" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "MULTI Race Length" ) )
-                        {
-                            multiRaceLength = Float.valueOf( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Show Extra Lap" ) )
-                        {
-                            try
-                            {
-                                int index = Integer.parseInt( value );
-                                
-                                showCurrentLap = ( index != 0 );
-                            }
-                            catch ( Throwable t )
-                            {
-                                RFDHLog.debug( "Unable to parse \"Show Extra Lap\" from PLR file. Defaulting to 'true'." );
-                                showCurrentLap = true;
-                            }
-                        }
-                        else if ( key.equalsIgnoreCase( "Measurement Units" ) )
-                        {
-                            try
-                            {
-                                int index = Integer.parseInt( value );
-                                
-                                measurementUnits = MeasurementUnits.values()[index];
-                            }
-                            catch ( Throwable t )
-                            {
-                                RFDHLog.debug( "Unable to parse \"Measurement Units\" from PLR file. Defaulting to METRIC." );
-                                measurementUnits = MeasurementUnits.METRIC;
-                            }
-                        }
-                        else if ( key.equalsIgnoreCase( "Speed Units" ) )
-                        {
-                            try
-                            {
-                                int index = Integer.parseInt( value );
-                                
-                                speedUnits = SpeedUnits.values()[index];
-                            }
-                            catch ( Throwable t )
-                            {
-                                RFDHLog.debug( "Unable to parse \"Speed Units\" from PLR file. Defaulting to KPH." );
-                                speedUnits = SpeedUnits.KPH;
-                            }
-                        }
-                    }
-                    else if ( group.equalsIgnoreCase( "Race Conditions" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "MULTI Reconnaissance" ) )
-                        {
-                            numReconLaps = Integer.valueOf( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "MULTI Formation Lap" ) )
-                        {
-                            formationLapFlag = Integer.valueOf( value );
-                        }
-                    }
-                    
-                    return ( true );
-                }
-            }.parse( plrFile );
-            
-            this.plrFile = plrFile;
-            this.profileFolder = plrFile.getParentFile();
-            this.plrLastModified = plrFile.lastModified();
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( t );
-        }
-        
-        updateId++;
-        
-        return ( true );
+        return ( result );
     }
     
     /**
@@ -473,20 +259,14 @@ public class ProfileInfo
      * 
      * @return the folder, where rFactor stores profiles.
      */
-    public final File getProfileFolder()
-    {
-        return ( profileFolder );
-    }
+    public abstract File getProfileFolder();
     
     /**
      * Gets the used PLR file.
      * 
      * @return the used PLR file.
      */
-    public final File getPLRFile()
-    {
-        return ( plrFile );
-    }
+    public abstract File getPLRFile();
     
     /**
      * Gets the email you are registered with on racecast.rfactor.net
@@ -623,10 +403,7 @@ public class ProfileInfo
      * 
      * @return the last used scene file.
      */
-    final File getLastUsedSceneFile()
-    {
-        return ( lastUsedTrackFile );
-    }
+    protected abstract File getLastUsedSceneFile();
     
     /**
      * Gets the current race length fraction.
@@ -663,29 +440,7 @@ public class ProfileInfo
      * 
      * @return drive formation lap?
      */
-    public final Boolean getFormationLap()
-    {
-        if ( formationLapFlag == null )
-            return ( null );
-        
-        // 0=standing start, 1=formation lap & standing start, 2=lap behind safety car & rolling start, 3=use track default, 4=fast rolling start
-        switch ( formationLapFlag.intValue() )
-        {
-            case 0:
-                return ( false );
-            case 1:
-                return ( true );
-            case 2:
-                return ( true );
-            case 3:
-                return ( null );
-            case 4:
-                return ( true );
-        }
-        
-        // Unreachable code!
-        return ( null );
-    }
+    public abstract Boolean getFormationLap();
     
     /**
      * Gets the selected measurement units. (Applies to everything but speed.)
@@ -716,21 +471,12 @@ public class ProfileInfo
      * 
      * @return the currently used CCH file.
      */
-    public final File getCCHFile()
-    {
-        if ( profileFolder == null )
-            return ( null );
-        
-        if ( modName == null )
-            return ( null );
-        
-        return ( new File( profileFolder, modName + ".cch" ) );
-    }
+    public abstract File getCCHFile();
     
     /**
      * Create a new instance.
      */
-    public ProfileInfo()
+    protected ProfileInfo()
     {
     }
 }

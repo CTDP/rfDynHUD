@@ -20,8 +20,6 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.util.HashMap;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
@@ -114,11 +112,11 @@ public class ThreeLetterCodeManager
         return ( sf );
     }
     
-    public static void updateThreeLetterCodes( final ThreeLetterCodeGenerator tlcGenerator )
+    public static void updateThreeLetterCodes( File configFolder, final ThreeLetterCodeGenerator tlcGenerator )
     {
         try
         {
-            File ini = new File( GameFileSystem.INSTANCE.getConfigFolder(), INI_FILENAME );
+            File ini = new File( configFolder, INI_FILENAME );
             if ( !ini.exists() )
             {
                 RFDHLog.exception( "WARNING: No " + INI_FILENAME + " found." );

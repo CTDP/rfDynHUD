@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 
 /**
@@ -95,7 +94,7 @@ public class TextureManager
         
         File f = new File( name );
         if ( !f.isAbsolute() )
-            f = new File( GameFileSystem.INSTANCE.getImagesFolder(), name );
+            f = new File( __UtilHelper.imagesFolder, name );
         
         ImageTemplate template = null;
         

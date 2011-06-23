@@ -82,7 +82,8 @@ public class VehicleScoringInfo
     final ArrayList<Laptime> laptimes = new ArrayList<Laptime>();
     Laptime cachedFastestNormalLaptime = null;
     Laptime cachedFastestHotLaptime = null;
-    Laptime fastestLaptime = null;
+    private Laptime fastestLaptime = null;
+    private Laptime secondFastestLaptime = null;
     Laptime oldAverageLaptime = null;
     Laptime averageLaptime = null;
     
@@ -147,6 +148,7 @@ public class VehicleScoringInfo
         if ( ( laptimes.size() < lc ) || ( laptimes.get( lc - 1 ) == null ) || ( laptimes.get( lc - 1 ).getSector1() != editorPresets.getLastSector1Time() ) || ( laptimes.get( lc - 1 ).getSector2() != editorPresets.getLastSector2Time( false ) || ( laptimes.get( lc - 1 ).getSector3() != editorPresets.getLastSector3Time() ) ) )
         {
             fastestLaptime = null;
+            secondFastestLaptime = null;
             java.util.Random rnd = new java.util.Random( System.nanoTime() );
             
             float ls1 = isPlayer() ? editorPresets.getLastSector1Time() : data.getLastSector1();
@@ -162,7 +164,7 @@ public class VehicleScoringInfo
                 Laptime lt;
                 if ( ( l > laptimes.size() ) || ( laptimes.get( l - 1 ) == null ) )
                 {
-                    lt = new Laptime( l, s1, s2, s3, false, l == 1, true );
+                    lt = new Laptime( getDriverId(), l, s1, s2, s3, false, l == 1, true );
                     if ( l > laptimes.size() )
                         laptimes.add( lt );
                     else
@@ -178,7 +180,10 @@ public class VehicleScoringInfo
                 }
                 
                 if ( ( l == 1 ) || ( lt.getLapTime() < fastestLaptime.getLapTime() ) )
+                {
+                    secondFastestLaptime = fastestLaptime;
                     fastestLaptime = lt;
+                }
             }
             
             editor_fastestLaptime = fastestLaptime;
@@ -192,7 +197,7 @@ public class VehicleScoringInfo
         
         if ( laptimes.size() < lc + 1 )
         {
-            Laptime lt = new Laptime( lc + 1, cs1, cs2, -1f, false, false, false );
+            Laptime lt = new Laptime( getDriverId(), lc + 1, cs1, cs2, -1f, false, false, false );
             lt.isInLap = null;
             
             laptimes.add( lt );
@@ -318,7 +323,10 @@ public class VehicleScoringInfo
         oldLap = -1;
         laptimes.clear();
         if ( laptimes.size() > 0 )
+        {
             fastestLaptime = null;
+            secondFastestLaptime = null;
+        }
         oldAverageLaptime = null;
         averageLaptime = null;
     }
@@ -328,6 +336,7 @@ public class VehicleScoringInfo
         resetDerivateData();
         
         fastestLaptime = null;
+        secondFastestLaptime = null;
     }
     
     void onSessionEnded()
@@ -335,6 +344,7 @@ public class VehicleScoringInfo
         resetDerivateData();
         
         fastestLaptime = null;
+        secondFastestLaptime = null;
     }
     
     void setDriverName( String originalName, String name, Integer id )
@@ -523,7 +533,7 @@ public class VehicleScoringInfo
     {
         if ( vehicleInfo == null )
         {
-            vehicleInfo = gameData.getModInfo().getVehicleRegistry().getVehicleForDriver( getVehicleName() );
+            vehicleInfo = gameData.getModInfo().getVehicleInfoForDriver( this );
         }
         
         return ( vehicleInfo );
@@ -712,7 +722,14 @@ public class VehicleScoringInfo
     {
         if ( lapDistance < 0f )
         {
-            lapDistance = ( data.getLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength();
+            //lapDistance = ( data.getLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength();
+            
+            lapDistance = data.getLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime();
+            
+            while ( lapDistance < 0f )
+                lapDistance += scoringInfo.getTrackLength();
+            
+            lapDistance %= scoringInfo.getTrackLength();
         }
         
         return ( lapDistance );
@@ -763,6 +780,23 @@ public class VehicleScoringInfo
         return ( laptimes.get( lap - 1 ) );
     }
     
+    void setFastestLaptime( Laptime laptime )
+    {
+        if ( laptime == this.fastestLaptime )
+            return;
+        
+        if ( ( laptime == null ) || !laptime.isFinished() || ( laptime.getLapTime() < 0f ) )
+            this.secondFastestLaptime = null;
+        else
+            this.secondFastestLaptime = this.fastestLaptime;
+        this.fastestLaptime = laptime;
+    }
+    
+    final Laptime _getFastestLaptime()
+    {
+        return ( fastestLaptime );
+    }
+    
     /**
      * Gets this driver's fastest {@link Laptime}.
      * 
@@ -779,6 +813,16 @@ public class VehicleScoringInfo
         }
         
         return ( fastestLaptime );
+    }
+    
+    /**
+     * Gets this driver's 2nd fastest {@link Laptime}.
+     * 
+     * @return this driver's 2nd fastest {@link Laptime}.
+     */
+    public final Laptime getSecondFastestLaptime()
+    {
+        return ( secondFastestLaptime );
     }
     
     /**
@@ -848,7 +892,7 @@ public class VehicleScoringInfo
         
         float sec2 = data.getBestSector2();
         
-        if ( !includingSector1 )
+        if ( !includingSector1 && ( sec2 > 0f ) )
             sec2 -= getBestSector1();
         
         return ( sec2 );
@@ -877,7 +921,11 @@ public class VehicleScoringInfo
         if ( editor_fastestLaptime != null )
             return ( editor_fastestLaptime.getSector3() );
         
-        return ( getBestLapTime() - getBestSector2( true ) );
+        float lt = getBestLapTime();
+        if ( lt > 0f )
+            lt -= getBestSector2( true );
+        
+        return ( lt );
     }
     
     /**

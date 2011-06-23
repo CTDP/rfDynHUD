@@ -71,8 +71,8 @@ import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SupportedGames;
+import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
@@ -86,6 +86,7 @@ import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.RFDHLog;
+import net.ctdp.rfdynhud.util.__UtilHelper;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -118,6 +119,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     }
     
     private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
+    
+    public static SupportedGames GAME_ID = null;
+    public static GameFileSystem FILESYSTEM = null;
     
     private LiveGameData gameData;
     private WidgetsDrawingManager drawingManager;
@@ -359,7 +363,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             if ( f.isFile() && f.getName().toLowerCase().endsWith( ".ini" ) )
             {
                 if ( checkConfigFile( f ) )
-                    list.add( f.getAbsolutePath().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 ) );
+                    list.add( f.getAbsolutePath().substring( gameData.getFileSystem().getConfigPath().length() + 1 ) );
             }
         }
         
@@ -378,7 +382,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         list.add( "<none>" );
         
-        fillConfigurationFiles( GameFileSystem.INSTANCE.getConfigFolder(), list );
+        fillConfigurationFiles( gameData.getFileSystem().getConfigFolder(), list );
         
         return ( list );
     }
@@ -388,7 +392,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         if ( currentTemplateFile == null )
             return ( "<none>" );
         
-        return ( currentTemplateFile.getAbsolutePath().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 ) );
+        return ( currentTemplateFile.getAbsolutePath().substring( gameData.getFileSystem().getConfigPath().length() + 1 ) );
     }
     
     private void getProperties( PropertiesContainer propsCont )
@@ -475,24 +479,24 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private static File getSettingsDir()
+    private File getEditorSettingsFile( GameFileSystem fileSystem )
     {
         /*
-        File f = new File( System.getProperty( "user.home" ) );
+        File dir = new File( System.getProperty( "user.home" ) );
         
-        f = new File( f, "CTDP/.rfdynhud" );
-        if ( !f.exists() )
-            f.mkdirs();
-        
-        return ( f );
+        dir = new File( dir, "CTDP/.rfdynhud" );
+        if ( !dir.exists() )
+            dir.mkdirs();
         */
-        //return ( RFactorTools.EDITOR_FOLDER );
-        return ( GameFileSystem.INSTANCE.getConfigFolder() );
+        //File dir = RFactorTools.EDITOR_FOLDER;
+        File dir = fileSystem.getConfigFolder();
+        
+        return ( new File( dir, "editor_settings.ini" ) );
     }
     
-    private static File getEditorSettingsFile()
+    private File getEditorSettingsFile()
     {
-        return ( new File( getSettingsDir(), "editor_settings.ini" ) );
+        return ( getEditorSettingsFile( gameData.getFileSystem() ) );
     }
     
     private void writeLastConfig( IniWriter writer ) throws Throwable
@@ -500,12 +504,12 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
         {
             String currentConfigFilename = currentConfigFile.getAbsolutePath();
-            if ( currentConfigFilename.startsWith( GameFileSystem.INSTANCE.getConfigPath() ) )
+            if ( currentConfigFilename.startsWith( gameData.getFileSystem().getConfigPath() ) )
             {
-                if ( currentConfigFilename.charAt( GameFileSystem.INSTANCE.getConfigPath().length() ) == File.separatorChar )
-                    currentConfigFilename = currentConfigFilename.substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+                if ( currentConfigFilename.charAt( gameData.getFileSystem().getConfigPath().length() ) == File.separatorChar )
+                    currentConfigFilename = currentConfigFilename.substring( gameData.getFileSystem().getConfigPath().length() + 1 );
                 else
-                    currentConfigFilename = currentConfigFilename.substring( GameFileSystem.INSTANCE.getConfigPath().length() );
+                    currentConfigFilename = currentConfigFilename.substring( gameData.getFileSystem().getConfigPath().length() );
             }
             
             writer.writeSetting( "lastConfig", currentConfigFilename );
@@ -521,12 +525,12 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         if ( ( file != null ) && file.exists() )
         {
             String filename = file.getAbsolutePath();
-            if ( filename.startsWith( GameFileSystem.INSTANCE.getConfigPath() ) )
+            if ( filename.startsWith( gameData.getFileSystem().getConfigPath() ) )
             {
-                if ( filename.charAt( GameFileSystem.INSTANCE.getConfigPath().length() ) == File.separatorChar )
-                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+                if ( filename.charAt( gameData.getFileSystem().getConfigPath().length() ) == File.separatorChar )
+                    filename = filename.substring( gameData.getFileSystem().getConfigPath().length() + 1 );
                 else
-                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() );
+                    filename = filename.substring( gameData.getFileSystem().getConfigPath().length() );
             }
             
             writer.writeSetting( "lastStatesSetsFile", filename );
@@ -538,12 +542,12 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         if ( lastImportFile != null )
         {
             String filename = lastImportFile.getAbsolutePath();
-            if ( filename.startsWith( GameFileSystem.INSTANCE.getConfigPath() ) )
+            if ( filename.startsWith( gameData.getFileSystem().getConfigPath() ) )
             {
-                if ( filename.charAt( GameFileSystem.INSTANCE.getConfigPath().length() ) == File.separatorChar )
-                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+                if ( filename.charAt( gameData.getFileSystem().getConfigPath().length() ) == File.separatorChar )
+                    filename = filename.substring( gameData.getFileSystem().getConfigPath().length() + 1 );
                 else
-                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() );
+                    filename = filename.substring( gameData.getFileSystem().getConfigPath().length() );
             }
             
             writer.writeSetting( "lastImportFile", filename );
@@ -607,9 +611,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private int[] loadResolutionFromUserSettings()
+    private int[] loadResolutionFromUserSettings( GameFileSystem fileSystem )
     {
-        File userSettingsFile = getEditorSettingsFile();
+        File userSettingsFile = getEditorSettingsFile( fileSystem );
         
         final boolean[] resFound = { false };
         final int[] resolution = new int[ 2 ];
@@ -758,7 +762,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         {
                             try
                             {
-                                loadTemplateConfig( new File( GameFileSystem.INSTANCE.getConfigFolder(), value ) );
+                                loadTemplateConfig( new File( gameData.getFileSystem().getConfigFolder(), value ) );
                             }
                             catch ( IOException e )
                             {
@@ -780,7 +784,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         {
                             File configFile = new File( value );
                             if ( !configFile.isAbsolute() )
-                                configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), value );
+                                configFile = new File( gameData.getFileSystem().getConfigFolder(), value );
                             if ( configFile.exists() )
                                 //openConfig( configFile );
                                 result[1] = configFile;
@@ -789,7 +793,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         {
                             File configFile = new File( value );
                             if ( !configFile.isAbsolute() )
-                                configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), value );
+                                configFile = new File( gameData.getFileSystem().getConfigFolder(), value );
                             
                             lastImportFile = configFile;
                         }
@@ -937,7 +941,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         {
                             File file = new File( value );
                             if ( !file.isAbsolute() )
-                                currentDirectorStatesSetsFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), value );
+                                currentDirectorStatesSetsFile = new File( gameData.getFileSystem().getConfigFolder(), value );
                             if ( file.exists() )
                                 currentDirectorStatesSetsFile = file;
                         }
@@ -1038,8 +1042,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         JFileChooser fc = new JFileChooser();
         if ( initialFile == null )
         {
-            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
-            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
+            fc.setCurrentDirectory( gameData.getFileSystem().getConfigFolder() );
+            fc.setSelectedFile( new File( gameData.getFileSystem().getConfigFolder(), "overlay.ini" ) );
         }
         else if ( initialFile.isFile() )
         {
@@ -1609,15 +1613,25 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private void initGameDataObjects()
+    private void initGameDataObjects( SupportedGames gameId )
     {
-        int[] resolution = loadResolutionFromUserSettings();
+        int[] resolution = loadResolutionFromUserSettings( _LiveGameDataObjectsFactory.get( gameId ).newGameFileSystem( __UtilHelper.PLUGIN_INI ) );
         
         this.drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1] );
         this.widgetsConfig = drawingManager.getWidgetsConfiguration();
-        this.eventsManager = new GameEventsManager( null, drawingManager );
-        this.gameData = new LiveGameData( __GameIDHelper.gameId, drawingManager.getWidgetsConfiguration().getGameResolution(), eventsManager );
-        eventsManager.setGameData( this.gameData, drawingManager.getRenderListenersManager() );
+        this.eventsManager = new GameEventsManager( gameId, null, drawingManager );
+        this.gameData = eventsManager.getGameData();
+        
+        RFDynHUDEditor.GAME_ID = this.gameData.getGameID();
+        RFDynHUDEditor.FILESYSTEM = this.gameData.getFileSystem();
+        
+        __UtilHelper.configFolder = gameData.getFileSystem().getConfigFolder();
+        __UtilHelper.bordersBolder = gameData.getFileSystem().getBordersFolder();
+        __UtilHelper.imagesFolder = gameData.getFileSystem().getImagesFolder();
+        __UtilHelper.editorPropertyDisplayNameGeneratorClass = gameData.getFileSystem().getPluginINI().getEditorPropertyDisplayNameGeneratorClass();
+        __UtilPrivilegedAccess.updateLocalizationsManager( gameData.getFileSystem() );
+        WidgetFactory.init( gameData.getFileSystem().getWidgetSetsFolder() );
+        
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         
         __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
@@ -1648,7 +1662,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( editorPanel );
     }
     
-    private Property createTemplateConfigProperty()
+    private Property createTemplateConfigProperty( final GameFileSystem fileSystem )
     {
         Property templateConfigProp = new ListProperty<String, ArrayList<String>>( "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
@@ -1665,7 +1679,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 {
                     try
                     {
-                        loadTemplateConfig( new File( GameFileSystem.INSTANCE.getConfigFolder(), (String)value ) );
+                        loadTemplateConfig( new File( fileSystem.getConfigFolder(), (String)value ) );
                     }
                     catch ( IOException e )
                     {
@@ -1700,7 +1714,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( templateConfigProp );
     }
     
-    public RFDynHUDEditor()
+    public RFDynHUDEditor( SupportedGames gameId )
     {
         super();
         
@@ -1712,9 +1726,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         {
         }
         
-        FontUtils.loadCustomFonts();
+        initGameDataObjects( gameId );
         
-        initGameDataObjects();
+        FontUtils.loadCustomFonts( gameData.getFileSystem() );
         
         this.window = new JFrame( BASE_WINDOW_TITLE );
         
@@ -1729,7 +1743,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         this.editorPanel = createEditorPanel();
         this.gameResolution = widgetsConfig.getGameResolution();
         
-        templateConfigProp = createTemplateConfigProperty();
+        templateConfigProp = createTemplateConfigProperty( gameData.getFileSystem()  );
         
         AbstractPropertiesKeeper.setKeeper( gameResProp, null );
         AbstractPropertiesKeeper.setKeeper( templateConfigProp, null );
@@ -1853,7 +1867,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             return;
         }
         
-        __GameIDHelper.gameId = SupportedGames.rFactor; // make this dynamic somehow!
+        SupportedGames gameId = SupportedGames.rFactor; // make this dynamic somehow!
         
         WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
         
@@ -1861,7 +1875,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         {
             //Logger.setStdStreams();
             
-            final RFDynHUDEditor editor = new RFDynHUDEditor();
+            final RFDynHUDEditor editor = new RFDynHUDEditor( gameId );
             
             Rectangle screenBounds = GUITools.getCurrentScreenBounds();
             
@@ -1884,7 +1898,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             {
                 File configFile = (File)result[1];
                 if ( configFile == null )
-                    configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" );
+                    configFile = new File( editor.getGameData().getFileSystem().getConfigFolder(), "overlay.ini" );
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else

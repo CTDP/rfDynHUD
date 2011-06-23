@@ -172,9 +172,9 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         return ( fuelUsages.get( teamName ) );
     }
     
-    private static File getCacheFile( String modName, String trackName, boolean createFolder )
+    private static File getCacheFile( GameFileSystem fileSystem, String modName, String trackName, boolean createFolder )
     {
-        File cacheFolder = GameFileSystem.INSTANCE.getCacheFolder();
+        File cacheFolder = fileSystem.getCacheFolder();
         
         if ( cacheFolder == null )
             return ( null );
@@ -201,7 +201,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     
     private static File getCacheFile( LiveGameData gameData, boolean createFolder )
     {
-        return ( getCacheFile( gameData.getModInfo().getName(), gameData.getScoringInfo().getTrackName(), createFolder ) );
+        return ( getCacheFile( gameData.getFileSystem(), gameData.getModInfo().getName(), gameData.getScoringInfo().getTrackName(), createFolder ) );
     }
     
     private void loadFromCache( File cacheFile )
@@ -245,7 +245,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                             float sector3 = Float.parseFloat( attributes.getValue( "sector3" ) );
                             float lap = Float.parseFloat( attributes.getValue( "lap" ) );
                             
-                            Laptime laptime = new Laptime( 0, sector1, sector2, sector3, false, false, true );
+                            Laptime laptime = new Laptime( 0, 0, sector1, sector2, sector3, false, false, true );
                             laptime.laptime = lap;
                             
                             try
@@ -320,9 +320,9 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
     }
     
-    static Float loadFuelUsageFromCache( final String modName, final String trackName, final String teamName )
+    static Float loadFuelUsageFromCache( GameFileSystem fileSystem, final String modName, final String trackName, final String teamName )
     {
-        File cacheFile = getCacheFile( modName, trackName, false );
+        File cacheFile = getCacheFile( fileSystem, modName, trackName, false );
         
         if ( cacheFile == null )
             return ( null );

@@ -20,11 +20,13 @@ package net.ctdp.rfdynhud.widgets.standard.map;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
@@ -458,6 +460,101 @@ public class MapWidget extends Widget
         initTrack( gameData );
     }
     
+    private static boolean smoothed = true;
+    
+    private void drawPath( float[] xPoints, float[] yPoints, float[] xVectors, float[] yVectors, int n, Texture2DCanvas tc )
+    {
+        if ( smoothed )
+        {
+            boolean aa = tc.isAntialiazingEnabled();
+            tc.setAntialiazingEnabled( true );
+            
+            GeneralPath path = new GeneralPath();
+            
+            final int stepSize = 2;
+            for ( int i = stepSize; i < n; i += stepSize )
+            {
+                float ax = xPoints[i - stepSize];
+                float ay = yPoints[i - stepSize];
+                float bx = xPoints[i];
+                float by = yPoints[i];
+                float vx = xVectors[i - stepSize];
+                float vy = yVectors[i - stepSize];
+                float wx = -xVectors[i];
+                float wy = -yVectors[i];
+                
+                // If the vectors are pretty similar, we can do without bezier.
+                
+                if ( ( Math.abs( vx + wx ) < 0.1f ) && ( Math.abs( vy + wy ) < 0.1f ) )
+                {
+                    Line2D.Float line = new Line2D.Float();
+                    
+                    line.x1 = ax;
+                    line.y1 = ay;
+                    line.x2 = bx;
+                    line.y2 = by;
+                    
+                    path.append( line, true );
+                }
+                else
+                {
+                    float l = ( by * vx - ay * vx - bx * vy + ax * vy ) / ( wx * vy - wy * vx );
+                    //float k = ( bx + l * wx - ax ) / vx;
+                    
+                    float cx = bx + l * wx;
+                    float cy = by + l * wy;
+                    
+                    double dsq = ( ax - bx ) * ( ax - bx ) + ( ay - by ) * ( ay - by );
+                    double dsq2 = ( ax - cx ) * ( ax - cx ) + ( ay - cy ) * ( ay - cy );
+                    double dsq3 = ( cx - bx ) * ( cx - bx ) + ( cy - by ) * ( cy - by );
+                    
+                    if ( ( dsq2 > dsq ) || ( dsq3 > dsq ) )
+                    {
+                        Line2D.Float line = new Line2D.Float();
+                        
+                        line.x1 = ax;
+                        line.y1 = ay;
+                        line.x2 = bx;
+                        line.y2 = by;
+                        
+                        path.append( line, true );
+                    }
+                    else
+                    {
+                        QuadCurve2D.Float curve = new QuadCurve2D.Float();
+                        
+                        curve.ctrlx = cx;
+                        curve.ctrly = cy;
+                        
+                        curve.x1 = ax;
+                        curve.y1 = ay;
+                        curve.x2 = bx;
+                        curve.y2 = by;
+                        
+                        path.append( curve, true );
+                    }
+                }
+            }
+            
+            tc.draw( path );
+            
+            tc.setAntialiazingEnabled( aa );
+        }
+        else
+        {
+            int[] xPoints_ = new int[ n ];
+            int[] yPoints_ = new int[ n ];
+            
+            for ( int i = 0; i < n; i++ )
+            {
+                xPoints_[i] = Math.round( xPoints[i] );
+                yPoints_[i] = Math.round( yPoints[i] );
+            }
+            
+            tc.drawPolyline( xPoints_, yPoints_, n );
+        }
+    }
+    
     private void drawTrack( Track track, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Texture2DCanvas tc = texture.getTextureCanvas();
@@ -497,8 +594,10 @@ public class MapWidget extends Widget
                 scale = track.getScale( w, h );
             }
             
-            Point p0 = new Point();
-            Point p1 = new Point();
+            Point2D.Float p0 = new Point2D.Float();
+            Point2D.Float p1 = new Point2D.Float();
+            Point2D.Float v0 = new Point2D.Float();
+            Point2D.Float v1 = new Point2D.Float();
             
             int x0 = offsetX + off2 + itemRadius + ( ( width - dia - track.getXExtend( scale ) ) / 2 );
             int y0 = offsetY + off2 + itemRadius + ( ( height - dia - track.getZExtend( scale ) ) / 2 );
@@ -515,18 +614,24 @@ public class MapWidget extends Widget
             
             int n = track.getNumWaypoints( false );
             
-            int[] xPoints = new int[ n ];
-            int[] yPoints = new int[ n ];
+            float[] xPoints = new float[ n ];
+            float[] yPoints = new float[ n ];
+            float[] xVectors = new float[ n ];
+            float[] yVectors = new float[ n ];
             
             track.getWaypointPosition( false, 0, scale, p0 );
             xPoints[0] = x0 + p0.x;
             yPoints[0] = y0 + p0.y;
+            track.getWaypointVector( false, 0, v0 );
+            xVectors[0] = v0.x;
+            yVectors[0] = v0.y;
             byte oldSec = track.getWaypointSector( false, 0 );
             
             int j = 1;
             for ( int i = 1; i < n; i++ )
             {
                 track.getWaypointPosition( false, i, scale, p1 );
+                track.getWaypointVector( false, i, v1 );
                 byte sec = track.getWaypointSector( false, i );
                 
                 if ( sec != oldSec )
@@ -540,7 +645,7 @@ public class MapWidget extends Widget
                     tc.setStroke( new BasicStroke( roadWidth.getIntValue() ) );
                     tc.setAntialiazingEnabled( true );
                     
-                    tc.drawPolyline( xPoints, yPoints, j );
+                    drawPath( xPoints, yPoints, xVectors, yVectors, j, tc );
                     
                     if ( oldSec == 1 )
                         tc.setColor( roadColorSec1.getColor() );
@@ -551,10 +656,12 @@ public class MapWidget extends Widget
                     tc.setStroke( new BasicStroke( roadWidth.getIntValue() - 1.5f ) );
                     tc.setAntialiazingEnabled( true );
                     
-                    tc.drawPolyline( xPoints, yPoints, j );
+                    drawPath( xPoints, yPoints, xVectors, yVectors, j, tc );
                     
                     xPoints[0] = xPoints[j - 1];
                     yPoints[0] = yPoints[j - 1];
+                    xVectors[0] = xVectors[j - 1];
+                    yVectors[0] = yVectors[j - 1];
                     
                     j = 1;
                 }
@@ -563,16 +670,21 @@ public class MapWidget extends Widget
                 
                 double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
                 
-                if ( ( dsq >= 16.0 ) || ( i == n - 1 ) )
+                if ( ( dsq >= 4 * scale * 4 * scale ) || ( i == n - 1 ) )
                 {
                     xPoints[j] = x0 + p1.x;
                     yPoints[j] = y0 + p1.y;
+                    xVectors[j] = v1.x;
+                    yVectors[j] = v1.y;
                     
                     j++;
                     
-                    Point p = p1;
+                    Point2D.Float p = p1;
                     p1 = p0;
                     p0 = p;
+                    Point2D.Float v = v1;
+                    v1 = v0;
+                    v0 = v;
                 }
             }
             
@@ -581,6 +693,9 @@ public class MapWidget extends Widget
                 track.getWaypointPosition( false, 0, scale, p0 );
                 xPoints[j] = x0 + p0.x;
                 yPoints[j] = y0 + p0.y;
+                track.getWaypointVector( false, 0, v0 );
+                xVectors[j] = v0.x;
+                yVectors[j] = v0.y;
                 j++;
                 
                 if ( oldSec == 1 )
@@ -592,7 +707,7 @@ public class MapWidget extends Widget
                 tc.setStroke( new BasicStroke( roadWidth.getFloatValue() ) );
                 tc.setAntialiazingEnabled( true );
                 
-                tc.drawPolyline( xPoints, yPoints, j );
+                drawPath( xPoints, yPoints, xVectors, yVectors, j, tc );
                 
                 if ( oldSec == 1 )
                     tc.setColor( roadColorSec1.getColor() );
@@ -603,7 +718,7 @@ public class MapWidget extends Widget
                 tc.setStroke( new BasicStroke( roadWidth.getIntValue() - 1.5f ) );
                 tc.setAntialiazingEnabled( true );
                 
-                tc.drawPolyline( xPoints, yPoints, j );
+                drawPath( xPoints, yPoints, xVectors, yVectors, j, tc );
                 
                 j = 0;
             }
@@ -614,68 +729,90 @@ public class MapWidget extends Widget
             
             n = track.getNumWaypoints( true );
             
-            xPoints = new int[ n + 1 ];
-            yPoints = new int[ n + 1 ];
+            xPoints = new float[ n + 1 ];
+            yPoints = new float[ n + 1 ];
+            xVectors = new float[ n + 1 ];
+            yVectors = new float[ n + 1 ];
             
             int k = 0;
             track.getWaypointPosition( true, k, scale, p0 );
             xPoints[0] = x0 + p0.x;
             yPoints[0] = y0 + p0.y;
+            track.getWaypointVector( true, k, v0 );
+            xVectors[0] = v0.x;
+            yVectors[0] = v0.y;
             
             j = 1;
             for ( int i = k + 1; i < n; i++ )
             {
                 track.getWaypointPosition( true, i, scale, p1 );
+                track.getWaypointVector( true, i, v1 );
                 
                 double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
                 
-                if ( dsq > 50 * 50 )
+                if ( dsq > 50 * scale * 50 * scale )
                 {
                     if ( k < i - 1 )
                     {
                         track.getWaypointPosition( true, i - 1, scale, p0 );
+                        track.getWaypointVector( true, i - 1, v0 );
                         
                         xPoints[j - 1] = x0 + p0.x;
                         yPoints[j - 1] = y0 + p0.y;
+                        xVectors[j - 1] = v0.x;
+                        yVectors[j - 1] = v0.y;
                     }
                     
-                    tc.drawPolyline( xPoints, yPoints, j );
+                    drawPath( xPoints, yPoints, xVectors, yVectors, j, tc );
                     
                     xPoints[0] = x0 + p1.x;
                     yPoints[0] = y0 + p1.y;
+                    xVectors[0] = v1.x;
+                    yVectors[0] = v1.y;
                     
                     j = 1;
                     
-                    Point p = p1;
+                    Point2D.Float p = p1;
                     p1 = p0;
                     p0 = p;
+                    Point2D.Float v = v1;
+                    v1 = v0;
+                    v0 = v;
                 }
-                else if ( ( dsq >= 16.0 ) || ( i == n - 1 ) )
+                else if ( ( dsq >= 4 * scale * 4 * scale ) || ( i == n - 1 ) )
                 {
                     xPoints[j] = x0 + p1.x;
                     yPoints[j] = y0 + p1.y;
+                    xVectors[j] = v1.x;
+                    yVectors[j] = v1.y;
                     
                     j++;
+                    k = i;
                     
-                    Point p = p1;
+                    Point2D.Float p = p1;
                     p1 = p0;
                     p0 = p;
-                    
-                    k = i;
+                    Point2D.Float v = v1;
+                    v1 = v0;
+                    v0 = v;
                 }
             }
             
             track.getWaypointPosition( true, 0, scale, p0 );
             track.getWaypointPosition( true, n - 1, scale, p1 );
             double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
-            if ( dsq <= 16.0 )
+            if ( dsq <= 50 * scale * 50 * scale )
             {
+                track.getWaypointVector( true, 0, v0 );
+                
                 xPoints[j] = x0 + p0.x;
                 yPoints[j] = y0 + p0.y;
+                xVectors[j] = v0.x;
+                yVectors[j] = v0.y;
                 j++;
             }
             
-            tc.drawPolyline( xPoints, yPoints, j );
+            drawPath( xPoints, yPoints, xVectors, yVectors, j, tc );
             
             tc.setStroke( oldStroke );
         }

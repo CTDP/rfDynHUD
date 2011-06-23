@@ -701,11 +701,11 @@ class GameEventsDispatcher
         return ( jars.toArray( urls ) );
     }
     
-    private static final GameEventsPlugin[] findPlugins()
+    private static final GameEventsPlugin[] findPlugins( GameFileSystem fileSystem )
     {
         RFDHLog.printlnEx( "Loading GameEventsPlugins..." );
         
-        File pluginsFolder = GameFileSystem.INSTANCE.getSubPluginsFolder();
+        File pluginsFolder = fileSystem.getSubPluginsFolder();
         
         HashMap<Class<?>, JarFile> jarMap = new HashMap<Class<?>, JarFile>();
         List<Class<?>> pluginClasses;
@@ -761,8 +761,13 @@ class GameEventsDispatcher
         return ( plugins );
     }
     
-    public GameEventsDispatcher()
+    private GameEventsDispatcher( GameEventsPlugin[] plugins )
     {
-        this.plugins = findPlugins();
+        this.plugins = plugins;
+    }
+    
+    public static GameEventsDispatcher createGameEventsDispatcher( GameFileSystem fileSystem )
+    {
+        return ( new GameEventsDispatcher( findPlugins( fileSystem ) ) );
     }
 }
