@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="rfactor1/src"/>
 	<classpathentry kind="src" path="director/src"/>
 	<classpathentry kind="src" path="lessons/src"/>
 	<classpathentry kind="src" path="standard_widget_set/src"/>
