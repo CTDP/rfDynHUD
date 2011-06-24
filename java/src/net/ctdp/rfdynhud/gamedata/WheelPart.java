@@ -33,22 +33,22 @@ public enum WheelPart
     private final int arrayIndexRL;
     private final int arrayIndexRR;
     
-    final int getArrayIndexFL()
+    public final int getArrayIndexFL()
     {
         return ( arrayIndexFL );
     }
     
-    final int getArrayIndexFR()
+    public final int getArrayIndexFR()
     {
         return ( arrayIndexFR );
     }
     
-    final int getArrayIndexRL()
+    public final int getArrayIndexRL()
     {
         return ( arrayIndexRL );
     }
     
-    final int getArrayIndexRR()
+    public final int getArrayIndexRR()
     {
         return ( arrayIndexRR );
     }

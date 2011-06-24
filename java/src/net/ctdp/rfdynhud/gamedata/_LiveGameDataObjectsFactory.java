@@ -1,5 +1,9 @@
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
+import java.io.IOException;
+
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.util.PluginINI;
 
 public abstract class _LiveGameDataObjectsFactory
@@ -12,17 +16,19 @@ public abstract class _LiveGameDataObjectsFactory
     
     public abstract TrackInfo newTrackInfo( LiveGameData gameData );
     
-    public abstract VehicleInfoParser newVehicleInfoParser( String filename, VehicleInfo info );
+    public abstract VehicleInfo newVehicleInfo();
     
-    public abstract CommentaryRequestInfoCapsule newCommentaryRequestInfoCapsule( LiveGameData gameData );
+    public abstract void parseVehicleInfo( File file, String filename, VehicleInfo info ) throws IOException;
     
-    public abstract GraphicsInfoCapsule newGraphicsInfoCapsule( LiveGameData gameData );
+    public abstract _CommentaryRequestInfoCapsule newCommentaryRequestInfoCapsule( LiveGameData gameData );
     
-    public abstract TelemetryDataCapsule newTelemetryDataCapsule( LiveGameData gameData );
+    public abstract _GraphicsInfoCapsule newGraphicsInfoCapsule( LiveGameData gameData );
     
-    public abstract ScoringInfoCapsule newScoringInfoCapsule( LiveGameData gameData );
+    public abstract _TelemetryDataCapsule newTelemetryDataCapsule( LiveGameData gameData );
     
-    public abstract VehicleScoringInfoCapsule newVehicleScoringInfoCapsule( LiveGameData gameData );
+    public abstract _ScoringInfoCapsule newScoringInfoCapsule( LiveGameData gameData );
+    
+    public abstract _VehicleScoringInfoCapsule newVehicleScoringInfoCapsule( LiveGameData gameData );
     
     public static _LiveGameDataObjectsFactory get( SupportedGames gameId )
     {

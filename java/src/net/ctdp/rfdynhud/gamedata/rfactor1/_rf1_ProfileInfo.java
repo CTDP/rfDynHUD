@@ -15,11 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.File;
 import java.io.FileFilter;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -339,15 +341,15 @@ public class _rf1_ProfileInfo extends ProfileInfo
      * {@inheritDoc}
      */
     @Override
-    public final File getCCHFile()
+    protected final File getCCHFileImpl( String modName )
     {
         if ( profileFolder == null )
             return ( null );
         
-        if ( getModName() == null )
+        if ( modName == null )
             return ( null );
         
-        return ( new File( profileFolder, getModName() + ".cch" ) );
+        return ( new File( profileFolder, modName + ".cch" ) );
     }
     
     /**

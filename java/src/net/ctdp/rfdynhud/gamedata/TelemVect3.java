@@ -25,6 +25,13 @@ public class TelemVect3
 {
     float x, y, z;
     
+    public void invert()
+    {
+        this.x *= -1f;
+        this.y *= -1f;
+        this.z *= -1f;
+    }
+    
     public final float getX()
     {
         return ( x );

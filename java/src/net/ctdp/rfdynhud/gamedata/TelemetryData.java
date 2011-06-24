@@ -43,7 +43,7 @@ import net.ctdp.rfdynhud.util.RFDHLog;
  */
 public class TelemetryData
 {
-    final TelemetryDataCapsule data;
+    final _TelemetryDataCapsule data;
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;

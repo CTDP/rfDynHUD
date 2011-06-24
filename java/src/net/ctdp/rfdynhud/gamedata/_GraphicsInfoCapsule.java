@@ -25,7 +25,7 @@ import java.io.OutputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-abstract class CommentaryRequestInfoCapsule
+public abstract class _GraphicsInfoCapsule
 {
     public abstract byte[] getBuffer();
     
@@ -34,27 +34,47 @@ abstract class CommentaryRequestInfoCapsule
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
     /**
-     * @return one of the event names in the commentary INI file
+     * camera position in meters
+     * 
+     * @param position output buffer
      */
-    public abstract String getName();
+    public abstract void getCameraPosition( TelemVect3 position );
     
     /**
-     * @return first value to pass in (if any)
+     * @return camera position in meters
      */
-    public abstract double getInput1();
+    public abstract float getCameraPositionX();
     
     /**
-     * @return second value to pass in (if any)
+     * @return camera position in meters
      */
-    public abstract double getInput2();
+    public abstract float getCameraPositionY();
     
     /**
-     * @return third value to pass in (if any)
+     * @return camera position in meters
      */
-    public abstract double getInput3();
+    public abstract float getCameraPositionZ();
     
     /**
-     * @return ignores commentary detail and random probability of event
+     * camera orientation
+     * 
+     * @param orientation output buffer
      */
-    public abstract boolean getSkipChecks();
+    public abstract void getCameraOrientation( TelemVect3 orientation );
+    
+    /**
+     * @return the ambient color
+     */
+    public abstract java.awt.Color getAmbientColor();
+    
+    /**
+     * Gets the currently viewed vehicle.
+     * 
+     * @return the currently viewed vehicle or <code>null</code>, if N/A.
+     */
+    public abstract VehicleScoringInfo getViewedVehicleScoringInfo();
+    
+    protected _GraphicsInfoCapsule()
+    {
+    }
 }

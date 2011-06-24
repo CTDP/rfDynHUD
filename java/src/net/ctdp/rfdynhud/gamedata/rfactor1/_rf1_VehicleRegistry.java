@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.File;
 import java.net.URL;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
+import net.ctdp.rfdynhud.gamedata.VehicleInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.strings.StringUtils;
@@ -34,8 +35,6 @@ import org.jagatoo.util.strings.StringUtils;
  */
 class _rf1_VehicleRegistry
 {
-    private final _LiveGameDataObjectsFactory gdFactory;
-    
     private final ArrayList<VehicleInfo> vehicles = new ArrayList<VehicleInfo>();
     private final HashMap<String, VehicleInfo> driverVehileMap = new HashMap<String, VehicleInfo>();
     
@@ -52,10 +51,10 @@ class _rf1_VehicleRegistry
             }
             else if ( StringUtils.endsWithIgnoreCase( file.getName(), ".veh" ) )
             {
-                VehicleInfo vi = new VehicleInfo();
+                _rf1_VehicleInfo vi = new _rf1_VehicleInfo();
                 try
                 {
-                    gdFactory.newVehicleInfoParser( file.getName(), vi ).parse( file );
+                    new _rf1_VehicleInfoParser( file.getName(), vi ).parse( file );
                     
                     if ( vehicleFilter == null )
                     {
@@ -134,12 +133,12 @@ class _rf1_VehicleRegistry
         
         for ( String filename : files )
         {
-            VehicleInfo vi = new VehicleInfo();
+            _rf1_VehicleInfo vi = new _rf1_VehicleInfo();
             try
             {
                 URL file = __EDPrivilegedAccess.editorClassLoader.getResource( "data/game_data/vehicles/" + filename );
                 
-                gdFactory.newVehicleInfoParser( filename, vi ).parse( file );
+                new _rf1_VehicleInfoParser( filename, vi ).parse( file );
                 
                 this.vehicles.add( vi );
             }
@@ -171,8 +170,7 @@ class _rf1_VehicleRegistry
         return ( driverVehileMap.get( vehicleName ) );
     }
     
-    public _rf1_VehicleRegistry( _LiveGameDataObjectsFactory gdFactory )
+    public _rf1_VehicleRegistry()
     {
-        this.gdFactory = gdFactory;
     }
 }

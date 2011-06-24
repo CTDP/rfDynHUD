@@ -491,7 +491,7 @@ public class LiveGameData
         
         this.profileInfo = gdFactory.newProfileInfo( this );
         this.modInfo = gdFactory.newModInfo( this );
-        this.vehicleInfo = new VehicleInfo();
+        this.vehicleInfo = gdFactory.newVehicleInfo();
         this.trackInfo = gdFactory.newTrackInfo( this );
         
         VehicleSetupParser.loadDefaultSetup( physics, setup );

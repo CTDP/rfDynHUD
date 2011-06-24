@@ -469,9 +469,21 @@ public abstract class ProfileInfo
     /**
      * Gets the currently used CCH file.
      * 
+     * @param modName
+     * 
      * @return the currently used CCH file.
      */
-    public abstract File getCCHFile();
+    protected abstract File getCCHFileImpl( String modName );
+    
+    /**
+     * Gets the currently used CCH file.
+     * 
+     * @return the currently used CCH file.
+     */
+    public final File getCCHFile()
+    {
+        return ( getCCHFileImpl( modName ) );
+    }
     
     /**
      * Create a new instance.

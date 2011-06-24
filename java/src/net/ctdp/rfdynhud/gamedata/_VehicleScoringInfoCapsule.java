@@ -25,7 +25,7 @@ import java.io.OutputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-abstract class VehicleScoringInfoCapsule
+public abstract class _VehicleScoringInfoCapsule
 {
     protected abstract String getOriginalName();
     
@@ -270,7 +270,7 @@ abstract class VehicleScoringInfoCapsule
      */
     public abstract void getLocalRotationalAcceleration( TelemVect3 localRotAccel );
     
-    protected VehicleScoringInfoCapsule()
+    protected _VehicleScoringInfoCapsule()
     {
     }
 }

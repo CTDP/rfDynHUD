@@ -15,17 +15,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata._CommentaryRequestInfoCapsule;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_CommentaryRequestInfoCapsule extends CommentaryRequestInfoCapsule
+class _rf1_CommentaryRequestInfoCapsule extends _CommentaryRequestInfoCapsule
 {
     private static final int OFFSET_NAME = 0;
     private static final int OFFSET_INPUT1 = OFFSET_NAME + 32 * ByteUtil.SIZE_CHAR;

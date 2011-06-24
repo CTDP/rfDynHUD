@@ -34,7 +34,7 @@ import java.io.OutputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-abstract class TelemetryDataCapsule
+public abstract class _TelemetryDataCapsule
 {
     public abstract byte[] getBuffer();
     
@@ -377,7 +377,7 @@ abstract class TelemetryDataCapsule
      */
     public abstract boolean isWheelDetached( Wheel wheel );
     
-    protected TelemetryDataCapsule()
+    protected _TelemetryDataCapsule()
     {
     }
 }

@@ -27,7 +27,7 @@ import java.io.OutputStream;
  */
 public class GraphicsInfo
 {
-    final GraphicsInfoCapsule data;
+    final _GraphicsInfoCapsule data;
     
     private final LiveGameData gameData;
     

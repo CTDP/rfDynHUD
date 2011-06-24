@@ -22,27 +22,27 @@ package net.ctdp.rfdynhud.gamedata;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class VehicleInfo
+public abstract class VehicleInfo
 {
-    int carNumber = -1;
+    private int carNumber = -1;
     private String teamName = null;
     private String teamNameCleaned = null;
-    String pitGroup = null;
-    String driverName = null;
-    String driverDescription = null;
-    String engineName = null;
-    String manufacturer = null;
-    String classes = null;
+    private String pitGroup = null;
+    private String driverName = null;
+    private String driverDescription = null;
+    private String engineName = null;
+    private String manufacturer = null;
+    private String classes = null;
     
-    String fullTeamName = null;
-    String teamFounded = null;
-    String teamHeadquarters = null;
-    String teamStarts = "N/A";
-    String teamPoles = "N/A";
-    String teamWins = "N/A";
-    String teamWorldChampionships = "N/A";
+    private String fullTeamName = null;
+    private String teamFounded = null;
+    private String teamHeadquarters = null;
+    private String teamStarts = "N/A";
+    private String teamPoles = "N/A";
+    private String teamWins = "N/A";
+    private String teamWorldChampionships = "N/A";
     
-    String category = null;
+    private String category = null;
     
     void reset()
     {
@@ -67,12 +67,17 @@ public class VehicleInfo
         category = null;
     }
     
+    protected void setCarNumber( int carNumber )
+    {
+        this.carNumber = carNumber;
+    }
+    
     public final int getCarNumber()
     {
         return ( carNumber );
     }
     
-    void setTeamName( String teamName )
+    protected void setTeamName( String teamName )
     {
         this.teamName = teamName;
         
@@ -102,9 +107,19 @@ public class VehicleInfo
         return ( teamNameCleaned );
     }
     
+    protected void setPitGroup( String pitGroup )
+    {
+        this.pitGroup = pitGroup;
+    }
+    
     public final String getPitGroup()
     {
         return ( pitGroup );
+    }
+    
+    protected void setDriverName( String driverName )
+    {
+        this.driverName = driverName;
     }
     
     public final String getDriverName()
@@ -112,9 +127,19 @@ public class VehicleInfo
         return ( driverName );
     }
     
+    protected void setDriverDescription( String driverDescription )
+    {
+        this.driverDescription = driverDescription;
+    }
+    
     public final String getDriverDescription()
     {
         return ( driverDescription );
+    }
+    
+    protected void setEngineName( String engineName )
+    {
+        this.engineName = engineName;
     }
     
     public final String getEngineName()
@@ -122,9 +147,19 @@ public class VehicleInfo
         return ( engineName );
     }
     
+    protected void setManufacturer( String manufacturer )
+    {
+        this.manufacturer = manufacturer;
+    }
+    
     public final String getManufacturer()
     {
         return ( manufacturer );
+    }
+    
+    protected void setClasses( String classes )
+    {
+        this.classes = classes;
     }
     
     public final String getClasses()
@@ -132,9 +167,19 @@ public class VehicleInfo
         return ( classes );
     }
     
+    protected void setFullTeamName( String fullTeamName )
+    {
+        this.fullTeamName = fullTeamName;
+    }
+    
     public final String getFullTeamName()
     {
         return ( fullTeamName );
+    }
+    
+    protected void setTeamFounded( String teamFounded )
+    {
+        this.teamFounded = teamFounded;
     }
     
     public final String getTeamFounded()
@@ -142,9 +187,19 @@ public class VehicleInfo
         return ( teamFounded );
     }
     
+    protected void setTeamHeadquarters( String teamHeadquarters )
+    {
+        this.teamHeadquarters = teamHeadquarters;
+    }
+    
     public final String getTeamHeadquarters()
     {
         return ( teamHeadquarters );
+    }
+    
+    protected void setTeamStarts( String teamStarts )
+    {
+        this.teamStarts = teamStarts;
     }
     
     public final String getTeamStarts()
@@ -152,9 +207,19 @@ public class VehicleInfo
         return ( teamStarts );
     }
     
+    protected void setTeamPoles( String teamPoles )
+    {
+        this.teamPoles = teamPoles;
+    }
+    
     public final String getTeamPoles()
     {
         return ( teamPoles );
+    }
+    
+    protected void setTeamWins( String teamWins )
+    {
+        this.teamWins = teamWins;
     }
     
     public final String getTeamWins()
@@ -162,9 +227,19 @@ public class VehicleInfo
         return ( teamWins );
     }
     
+    protected void setTeamWorldChampionships( String teamWorldChampionships )
+    {
+        this.teamWorldChampionships = teamWorldChampionships;
+    }
+    
     public final String getTeamWorldChampionships()
     {
         return ( teamWorldChampionships );
+    }
+    
+    protected void setCategory( String category )
+    {
+        this.category = category;
     }
     
     public final String getCategory()

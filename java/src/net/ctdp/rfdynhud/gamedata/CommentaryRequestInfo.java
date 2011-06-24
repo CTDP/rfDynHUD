@@ -27,7 +27,7 @@ import java.io.OutputStream;
  */
 public class CommentaryRequestInfo
 {
-    final CommentaryRequestInfoCapsule data;
+    final _CommentaryRequestInfoCapsule data;
     
     private final LiveGameData gameData;
     

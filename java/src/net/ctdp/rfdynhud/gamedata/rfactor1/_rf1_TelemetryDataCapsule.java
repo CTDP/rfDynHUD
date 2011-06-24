@@ -15,11 +15,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata.SurfaceType;
+import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata._TelemetryDataCapsule;
+import net.ctdp.rfdynhud.gamedata.Wheel;
+import net.ctdp.rfdynhud.gamedata.WheelPart;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -34,7 +41,7 @@ import java.io.OutputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_TelemetryDataCapsule extends TelemetryDataCapsule
+class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
 {
     private static final int OFFSET_DELTA_TIME = 0;
     private static final int OFFSET_LAP_NUMBER = OFFSET_DELTA_TIME + ByteUtil.SIZE_FLOAT;

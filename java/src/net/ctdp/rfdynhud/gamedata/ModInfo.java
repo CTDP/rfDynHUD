@@ -27,7 +27,9 @@ import java.util.ArrayList;
  */
 public abstract class ModInfo
 {
-    protected String modName = null;
+    private final ProfileInfo profileInfo;
+    
+    private String modName = null;
     protected File rfmFile = null;
     protected File vehiclesDir = null;
     protected String[] vehicleFilter = null;
@@ -38,6 +40,8 @@ public abstract class ModInfo
     
     protected final void update()
     {
+        this.modName = profileInfo.getModName();
+        
         updateImpl();
     }
     
@@ -112,9 +116,12 @@ public abstract class ModInfo
     
     /**
      * Creates a new ModInfo instance.
+     * 
+     * @param profileInfo
      */
-    protected ModInfo()
+    protected ModInfo( ProfileInfo profileInfo )
     {
+        this.profileInfo = profileInfo;
     }
     
     /**

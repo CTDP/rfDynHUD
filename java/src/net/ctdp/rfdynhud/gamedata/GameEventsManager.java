@@ -315,7 +315,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             
             if ( ( playerVEHFile != null ) && playerVEHFile.exists() )
             {
-                gameData.getGameDataObjectsFactory().newVehicleInfoParser( playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() ).parse( playerVEHFile );
+                gameData.getGameDataObjectsFactory().parseVehicleInfo( playerVEHFile, playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() );
             }
         }
         catch ( Throwable t )

@@ -42,24 +42,4 @@ public enum VehicleControl
     {
         this.ISI_VALUE = (byte)isi_value;
     }
-    
-    static final VehicleControl getFromISIValue( byte isi_value )
-    {
-        switch ( isi_value )
-        {
-            case -1:
-                return ( NOBODY );
-            case 0:
-                return ( LOCAL_PLAYER );
-            case 1:
-                return ( LOCAL_AI );
-            case 2:
-                return ( REMOTE );
-            case 3:
-                return ( REPLAY );
-        }
-        
-        // Unreachable code!
-        return ( null );
-    }
 }

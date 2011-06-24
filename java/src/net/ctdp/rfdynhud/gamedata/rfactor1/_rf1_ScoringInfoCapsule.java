@@ -15,17 +15,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata.GamePhase;
+import net.ctdp.rfdynhud.gamedata._ScoringInfoCapsule;
+import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.YellowFlagState;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_ScoringInfoCapsule extends ScoringInfoCapsule
+class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
 {
     private static final int OFFSET_TRACK_NAME = 0;
     private static final int MAX_TRACK_NAME_LENGTH = 64;

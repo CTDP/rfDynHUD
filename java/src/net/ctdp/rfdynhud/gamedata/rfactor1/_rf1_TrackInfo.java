@@ -15,13 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.gamedata.ProfileInfo;
+import net.ctdp.rfdynhud.gamedata.Track;
+import net.ctdp.rfdynhud.gamedata.TrackInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.strings.StringUtils;
@@ -33,8 +36,6 @@ import org.jagatoo.util.strings.StringUtils;
  */
 public class _rf1_TrackInfo extends TrackInfo
 {
-    private final ProfileInfo profileInfo;
-    
     private String trackName = null;
     private int raceLaps = -1;
     private File aiwFile = null;
@@ -177,10 +178,8 @@ public class _rf1_TrackInfo extends TrackInfo
      * {@inheritDoc}
      */
     @Override
-    protected void updateImpl()
+    protected void updateImpl( File sceneFile )
     {
-        File sceneFile = profileInfo.getLastUsedSceneFile();
-        
         if ( sceneFile == null )
         {
             reset();
@@ -199,15 +198,6 @@ public class _rf1_TrackInfo extends TrackInfo
         
         this.aiwFile = null;
         this.lastTrack = null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final File getSceneFile()
-    {
-        return ( profileInfo.getLastUsedSceneFile() );
     }
     
     /**
@@ -316,6 +306,6 @@ public class _rf1_TrackInfo extends TrackInfo
      */
     public _rf1_TrackInfo( ProfileInfo profileInfo )
     {
-        this.profileInfo = profileInfo;
+        super( profileInfo );
     }
 }

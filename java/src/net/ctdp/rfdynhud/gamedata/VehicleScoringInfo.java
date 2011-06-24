@@ -38,7 +38,7 @@ public class VehicleScoringInfo
     private final ProfileInfo profileInfo;
     private final LiveGameData gameData;
        
-    VehicleScoringInfoCapsule data = null;
+    _VehicleScoringInfoCapsule data = null;
     
     private String originalName = null;
     private String name = null;

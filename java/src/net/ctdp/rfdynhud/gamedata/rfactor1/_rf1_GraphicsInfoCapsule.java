@@ -15,17 +15,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata._GraphicsInfoCapsule;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
+import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_GraphicsInfoCapsule extends GraphicsInfoCapsule
+class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
 {
     private static final int OFFSET_CAM_POS = 0;
     private static final int OFFSET_CAM_ORI = OFFSET_CAM_POS + ByteUtil.SIZE_VECTOR3;
@@ -172,9 +178,7 @@ class _rf1_GraphicsInfoCapsule extends GraphicsInfoCapsule
         VehicleScoringInfo viewedVSI = null;
         
         getCameraPosition( camPos );
-        camPos.x *= -1f;
-        camPos.y *= -1f;
-        camPos.z *= -1f;
+        camPos.invert();
         
         float closestDist = Float.MAX_VALUE;
         

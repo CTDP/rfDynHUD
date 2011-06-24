@@ -15,18 +15,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 
+import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata.FinishStatus;
+import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.VehicleControl;
+import net.ctdp.rfdynhud.gamedata._VehicleScoringInfoCapsule;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_VehicleScoringInfoCapsule extends VehicleScoringInfoCapsule
+class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
 {
     private static final int OFFSET_DRIVER_NAME = 0;
     private static final int MAX_DRIVER_NAME_LENGTH = 32;
@@ -569,6 +575,26 @@ class _rf1_VehicleScoringInfoCapsule extends VehicleScoringInfoCapsule
         return ( ByteUtil.readBoolean( buffer, OFFSET_IS_PLAYER ) );
     }
     
+    private static final VehicleControl convertVehicleControl( byte isi_value )
+    {
+        switch ( isi_value )
+        {
+            case -1:
+                return ( VehicleControl.NOBODY );
+            case 0:
+                return ( VehicleControl.LOCAL_PLAYER );
+            case 1:
+                return ( VehicleControl.LOCAL_AI );
+            case 2:
+                return ( VehicleControl.REMOTE );
+            case 3:
+                return ( VehicleControl.REPLAY );
+        }
+        
+        // Unreachable code!
+        return ( null );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -578,7 +604,7 @@ class _rf1_VehicleScoringInfoCapsule extends VehicleScoringInfoCapsule
         // signed char mControl
         
         byte control = ByteUtil.readByte( buffer, OFFSET_CONTROL );
-        VehicleControl vc = VehicleControl.getFromISIValue( control );
+        VehicleControl vc = convertVehicleControl( control );
         
         if ( vc == null )
             throw new Error( "Unknown control id read (" + control + ")." );

@@ -15,11 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.File;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.PluginINI;
 
 import org.jagatoo.util.errorhandling.ParsingException;

@@ -44,7 +44,7 @@ public class ScoringInfo
     private final LiveGameData gameData;
     private final _LiveGameDataObjectsFactory gdFactory;
     
-    final ScoringInfoCapsule data;
+    final _ScoringInfoCapsule data;
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
@@ -143,7 +143,7 @@ public class ScoringInfo
     
     private VehicleScoringInfo[] vehicleScoringInfo = null;
     private VehicleScoringInfo[] vehicleScoringInfo2 = null;
-    VehicleScoringInfoCapsule[] vehicleScoringInfoCapsules = null;
+    _VehicleScoringInfoCapsule[] vehicleScoringInfoCapsules = null;
     private int numVehicles = -1;
     private int oldNumVehicles = -1;
     private boolean fixedViewedVSI = false;
@@ -163,7 +163,7 @@ public class ScoringInfo
     
     private ThreeLetterCodeGenerator tlcGenerator;
     
-    private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
+    private final HashMap<Integer, _VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, _VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
     private final HashMap<Integer, Integer> nameDuplicatesMap = new HashMap<Integer, Integer>();
     
@@ -180,7 +180,7 @@ public class ScoringInfo
         
         if ( ( vehicleScoringInfoCapsules == null ) || ( vehicleScoringInfoCapsules.length < numVehicles ) )
         {
-            VehicleScoringInfoCapsule[] tmp = new VehicleScoringInfoCapsule[ numVehicles ];
+            _VehicleScoringInfoCapsule[] tmp = new _VehicleScoringInfoCapsule[ numVehicles ];
             
             int oldCount;
             if ( vehicleScoringInfoCapsules == null )
@@ -307,7 +307,7 @@ public class ScoringInfo
                 {
                     // Player joined
                     
-                    VehicleScoringInfoCapsule data = idCapsuleMap.get( joinedID );
+                    _VehicleScoringInfoCapsule data = idCapsuleMap.get( joinedID );
                     
                     VehicleScoringInfo vsi = leftVSICache.remove( joinedID );
                     

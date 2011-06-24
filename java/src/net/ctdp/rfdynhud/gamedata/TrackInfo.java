@@ -26,6 +26,8 @@ import java.io.File;
  */
 public abstract class TrackInfo
 {
+    private final ProfileInfo profileInfo;
+    
     protected File trackFolder = null;
     
     protected void reset()
@@ -41,8 +43,10 @@ public abstract class TrackInfo
      * </p>
      * WARNING:<br>
      * This operation may take a long time.
+     * 
+     * @param sceneFile
      */
-    protected abstract void updateImpl();
+    protected abstract void updateImpl( File sceneFile );
     
     /**
      * <p>
@@ -55,7 +59,7 @@ public abstract class TrackInfo
      */
     final void update()
     {
-        updateImpl();
+        updateImpl( profileInfo.getLastUsedSceneFile() );
     }
     
     /**
@@ -73,7 +77,10 @@ public abstract class TrackInfo
      * 
      * @return the track's scene file.
      */
-    public abstract File getSceneFile();
+    public final File getSceneFile()
+    {
+        return ( profileInfo.getLastUsedSceneFile() );
+    }
     
     /**
      * Gets the track's name.
@@ -113,8 +120,11 @@ public abstract class TrackInfo
     
     /**
      * Create a new instance.
+     * 
+     * @param profileInfo
      */
-    protected TrackInfo()
+    protected TrackInfo( ProfileInfo profileInfo )
     {
+        this.profileInfo = profileInfo;
     }
 }

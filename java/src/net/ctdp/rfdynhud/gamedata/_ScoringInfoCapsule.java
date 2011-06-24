@@ -25,7 +25,7 @@ import java.io.OutputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-abstract class ScoringInfoCapsule
+public abstract class _ScoringInfoCapsule
 {
     public abstract byte[] getBuffer();
     
@@ -147,7 +147,7 @@ abstract class ScoringInfoCapsule
      */
     public abstract float getOffPathWetness();
     
-    protected ScoringInfoCapsule()
+    protected _ScoringInfoCapsule()
     {
     }
 }

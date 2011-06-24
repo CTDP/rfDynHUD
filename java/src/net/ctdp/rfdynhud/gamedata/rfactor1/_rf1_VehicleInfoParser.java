@@ -15,12 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import net.ctdp.rfdynhud.gamedata.VehicleInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -31,8 +32,11 @@ import org.jagatoo.util.ini.AbstractIniParser;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_VehicleInfoParser extends VehicleInfoParser
+class _rf1_VehicleInfoParser
 {
+    private final String filename;
+    private final _rf1_VehicleInfo info;
+    
     private static final Throwable getRootCause( Throwable t )
     {
         if ( t.getCause() == null )
@@ -58,7 +62,7 @@ class _rf1_VehicleInfoParser extends VehicleInfoParser
                 {
                     if ( key.equalsIgnoreCase( "Number" ) )
                     {
-                        info.carNumber = Integer.parseInt( value );
+                        info.setCarNumber( Integer.parseInt( value ) );
                     }
                     else if ( key.equalsIgnoreCase( "Team" ) )
                     {
@@ -66,63 +70,63 @@ class _rf1_VehicleInfoParser extends VehicleInfoParser
                     }
                     else if ( key.equalsIgnoreCase( "PitGroup" ) )
                     {
-                        info.pitGroup = value;
+                        info.setPitGroup( value );
                     }
                     else if ( key.equalsIgnoreCase( "Driver" ) )
                     {
-                        info.driverName = value;
+                        info.setDriverName( value );
                     }
                     else if ( key.equalsIgnoreCase( "Description" ) )
                     {
-                        info.driverDescription = value;
+                        info.setDriverDescription( value );
                     }
                     else if ( key.equalsIgnoreCase( "Engine" ) )
                     {
-                        info.engineName = value;
+                        info.setEngineName( value );
                     }
                     else if ( key.equalsIgnoreCase( "Manufacturer" ) )
                     {
-                        info.manufacturer = value;
+                        info.setManufacturer( value );
                     }
                     else if ( key.equalsIgnoreCase( "Classes" ) )
                     {
-                        info.classes = value;
+                        info.setClasses( value );
                     }
                     else if ( key.equalsIgnoreCase( "FullTeamName" ) )
                     {
-                        info.fullTeamName = value;
+                        info.setFullTeamName( value );
                     }
                     else if ( key.equalsIgnoreCase( "TeamFounded" ) )
                     {
-                        info.teamFounded = value;
+                        info.setTeamFounded( value );
                     }
                     else if ( key.equalsIgnoreCase( "TeamHeadquarters" ) )
                     {
-                        info.teamHeadquarters = value;
+                        info.setTeamHeadquarters( value );
                     }
                     else if ( key.equalsIgnoreCase( "TeamStarts" ) )
                     {
                         if ( value.length() > 0 )
-                            info.teamStarts = value;
+                            info.setTeamStarts( value );
                     }
                     else if ( key.equalsIgnoreCase( "TeamPoles" ) )
                     {
                         if ( value.length() > 0 )
-                            info.teamPoles = value;
+                            info.setTeamPoles( value );
                     }
                     else if ( key.equalsIgnoreCase( "TeamWins" ) )
                     {
                         if ( value.length() > 0 )
-                            info.teamWins = value;
+                            info.setTeamWins( value );
                     }
                     else if ( key.equalsIgnoreCase( "TeamWorldChampionships" ) )
                     {
                         if ( value.length() > 0 )
-                            info.teamWorldChampionships = value;
+                            info.setTeamWorldChampionships( value );
                     }
                     else if ( key.equalsIgnoreCase( "Category" ) )
                     {
-                        info.category = value;
+                        info.setCategory( value );
                     }
                 }
             }
@@ -146,25 +150,34 @@ class _rf1_VehicleInfoParser extends VehicleInfoParser
     }
     
     /**
-     * {@inheritDoc}
+     * Parses the given file.
+     * 
+     * @param file
+     * 
+     * @throws IOException
+     * @throws ParsingException
      */
-    @Override
     public void parse( File file ) throws IOException, ParsingException
     {
         new _ParserImpl().parse( file );
     }
     
     /**
-     * {@inheritDoc}
+     * Parses the given file.
+     * 
+     * @param url
+     * 
+     * @throws IOException
+     * @throws ParsingException
      */
-    @Override
     public void parse( URL url ) throws IOException, ParsingException
     {
         new _ParserImpl().parse( url );
     }
     
-    public _rf1_VehicleInfoParser( String filename, VehicleInfo info )
+    public _rf1_VehicleInfoParser( String filename, _rf1_VehicleInfo info )
     {
-        super( filename, info );
+        this.filename = filename;
+        this.info = info;
     }
 }

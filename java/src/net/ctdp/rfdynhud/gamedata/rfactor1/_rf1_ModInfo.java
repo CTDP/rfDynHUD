@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata;
+package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,6 +23,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.ModInfo;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo;
+import net.ctdp.rfdynhud.gamedata.VehicleInfo;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -38,7 +43,6 @@ public class _rf1_ModInfo extends ModInfo
 {
     //private final _LiveGameDataObjectsFactory gdFactory;
     private final GameFileSystem fileSystem;
-    private final ProfileInfo profileInfo;
     
     private final _rf1_VehicleRegistry vehicleRegistry;
     
@@ -273,8 +277,7 @@ public class _rf1_ModInfo extends ModInfo
     @Override
     protected void updateImpl()
     {
-        this.modName = profileInfo.getModName();
-        this.rfmFile = new File( new File( fileSystem.getGameFolder(), "rfm" ), modName + ".rfm" );
+        this.rfmFile = new File( new File( fileSystem.getGameFolder(), "rfm" ), getName() + ".rfm" );
         this.vehiclesDir = new File( new File( fileSystem.getGameFolder(), "GameData" ), "Vehicles" );
         this.vehicleFilter = null;
         
@@ -298,17 +301,14 @@ public class _rf1_ModInfo extends ModInfo
      * 
      * @param fileSystem
      * @param profileInfo
-     * @param gdFactory
      */
-    public _rf1_ModInfo( GameFileSystem fileSystem, ProfileInfo profileInfo, _LiveGameDataObjectsFactory gdFactory )
+    public _rf1_ModInfo( GameFileSystem fileSystem, ProfileInfo profileInfo )
     {
-        super();
+        super( profileInfo );
         
         this.fileSystem = fileSystem;
-        this.profileInfo = profileInfo;
-        //this.gdFactory = gdFactory;
         
-        this.vehicleRegistry = new _rf1_VehicleRegistry( gdFactory );
+        this.vehicleRegistry = new _rf1_VehicleRegistry();
     }
     
     /**
