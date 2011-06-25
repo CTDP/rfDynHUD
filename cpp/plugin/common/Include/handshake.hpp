@@ -20,7 +20,6 @@ class Handshake
 {
 public:
     HandshakeState state;
-    bool isModSupported;
     bool isInRenderMode;
     bool isSessionRunning;
     bool isInRealtime;
@@ -42,7 +41,6 @@ public:
     Handshake()
     {
         state = HANDSHAKE_STATE_NONE;
-        isModSupported = false;
         isInRenderMode = false;
         isSessionRunning = false;
         isInRealtime = false;

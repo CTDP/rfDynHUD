@@ -1,7 +1,7 @@
-#ifndef _INTERNALS_PLUGIN_HPP_
-#define _INTERNALS_PLUGIN_HPP_
+#ifndef _RF1_INTERNALS_PLUGIN_HPP_
+#define _RF1_INTERNALS_PLUGIN_HPP_
 
-#include "RFPluginObjects.hpp"
+#include "rf1PluginObjects.hpp"
 
 // change this variable whenever a change is made to the plugin interfaces
 // use m_uVersion (returned by GetVersion() for version control instead
@@ -366,4 +366,4 @@ class InternalsPluginV3 : public InternalsPluginV2
     virtual bool RequestCommentary( CommentaryRequestInfo &info ) { return( false ); } // to use our commentary event system, fill in data and return true
 };
 
-#endif // _INTERNALS_PLUGIN_HPP_
+#endif // _RF1_INTERNALS_PLUGIN_HPP_

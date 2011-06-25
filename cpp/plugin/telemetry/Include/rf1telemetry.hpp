@@ -1,7 +1,7 @@
-#ifndef _TELEMETRY_H
-#define _TELEMETRY_H
+#ifndef _RF1_TELEMETRY_H
+#define _RF1_TELEMETRY_H
 
-#include "InternalsPlugin.hpp"
+#include "rf1InternalsPlugin.hpp"
 
 // This is used for app to find out information about the plugin
 class RFDynHUDPluginInfo : public PluginObjectInfo
@@ -95,4 +95,4 @@ class RFDynHUDPlugin : public InternalsPluginV3
     bool RequestCommentary( CommentaryRequestInfo &info );  // SEE FUNCTION BODY TO ENABLE COMMENTARY EXAMPLE
 };
 
-#endif // _TELEMETRY_H
+#endif _RF1_TELEMETRY_H

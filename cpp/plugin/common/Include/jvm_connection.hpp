@@ -241,7 +241,7 @@ public:
     JVMInputFunctions inputFuncs;
     JVMTelemtryUpdateFunctions telemFuncs;
     
-    bool init( const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY );
+    bool init( const char* GAME_NAME, const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY );
     
     void destroy();
 };

@@ -4,9 +4,8 @@
 #include <jni.h>
 #include "direct_input.h"
 #include "filesystem.h"
+#include "util.h"
 #include "logging.h"
-
-const char* GAME_NAME = "rFactor";
 
 char* readJavaHomeFromRegistry()
 {
@@ -146,6 +145,12 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     setBuffer( "-Djava.class.path=", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\rfdynhud.jar", fileBuffer );
+    addPostFix( ";", fileBuffer );
+    addPostFix( PLUGIN_PATH, fileBuffer );
+    if ( isRFactor2() )
+        addPostFix( "\\rfdynhud_gamedata_rfactor2.jar", fileBuffer );
+    else
+        addPostFix( "\\rfdynhud_gamedata_rfactor1.jar", fileBuffer );
     
 	const bool WITH_PROFILER = false;
 	const unsigned int nOptions = WITH_PROFILER ? 11 : 10;
@@ -914,7 +919,7 @@ void JVMTelemtryUpdateFunctions::destroy()
     env = NULL;
 }
 
-bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY )
+bool JVMConnection::init( const char* GAME_NAME, const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY )
 {
     if ( !createNewJavaVM( PLUGIN_PATH, &jvm, &env ) )
         return ( false );

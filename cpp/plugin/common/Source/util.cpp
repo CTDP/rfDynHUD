@@ -113,3 +113,32 @@ unsigned short readIniString( const char* file, const char* group, const char* k
     
     return ( len );
 }
+
+char cached_isRFactor2 = -1;
+
+bool _isRFactor2()
+{
+    // TODO: Find a better way to detect this!
+    char buffer[ MAX_PATH ];
+    int len = GetModuleFileName( NULL, buffer, MAX_PATH );
+    
+    for ( int i = len - 1; i >= 0; i-- )
+    {
+        if ( buffer[i] == '\\' )
+        {
+            return ( stringsEqual( "rFactor2.exe", buffer + i + 1 ) );
+        }
+    }
+    
+    return ( false );
+}
+
+bool isRFactor2()
+{
+    if ( cached_isRFactor2 < 0 )
+    {
+        cached_isRFactor2 = _isRFactor2() ? 1 : 0;
+    }
+    
+    return ( cached_isRFactor2 > 0 );
+}

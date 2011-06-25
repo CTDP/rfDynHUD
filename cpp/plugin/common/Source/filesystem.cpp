@@ -17,10 +17,10 @@ char* cropBuffer2( const char* src )
 
 char* getRFactorPath()
 {
-    char* buffer = (char*)malloc( MAX_PATH );
-    unsigned int len = GetModuleFileName( NULL, buffer, MAX_PATH );
+    char buffer[ MAX_PATH ];
+    int len = GetModuleFileName( NULL, buffer, MAX_PATH );
     
-    for ( unsigned int i = len; i >= 0; i-- )
+    for ( int i = len - 1; i >= 0; i-- )
     {
         if ( buffer[i] == '\\' )
         {
@@ -31,7 +31,6 @@ char* getRFactorPath()
     }
     
     char* result = cropBuffer( buffer, len + 1 );
-    free( buffer );
     
     return ( result );
 }

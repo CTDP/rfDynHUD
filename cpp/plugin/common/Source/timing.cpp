@@ -45,12 +45,12 @@ void writeInt2ToBuffer( WORD i, char* buffer )
     {
         *buffer = '0';
         buffer += 1;
-        _itoa( i, buffer, 10 );
+        _itoa_s( i, buffer, 16, 10 );
         buffer += 1;
     }
     else
     {
-        _itoa( i, buffer, 10 );
+        _itoa_s( i, buffer, 16, 10 );
         buffer += 2;
     }
 }
@@ -67,7 +67,7 @@ unsigned int getFileTimeString( const char* filename, char* buffer )
     SystemTimeToTzSpecificLocalTime( NULL, &st0, &st );
     
     char* b0 = buffer;
-    _itoa( st.wYear, buffer, 10 );
+    _itoa_s( st.wYear, buffer, 16, 10 );
     buffer += 4;
     *buffer = '-';
     buffer += 1;

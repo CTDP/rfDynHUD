@@ -130,7 +130,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib &quot;$(WINSDK_DIR)\Lib\Advapi32.lib&quot;"
+				AdditionalDependencies="Ws2_32.lib &quot;$(WINSDK_DIR)\Lib\Advapi32.lib&quot; User32.lib"
 				OutputFile="$(OutDir)\rfdynhud.dll"
 				AdditionalLibraryDirectories="&quot;$(WINSDK_DIR)\Lib&quot;"
 				GenerateManifest="false"
@@ -195,11 +195,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\rf_files.cpp"
+				RelativePath=".\Source\rf1telemetry.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\telemetry.cpp"
+				RelativePath=".\Source\rf2telemetry.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\telemetry_commons.cpp"
 				>
 			</File>
 			<File
@@ -237,10 +241,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Include\InternalsPlugin.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\common\Include\jvm_connection.hpp"
 				>
 			</File>
@@ -249,15 +249,31 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Include\rf_files.h"
+				RelativePath=".\Include\rf1InternalsPlugin.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Include\RFPluginObjects.hpp"
+				RelativePath=".\Include\rf1PluginObjects.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Include\telemetry.hpp"
+				RelativePath=".\Include\rf1telemetry.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\rf2\rf2InternalsPlugin.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\rf2\rf2PluginObjects.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\rf2\rf2telemetry.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\telemetry_commons.hpp"
 				>
 			</File>
 			<File

@@ -5,6 +5,7 @@
 #include "direct_input.h"
 #include "filesystem.h"
 #include "common.h"
+#include "util.h"
 #include "logging.h"
 
 static const char* RFACTOR_PATH = getRFactorPath();
@@ -41,7 +42,7 @@ void PixelBufferCallback::releasePixelBuffer( const unsigned char textureIndex, 
 
 void _onTextureRequested()
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
     {
         logg( "Texture requested. Updating textures..." );
         
@@ -85,7 +86,7 @@ void _checkRenderModeResult( const char* source, const int result )
 
 void D3DManager::renderOverlay( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned short* viewport, const unsigned char colorDepth, OverlayTextureManager* textureManager )
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && window_activated && handshake->isModSupported && handshake->isSessionRunning )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && window_activated && handshake->isSessionRunning )
     {
         //logg( "renderOverlay()" );
         
@@ -158,7 +159,8 @@ bool _initializeD3D()
         return ( false );
     }
     
-    if ( !handshake->jvmConn.init( PLUGIN_PATH, resX, resY ) )
+    const char* GAME_NAME = isRFactor2() ? "rFactor2" : "rFactor1";
+    if ( !handshake->jvmConn.init( GAME_NAME, PLUGIN_PATH, resX, resY ) )
     {
         handshake->state = HANDSHAKE_STATE_ERROR;
         
@@ -225,7 +227,7 @@ void D3DManager::preReset( void* d3dDev )
 void D3DManager::postReset( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned char colorDepth, const bool windowed, const unsigned short fullscreenRefreshHz, const HWND deviceWindowHandle )
 {
     //logg( "postReset()" );
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isInRenderMode/* && handshake->isInRealtime*/ && handshake->isModSupported )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isInRenderMode/* && handshake->isInRealtime*/ )
     {
         logg( "postReset(). Updating Textures..." );
         

@@ -1,5 +1,5 @@
-#ifndef _PLUGINOBJECT
-#define _PLUGINOBJECT
+#ifndef _RF1_PLUGINOBJECT
+#define _RF1_PLUGINOBJECT
 
 #include <windows.h>
 
@@ -112,4 +112,4 @@ class PluginObjectInfo
     virtual void* Create() const = 0;
 };
 
-#endif
+#endif _RF1_PLUGINOBJECT
