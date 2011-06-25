@@ -328,7 +328,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         if ( !onlyOnce || !physicsLoadedOnce )
         {
-            __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getProfileInfo(), gameData.getTrackInfo(), gameData.getPhysics() );
+            __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getGameID(), gameData.getProfileInfo(), gameData.getTrackInfo(), gameData.getPhysics() );
             
             physicsLoadedOnce = true;
             

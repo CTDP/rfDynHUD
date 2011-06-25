@@ -26,8 +26,6 @@ import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.VehicleInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
-import org.jagatoo.util.strings.StringUtils;
-
 /**
  * Provides {@link VehicleInfo} instances.
  * 
@@ -38,71 +36,7 @@ class _rf2_VehicleRegistry
     private final ArrayList<VehicleInfo> vehicles = new ArrayList<VehicleInfo>();
     private final HashMap<String, VehicleInfo> driverVehileMap = new HashMap<String, VehicleInfo>();
     
-    private void findVehicleFiles( String[] vehicleFilter, File folder )
-    {
-        for ( File file : folder.listFiles() )
-        {
-            if ( file.isDirectory() )
-            {
-                if ( !file.getName().equals( ".svn" ) )
-                {
-                    findVehicleFiles( vehicleFilter, file );
-                }
-            }
-            else if ( StringUtils.endsWithIgnoreCase( file.getName(), ".veh" ) )
-            {
-                _rf2_VehicleInfo vi = new _rf2_VehicleInfo();
-                try
-                {
-                    new _rf2_VehicleInfoParser( file.getName(), vi ).parse( file );
-                    
-                    if ( vehicleFilter == null )
-                    {
-                        this.vehicles.add( vi );
-                    }
-                    else if ( vi.getClasses() != null )
-                    {
-                        String[] classes = vi.getClasses().split( "," );
-                        boolean found = false;
-                        
-                        for ( int i = 0; i < classes.length && !found; i++ )
-                        {
-                            String c = classes[i].trim().toLowerCase();
-                            if ( c.indexOf( ' ' ) >= 0 )
-                            {
-                                String[] classes2 = c.split( " " );
-                                for ( int k = 0; k < classes2.length && !found; k++ )
-                                {
-                                    String c2 = classes2[k].trim().toLowerCase();
-                                    for ( int j = 0; j < vehicleFilter.length && !found; j++ )
-                                    {
-                                        if ( vehicleFilter[j].equals( "*" ) || c2.equals( vehicleFilter[j] ) )
-                                            found = true;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                for ( int j = 0; j < vehicleFilter.length && !found; j++ )
-                                {
-                                    if ( vehicleFilter[j].equals( "*" ) || c.equals( vehicleFilter[j] ) )
-                                        found = true;
-                                }
-                            }
-                        }
-                        
-                        if ( found )
-                            this.vehicles.add( vi );
-                    }
-                }
-                catch ( Throwable t )
-                {
-                    RFDHLog.exception( t );
-                }
-            }
-        }
-    }
-    
+    @SuppressWarnings( "unused" )
     private void loadFactoryDefaultVehicles()
     {
         String[] files = new String[]
@@ -149,15 +83,20 @@ class _rf2_VehicleRegistry
         }
     }
     
+    /**
+     * 
+     * @param vehicleFilter
+     * @param vehiclesFolder
+     */
     public void update( String[] vehicleFilter, File vehiclesFolder )
     {
         vehicles.clear();
         driverVehileMap.clear();
         
-        if ( __EDPrivilegedAccess.editorClassLoader == null )
-            findVehicleFiles( vehicleFilter, vehiclesFolder );
-        else
-            loadFactoryDefaultVehicles();
+        //if ( __EDPrivilegedAccess.editorClassLoader == null )
+        //    findVehicleFiles( vehicleFilter, vehiclesFolder );
+        //else
+        //    loadFactoryDefaultVehicles();
         
         for ( int i = 0; i < vehicles.size(); i++ )
         {

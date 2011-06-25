@@ -68,9 +68,10 @@ public class __GDPrivilegedAccess
         setup.updatedInTimeScope = true;
     }
     
-    public static final void loadFromPhysicsFiles( ProfileInfo profileInfo, TrackInfo trackInfo, VehiclePhysics physics )
+    public static final void loadFromPhysicsFiles( String gameId, ProfileInfo profileInfo, TrackInfo trackInfo, VehiclePhysics physics )
     {
-        physics.loadFromPhysicsFiles( profileInfo, trackInfo );
+        if ( gameId.equals( "rFactor1" ) )
+            physics.loadFromPhysicsFiles( profileInfo, trackInfo );
     }
     
     public static void parsePhysicsFiles( File cchFile, File vehicleFile, String trackName, VehiclePhysics physics ) throws Throwable

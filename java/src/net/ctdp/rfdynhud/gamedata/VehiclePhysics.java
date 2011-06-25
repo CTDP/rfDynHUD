@@ -2012,6 +2012,13 @@ public class VehiclePhysics
      */
     public final TireCompound getTireCompound( int index )
     {
+        if ( tireCompounds == null )
+        {
+            RFDHLog.exception( "WARNING: No tire compounds known." );
+            
+            return ( FALLBACK_COMPOUND );
+        }
+        
         if ( index >= tireCompounds.length )
         {
             RFDHLog.exception( "WARNING: Unknown tire compound index " + index + ". Using closest one." );
@@ -2031,7 +2038,7 @@ public class VehiclePhysics
     public final TireCompound getTireCompoundBestGrip( Wheel wheel )
     {
         if ( tireCompounds == null )
-            return ( null );
+            return ( FALLBACK_COMPOUND );
         
         switch ( wheel )
         {
@@ -2193,6 +2200,8 @@ public class VehiclePhysics
         
         return ( tc );
     }
+    
+    public static final TireCompound FALLBACK_COMPOUND = createDefaultCompound( "DUMMY", 0, 96.5f );
     
     void reset()
     {
