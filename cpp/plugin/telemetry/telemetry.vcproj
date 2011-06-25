@@ -249,15 +249,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Include\rf1InternalsPlugin.hpp"
+				RelativePath=".\Include\rf1\rf1InternalsPlugin.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Include\rf1PluginObjects.hpp"
+				RelativePath=".\Include\rf1\rf1PluginObjects.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Include\rf1telemetry.hpp"
+				RelativePath=".\Include\rf1\rf1telemetry.hpp"
 				>
 			</File>
 			<File
