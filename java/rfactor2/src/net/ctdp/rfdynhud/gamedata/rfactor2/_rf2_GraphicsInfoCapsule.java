@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata.rfactor1;
+package net.ctdp.rfdynhud.gamedata.rfactor2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,16 +31,16 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
+class _rf2_GraphicsInfoCapsule extends _GraphicsInfoCapsule
 {
     private static final int OFFSET_CAM_POS = 0;
-    private static final int OFFSET_CAM_ORI = OFFSET_CAM_POS + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_HWND = OFFSET_CAM_ORI + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_CAM_ORI = OFFSET_CAM_POS + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_HWND = OFFSET_CAM_ORI + ByteUtil.SIZE_VECTOR3D;
     private static final int OFFSET_AMBIENT_RED = OFFSET_HWND + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_AMBIENT_GREEN = OFFSET_AMBIENT_RED + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_AMBIENT_BLUE = OFFSET_AMBIENT_GREEN + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_AMBIENT_GREEN = OFFSET_AMBIENT_RED + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_AMBIENT_BLUE = OFFSET_AMBIENT_GREEN + ByteUtil.SIZE_DOUBLE;
     
-    private static final int BUFFER_SIZE = OFFSET_AMBIENT_BLUE + ByteUtil.SIZE_FLOAT;
+    private static final int BUFFER_SIZE = OFFSET_AMBIENT_BLUE + ByteUtil.SIZE_DOUBLE;
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
@@ -95,7 +95,7 @@ class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
     {
         // TelemVect3 mCamPos
         
-        ByteUtil.readVectorF( buffer, OFFSET_CAM_POS, position );
+        ByteUtil.readVectorD( buffer, OFFSET_CAM_POS, position );
     }
     
     /**
@@ -106,7 +106,7 @@ class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
     {
         // TelemVect3 mCamPos
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 0 * ByteUtil.SIZE_FLOAT ) );
+        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 0 * ByteUtil.SIZE_DOUBLE ) );
     }
     
     /**
@@ -117,7 +117,7 @@ class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
     {
         // TelemVect3 mCamPos
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 1 * ByteUtil.SIZE_FLOAT ) );
+        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 1 * ByteUtil.SIZE_DOUBLE ) );
     }
     
     /**
@@ -128,7 +128,7 @@ class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
     {
         // TelemVect3 mCamPos
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 2 * ByteUtil.SIZE_FLOAT ) );
+        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 2 * ByteUtil.SIZE_DOUBLE ) );
     }
     
     /**
@@ -139,7 +139,7 @@ class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
     {
         // TelemVect3 mCamOri
         
-        ByteUtil.readVectorF( buffer, OFFSET_CAM_ORI, orientation );
+        ByteUtil.readVectorD( buffer, OFFSET_CAM_ORI, orientation );
     }
     
     // HWND mHWND;                    // app handle
@@ -200,7 +200,7 @@ class _rf1_GraphicsInfoCapsule extends _GraphicsInfoCapsule
         return ( viewedVSI );
     }
     
-    _rf1_GraphicsInfoCapsule( ScoringInfo scoringInfo )
+    _rf2_GraphicsInfoCapsule( ScoringInfo scoringInfo )
     {
         this.scoringInfo = scoringInfo;
     }

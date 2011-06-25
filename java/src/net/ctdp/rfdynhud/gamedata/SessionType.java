@@ -23,17 +23,25 @@ package net.ctdp.rfdynhud.gamedata;
  */
 public enum SessionType
 {
-    TEST_DAY, // 0
-    PRACTICE1, // 1
-    PRACTICE2, // 2
-    PRACTICE3, // 3
-    PRACTICE4, // 4
-    QUALIFYING, // 5
-    WARMUP, // 6
-    RACE, // 7
+    TEST_DAY,
+    PRACTICE1,
+    PRACTICE2,
+    PRACTICE3,
+    PRACTICE4,
+    QUALIFYING1,
+    QUALIFYING2,
+    QUALIFYING3,
+    QUALIFYING4,
+    WARMUP,
+    RACE1,
+    RACE2,
+    RACE3,
+    RACE4,
     ;
     
     public static final String PRACTICE_WILDCARD = "PRACTICE";
+    public static final String QUALIFYING_WILDCARD = "QUALIFYING";
+    public static final String RACE_WILDCARD = "RACE";
     
     public final boolean isTestDay()
     {
@@ -45,8 +53,13 @@ public enum SessionType
         return ( ( this == PRACTICE1 ) || ( this == PRACTICE2 ) || ( this == PRACTICE3 ) || ( this == PRACTICE4 ) );
     }
     
+    public final boolean isQualifying()
+    {
+        return ( ( this == QUALIFYING1 ) || ( this == QUALIFYING2 ) || ( this == QUALIFYING3 ) || ( this == QUALIFYING4 ) );
+    }
+    
     public final boolean isRace()
     {
-        return ( this == RACE );
+        return ( ( this == RACE1 ) || ( this == RACE2 ) || ( this == RACE3 ) || ( this == RACE4 ) );
     }
 }

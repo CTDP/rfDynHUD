@@ -32,7 +32,8 @@ public class ByteUtil
     public static final int SIZE_FLOAT = 4;
     public static final int SIZE_DOUBLE = 8;
     public static final int SIZE_POINTER = 4; // 4 or 8 ???
-    public static final int SIZE_VECTOR3 = 3 * SIZE_FLOAT;
+    public static final int SIZE_VECTOR3F = 3 * SIZE_FLOAT;
+    public static final int SIZE_VECTOR3D = 3 * SIZE_DOUBLE;
     
     public static final int SHIFT4_HH = 0;
     public static final int SHIFT4_HL = 8;
@@ -112,11 +113,18 @@ public class ByteUtil
         return ( Double.longBitsToDouble( l ) );
     }
     
-    public static final void readVector( final byte[] buffer, final int offset, TelemVect3 vector )
+    public static final void readVectorF( final byte[] buffer, final int offset, TelemVect3 vector )
     {
         vector.x = ByteUtil.readFloat( buffer, offset + 0 * ByteUtil.SIZE_FLOAT );
         vector.y = ByteUtil.readFloat( buffer, offset + 1 * ByteUtil.SIZE_FLOAT );
         vector.z = ByteUtil.readFloat( buffer, offset + 2 * ByteUtil.SIZE_FLOAT );
+    }
+    
+    public static final void readVectorD( final byte[] buffer, final int offset, TelemVect3 vector )
+    {
+        vector.x = (float)ByteUtil.readDouble( buffer, offset + 0 * ByteUtil.SIZE_DOUBLE );
+        vector.y = (float)ByteUtil.readDouble( buffer, offset + 1 * ByteUtil.SIZE_DOUBLE );
+        vector.z = (float)ByteUtil.readDouble( buffer, offset + 2 * ByteUtil.SIZE_DOUBLE );
     }
     
     public static final String readString( final byte[] buffer, final int offset, final int maxLength )

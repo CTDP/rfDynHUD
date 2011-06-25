@@ -36,10 +36,22 @@ public class Loc
     public static final String caption_PRACTICE3_time = l( "caption.PRACTICE3.time" );
     public static final String caption_PRACTICE4_laps = l( "caption.PRACTICE4.laps" );
     public static final String caption_PRACTICE4_time = l( "caption.PRACTICE4.time" );
-    public static final String caption_QUALIFYING_laps = l( "caption.QUALIFYING.laps" );
-    public static final String caption_QUALIFYING_time = l( "caption.QUALIFYING.time" );
+    public static final String caption_QUALIFYING1_laps = l( "caption.QUALIFYING1.laps" );
+    public static final String caption_QUALIFYING1_time = l( "caption.QUALIFYING1.time" );
+    public static final String caption_QUALIFYING2_laps = l( "caption.QUALIFYING2.laps" );
+    public static final String caption_QUALIFYING2_time = l( "caption.QUALIFYING2.time" );
+    public static final String caption_QUALIFYING3_laps = l( "caption.QUALIFYING3.laps" );
+    public static final String caption_QUALIFYING3_time = l( "caption.QUALIFYING3.time" );
+    public static final String caption_QUALIFYING4_laps = l( "caption.QUALIFYING4.laps" );
+    public static final String caption_QUALIFYING4_time = l( "caption.QUALIFYING4.time" );
     public static final String caption_WARMUP_laps = l( "caption.WARMUP.laps" );
     public static final String caption_WARMUP_time = l( "caption.WARMUP.time" );
-    public static final String caption_RACE_laps = l( "caption.RACE.laps" );
-    public static final String caption_RACE_time = l( "caption.RACE.time" );
+    public static final String caption_RACE1_laps = l( "caption.RACE1.laps" );
+    public static final String caption_RACE1_time = l( "caption.RACE1.time" );
+    public static final String caption_RACE2_laps = l( "caption.RACE2.laps" );
+    public static final String caption_RACE2_time = l( "caption.RACE2.time" );
+    public static final String caption_RACE3_laps = l( "caption.RACE3.laps" );
+    public static final String caption_RACE3_time = l( "caption.RACE3.time" );
+    public static final String caption_RACE4_laps = l( "caption.RACE4.laps" );
+    public static final String caption_RACE4_time = l( "caption.RACE4.time" );
 }

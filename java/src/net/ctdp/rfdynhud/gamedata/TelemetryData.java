@@ -46,7 +46,6 @@ public class TelemetryData
     final _TelemetryDataCapsule data;
     
     private boolean updatedInTimeScope = false;
-    private long updateId = 0L;
     private long lastUpdateTimestamp = -1L;
     private long updateTimestamp = -1L;
     
@@ -191,7 +190,7 @@ public class TelemetryData
         try
         {
             this.updatedInTimeScope = gameData.isInRealtimeMode();
-            this.updateId++;
+            data.onDataUpdated();
             this.lastUpdateTimestamp = updateTimestamp;
             this.updateTimestamp = System.nanoTime();
             
@@ -296,7 +295,7 @@ public class TelemetryData
      */
     public final long getUpdateId()
     {
-        return ( updateId );
+        return ( data.getUpdateId() );
     }
     
     void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException

@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.gamedata.rfactor1;
+package net.ctdp.rfdynhud.gamedata.rfactor2;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,9 +17,9 @@ import net.ctdp.rfdynhud.gamedata._VehicleScoringInfoCapsule;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.util.PluginINI;
 
-public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
+public class _rf2_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
 {
-    public static final String GAME_ID = "rFactor1";
+    public static final String GAME_ID = "rFactor2";
     
     /**
      * {@inheritDoc}
@@ -36,7 +36,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public GameFileSystem newGameFileSystem( PluginINI pluginIni )
     {
-        return ( new _rf1_GameFileSystem( pluginIni ) );
+        return ( new _rf2_GameFileSystem( pluginIni ) );
     }
     
     /**
@@ -45,7 +45,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public ProfileInfo newProfileInfo( LiveGameData gameData )
     {
-        return ( new _rf1_ProfileInfo( gameData.getFileSystem() ) );
+        return ( new _rf2_ProfileInfo( gameData.getFileSystem() ) );
     }
     
     /**
@@ -54,7 +54,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public ModInfo newModInfo( LiveGameData gameData )
     {
-        return ( new _rf1_ModInfo( gameData.getFileSystem(), gameData.getProfileInfo() ) );
+        return ( new _rf2_ModInfo( gameData.getFileSystem(), gameData.getProfileInfo() ) );
     }
     
     /**
@@ -63,7 +63,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public TrackInfo newTrackInfo( LiveGameData gameData )
     {
-        return ( new _rf1_TrackInfo( gameData.getProfileInfo() ) );
+        return ( new _rf2_TrackInfo( gameData.getProfileInfo() ) );
     }
     
     /**
@@ -72,7 +72,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public VehicleInfo newVehicleInfo()
     {
-        return ( new _rf1_VehicleInfo() );
+        return ( new _rf2_VehicleInfo() );
     }
     
     /**
@@ -81,7 +81,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public void parseVehicleInfo( File file, String filename, VehicleInfo info ) throws IOException
     {
-        new _rf1_VehicleInfoParser( filename, (_rf1_VehicleInfo)info ).parse( file );
+        new _rf2_VehicleInfoParser( filename, (_rf2_VehicleInfo)info ).parse( file );
     }
     
     /**
@@ -90,7 +90,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public _CommentaryRequestInfoCapsule newCommentaryRequestInfoCapsule( LiveGameData gameData )
     {
-        return ( new _rf1_CommentaryRequestInfoCapsule() );
+        return ( new _rf2_CommentaryRequestInfoCapsule() );
     }
     
     /**
@@ -99,7 +99,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public _GraphicsInfoCapsule newGraphicsInfoCapsule( LiveGameData gameData )
     {
-        return ( new _rf1_GraphicsInfoCapsule( gameData.getScoringInfo() ) );
+        return ( new _rf2_GraphicsInfoCapsule( gameData.getScoringInfo() ) );
     }
     
     /**
@@ -108,7 +108,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public _TelemetryDataCapsule newTelemetryDataCapsule( LiveGameData gameData )
     {
-        return ( new _rf1_TelemetryDataCapsule() );
+        return ( new _rf2_TelemetryDataCapsule() );
     }
     
     /**
@@ -117,7 +117,7 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public _ScoringInfoCapsule newScoringInfoCapsule( LiveGameData gameData )
     {
-        return ( new _rf1_ScoringInfoCapsule() );
+        return ( new _rf2_ScoringInfoCapsule() );
     }
     
     /**
@@ -126,6 +126,6 @@ public class _rf1_LiveGameDataObjectsFactory extends _LiveGameDataObjectsFactory
     @Override
     public _VehicleScoringInfoCapsule newVehicleScoringInfoCapsule( LiveGameData gameData )
     {
-        return ( new _rf1_VehicleScoringInfoCapsule() );
+        return ( new _rf2_VehicleScoringInfoCapsule() );
     }
 }

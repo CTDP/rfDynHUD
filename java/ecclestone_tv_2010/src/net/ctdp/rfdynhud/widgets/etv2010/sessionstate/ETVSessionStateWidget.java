@@ -65,7 +65,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     private DrawnString captionString = null;
     private DrawnString stateString = null;
     
-    private String caption = getCaption( SessionType.RACE, SessionLimit.LAPS );
+    private String caption = getCaption( SessionType.RACE1, SessionLimit.LAPS );
     
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final EnumValue<YellowFlagState> yellowFlagState = new EnumValue<YellowFlagState>( YellowFlagState.NONE );
@@ -169,21 +169,51 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                     return ( Loc.caption_PRACTICE4_time );
                 
                 return ( Loc.caption_PRACTICE4_laps );
-            case QUALIFYING:
+            case QUALIFYING1:
                 if ( sessionLimit == SessionLimit.TIME )
-                    return ( Loc.caption_QUALIFYING_time );
+                    return ( Loc.caption_QUALIFYING1_time );
                 
-                return ( Loc.caption_QUALIFYING_laps );
+                return ( Loc.caption_QUALIFYING1_laps );
+            case QUALIFYING2:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_QUALIFYING2_time );
+                
+                return ( Loc.caption_QUALIFYING2_laps );
+            case QUALIFYING3:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_QUALIFYING3_time );
+                
+                return ( Loc.caption_QUALIFYING3_laps );
+            case QUALIFYING4:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_QUALIFYING4_time );
+                
+                return ( Loc.caption_QUALIFYING4_laps );
             case WARMUP:
                 if ( sessionLimit == SessionLimit.TIME )
                     return ( Loc.caption_WARMUP_time );
                 
                 return ( Loc.caption_WARMUP_laps );
-            case RACE:
+            case RACE1:
                 if ( sessionLimit == SessionLimit.TIME )
-                    return ( Loc.caption_RACE_time );
+                    return ( Loc.caption_RACE1_time );
                 
-                return ( Loc.caption_RACE_laps );
+                return ( Loc.caption_RACE1_laps );
+            case RACE2:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_RACE2_time );
+                
+                return ( Loc.caption_RACE2_laps );
+            case RACE3:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_RACE3_time );
+                
+                return ( Loc.caption_RACE3_laps );
+            case RACE4:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_RACE4_time );
+                
+                return ( Loc.caption_RACE4_laps );
         }
         
         // Unreachable code!

@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata.rfactor1;
+package net.ctdp.rfdynhud.gamedata.rfactor2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,26 +23,26 @@ import java.io.OutputStream;
 
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
+import net.ctdp.rfdynhud.gamedata._ScoringInfoCapsule;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
-import net.ctdp.rfdynhud.gamedata._ScoringInfoCapsule;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
+class _rf2_ScoringInfoCapsule extends _ScoringInfoCapsule
 {
     private static final int OFFSET_TRACK_NAME = 0;
     private static final int MAX_TRACK_NAME_LENGTH = 64;
     private static final int OFFSET_SESSION_TYPE = OFFSET_TRACK_NAME + MAX_TRACK_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_CURRENT_TIME = OFFSET_SESSION_TYPE + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_END_TIME = OFFSET_CURRENT_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_MAX_LAPS = OFFSET_END_TIME + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_END_TIME = OFFSET_CURRENT_TIME + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_MAX_LAPS = OFFSET_END_TIME + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_LAP_DISTANCE = OFFSET_MAX_LAPS + ByteUtil.SIZE_LONG;
     
-    private static final int OFFSET_RESULTS_STREAM = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_RESULTS_STREAM = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_DOUBLE;
     
     private static final int OFFSET_NUM_VEHICLES = OFFSET_RESULTS_STREAM + ByteUtil.SIZE_POINTER; // Is it just the pointer to be offsetted or the whole stream???
     
@@ -60,18 +60,18 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     private static final int MAX_PLAYER_FILENAME_LENGTH = 64;
     
     private static final int OFFSET_CLOUD_DARKNESS = OFFSET_PLAYER_FILENAME + MAX_PLAYER_FILENAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_RAINING_SEVERITIY = OFFSET_CLOUD_DARKNESS + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_AMBIENT_TEMPERATURE = OFFSET_RAINING_SEVERITIY + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TRACK_TEMPERATURE = OFFSET_AMBIENT_TEMPERATURE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_WIND_SPEED = OFFSET_TRACK_TEMPERATURE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_ON_PATH_WETNESS = OFFSET_WIND_SPEED + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_OFF_PATH_WETNESS = OFFSET_ON_PATH_WETNESS + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_RAINING_SEVERITIY = OFFSET_CLOUD_DARKNESS + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_AMBIENT_TEMPERATURE = OFFSET_RAINING_SEVERITIY + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_TRACK_TEMPERATURE = OFFSET_AMBIENT_TEMPERATURE + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_WIND_SPEED = OFFSET_TRACK_TEMPERATURE + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_ON_PATH_WETNESS = OFFSET_WIND_SPEED + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_OFF_PATH_WETNESS = OFFSET_ON_PATH_WETNESS + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_EXPANSION = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_EXPANSION = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_DOUBLE;
     
     private static final int OFFSET_VEHICLES = OFFSET_EXPANSION + ( 256 * ByteUtil.SIZE_CHAR );
     
-    private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_FLOAT /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
+    private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_DOUBLE /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
@@ -116,7 +116,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     
     /*
      * ################################
-     * ScoringInfoBase
+     * ScoringInfoV01
      * ################################
      */
     
@@ -141,8 +141,6 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
         
         int st = (int)ByteUtil.readLong( buffer, OFFSET_SESSION_TYPE );
         
-        // The rf dev exe v1.295 supports more session types. 9 is warmup and 10 is race.
-        
         switch ( st )
         {
             case 0:
@@ -158,9 +156,9 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
             case 5:
                 return ( SessionType.QUALIFYING1 );
             case 6:
-                return ( SessionType.WARMUP );
+                return ( SessionType.QUALIFYING2 );
             case 7:
-                return ( SessionType.RACE1 );
+                return ( SessionType.QUALIFYING3 );
             case 8:
                 return ( SessionType.QUALIFYING4 );
             case 9:
@@ -187,7 +185,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mCurrentET
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_CURRENT_TIME ) );
     }
     
     /**
@@ -198,7 +196,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mEndET
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_END_TIME ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_END_TIME ) );
     }
     
     /**
@@ -220,7 +218,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mLapDist
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_DISTANCE ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_LAP_DISTANCE ) );
     }
     
     //char *mResultsStream;          // results stream additions since last update (newline-delimited and NULL-terminated)
@@ -237,12 +235,6 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     }
     
     /*
-     * ################################
-     * ScoringInfo
-     * ################################
-     */
-    
-    /*
      * array of vehicle scoring info's
      * 
      * @see #getNumVehicles()
@@ -254,12 +246,6 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
         // VehicleScoringInfo *mVehicle
     }
     */
-    
-    /*
-     * ################################
-     * ScoringInfoV2
-     * ################################
-     */
     
     /**
      * {@inheritDoc}
@@ -412,7 +398,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mDarkCloud
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CLOUD_DARKNESS ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_CLOUD_DARKNESS ) );
     }
     
     /**
@@ -423,7 +409,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mRaining
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_RAINING_SEVERITIY ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_RAINING_SEVERITIY ) );
     }
     
     /**
@@ -434,7 +420,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mAmbientTemp
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_AMBIENT_TEMPERATURE ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_AMBIENT_TEMPERATURE ) );
     }
     
     /**
@@ -445,7 +431,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mTrackTemp
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_TRACK_TEMPERATURE ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_TRACK_TEMPERATURE ) );
     }
     
     /**
@@ -456,7 +442,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // TelemVect3 mWind
         
-        ByteUtil.readVectorF( buffer, OFFSET_WIND_SPEED, speed );
+        ByteUtil.readVectorD( buffer, OFFSET_WIND_SPEED, speed );
     }
     
     /**
@@ -467,7 +453,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mOnPathWetness
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_ON_PATH_WETNESS ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_ON_PATH_WETNESS ) );
     }
     
     /**
@@ -478,7 +464,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     {
         // float mOffPathWetness
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_OFF_PATH_WETNESS ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_OFF_PATH_WETNESS ) );
     }
     
     // Future use
@@ -503,7 +489,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     }
     */
     
-    _rf1_ScoringInfoCapsule()
+    _rf2_ScoringInfoCapsule()
     {
         super();
     }

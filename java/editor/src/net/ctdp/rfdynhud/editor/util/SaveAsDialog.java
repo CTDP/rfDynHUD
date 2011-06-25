@@ -104,9 +104,17 @@ public class SaveAsDialog extends JDialog implements ActionListener
         Practice2( SessionType.PRACTICE2.name() ),
         Practice3( SessionType.PRACTICE3.name() ),
         Practice4( SessionType.PRACTICE4.name() ),
-        Qualifying( SessionType.QUALIFYING.name() ),
+        Qualifying( SessionType.QUALIFYING_WILDCARD ),
+        Qualifying1( SessionType.QUALIFYING1.name() ),
+        Qualifying2( SessionType.QUALIFYING2.name() ),
+        Qualifying3( SessionType.QUALIFYING3.name() ),
+        Qualifying4( SessionType.QUALIFYING4.name() ),
         Warmup( SessionType.WARMUP.name() ),
-        Race( SessionType.RACE.name() ),
+        Race( SessionType.RACE_WILDCARD ),
+        Race1( SessionType.RACE1.name() ),
+        Race2( SessionType.RACE2.name() ),
+        Race3( SessionType.RACE3.name() ),
+        Race4( SessionType.RACE4.name() ),
         ;
         
         private static final int numItems = _SessionType.values().length;

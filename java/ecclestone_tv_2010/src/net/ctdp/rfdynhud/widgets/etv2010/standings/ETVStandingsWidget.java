@@ -464,7 +464,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             
             if ( place > 1 )
             {
-                if ( scoringInfo.getSessionType() == SessionType.RACE )
+                if ( scoringInfo.getSessionType().isRace() )
                     gaps[i].update( ( vsi.getLapsBehindLeader( getUseClassScoring() ) > 0 ) ? -vsi.getLapsBehindLeader( getUseClassScoring() ) - 10000 : Math.abs( vsi.getTimeBehindLeader( getUseClassScoring() ) ) );
                 else
                     gaps[i].update( vsi.getBestLapTime() - scoringInfo.getLeadersVehicleScoringInfo().getBestLapTime() );

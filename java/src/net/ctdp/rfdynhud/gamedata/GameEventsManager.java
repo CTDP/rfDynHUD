@@ -1164,7 +1164,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      * @param rfDynHUD the main {@link RFDynHUD} instance
      * @param drawingManager the widgets drawing manager
      */
-    public GameEventsManager( SupportedGames gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager )
+    public GameEventsManager( String gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager )
     {
         this.rfDynHUD = rfDynHUD;
         this.widgetsManager = drawingManager;

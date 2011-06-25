@@ -107,9 +107,9 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         final SessionType sessionType = gameData.getScoringInfo().getSessionType();
         
         Laptime.LapType lapType;
-        if ( sessionType == SessionType.RACE )
+        if ( sessionType.isRace() )
             lapType = Laptime.LapType.RACE;
-        else if ( sessionType == SessionType.QUALIFYING )
+        else if ( sessionType.isQualifying() )
             lapType = Laptime.LapType.QUALIFY;
         else if ( Laptime.isHotlap( gameData ) )
             lapType = Laptime.LapType.HOTLAP;

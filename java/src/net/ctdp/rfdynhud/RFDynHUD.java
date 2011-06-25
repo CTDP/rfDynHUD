@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.SupportedGames;
+import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
@@ -56,7 +56,7 @@ public class RFDynHUD
     
     public static final Version VERSION = new Version( 1, 2, 1, "Beta", 101 );
     
-    private final SupportedGames gameId;
+    private final String gameId;
     
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;
@@ -68,7 +68,7 @@ public class RFDynHUD
     
     private boolean renderMode = false;
     
-    public final SupportedGames getGameId()
+    public final String getGameId()
     {
         return ( gameId );
     }
@@ -240,21 +240,14 @@ public class RFDynHUD
         
         RFDHLog.exception( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
         
-        SupportedGames gameId = null;
-        try
-        {
-            gameId = SupportedGames.valueOf( gameName );
-        }
-        catch ( Throwable t )
-        {
-        }
+        boolean supported = ( _LiveGameDataObjectsFactory.get( gameName ) != null );
         
-        RFDHLog.println( "    Detected game \"" + gameName + "\" (" + ( gameId == null ? "unsupported" : "supported" ) + ")." );
+        RFDHLog.println( "    Detected game \"" + gameName + "\" (" + ( supported ? "supported" : "unsupported" ) + ")." );
         
-        if ( gameId == null )
-            throw new Error( "Unsupported game" );
+        if ( !supported )
+            throw new Error( "Unsupported game: " + gameName );
         
-        this.gameId = gameId;
+        this.gameId = gameName;
         
         RFDHLog.print( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
         

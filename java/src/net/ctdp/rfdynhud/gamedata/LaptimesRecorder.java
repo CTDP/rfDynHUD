@@ -166,9 +166,9 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                         }
                     }
                     
-                    if ( sessionType == SessionType.RACE )
+                    if ( sessionType.isRace() )
                         last.setType( Laptime.LapType.RACE );
-                    else if ( sessionType == SessionType.QUALIFYING )
+                    else if ( sessionType.isQualifying() )
                         last.setType( Laptime.LapType.QUALIFY );
                     else if ( Laptime.isHotlap( gameData ) )
                         last.setType( Laptime.LapType.HOTLAP );

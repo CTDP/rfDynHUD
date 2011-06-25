@@ -68,6 +68,8 @@ public class ConfigurationCandidatesIterator implements Iterator<File>
     protected void addSpecificCandidates( File configFolder, String modName, String prefix, String vehicleClass, String vehicleName, SessionType sessionType )
     {
         boolean isPractice = sessionType.isPractice();
+        boolean isQualifying = sessionType.isQualifying();
+        boolean isRace = sessionType.isRace();
         
         String prefix2 = prefix + "_";
         
@@ -80,12 +82,32 @@ public class ConfigurationCandidatesIterator implements Iterator<File>
                 addCandidate( configFolder, modName, prefix2 + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
             addCandidate( configFolder, modName, prefix2 + vehicleClass + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
         }
+        if ( isQualifying )
+        {
+            if ( vehicleName != null )
+                addCandidate( configFolder, modName, prefix2 + vehicleName + "_" + SessionType.QUALIFYING_WILDCARD + ".ini" );
+            addCandidate( configFolder, modName, prefix2 + vehicleClass + "_" + SessionType.QUALIFYING_WILDCARD + ".ini" );
+        }
+        if ( isRace )
+        {
+            if ( vehicleName != null )
+                addCandidate( configFolder, modName, prefix2 + vehicleName + "_" + SessionType.RACE_WILDCARD + ".ini" );
+            addCandidate( configFolder, modName, prefix2 + vehicleClass + "_" + SessionType.RACE_WILDCARD + ".ini" );
+        }
         addCandidate( configFolder, modName, prefix2 + sessionType.name() + ".ini" );
         if ( isPractice )
             addCandidate( configFolder, modName, prefix2 + SessionType.PRACTICE_WILDCARD + ".ini" );
+        if ( isQualifying )
+            addCandidate( configFolder, modName, prefix2 + SessionType.QUALIFYING_WILDCARD + ".ini" );
+        if ( isRace )
+            addCandidate( configFolder, modName, prefix2 + SessionType.RACE_WILDCARD + ".ini" );
         addCandidate( configFolder, prefix2 + sessionType.name() + ".ini" );
         if ( isPractice )
             addCandidate( configFolder, prefix2 + SessionType.PRACTICE_WILDCARD + ".ini" );
+        if ( isQualifying )
+            addCandidate( configFolder, prefix2 + SessionType.QUALIFYING_WILDCARD + ".ini" );
+        if ( isRace )
+            addCandidate( configFolder, prefix2 + SessionType.RACE_WILDCARD + ".ini" );
         if ( vehicleName != null )
             addCandidate( configFolder, modName, prefix2 + vehicleName + ".ini" );
         addCandidate( configFolder, modName, prefix2 + vehicleClass + ".ini" );

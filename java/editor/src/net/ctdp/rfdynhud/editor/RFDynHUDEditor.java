@@ -70,7 +70,6 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
@@ -120,7 +119,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     
     private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
     
-    public static SupportedGames GAME_ID = null;
+    public static String GAME_ID = null;
     public static GameFileSystem FILESYSTEM = null;
     
     private LiveGameData gameData;
@@ -1613,7 +1612,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private void initGameDataObjects( SupportedGames gameId )
+    private void initGameDataObjects( String gameId )
     {
         int[] resolution = loadResolutionFromUserSettings( _LiveGameDataObjectsFactory.get( gameId ).newGameFileSystem( __UtilHelper.PLUGIN_INI ) );
         
@@ -1714,7 +1713,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( templateConfigProp );
     }
     
-    public RFDynHUDEditor( SupportedGames gameId )
+    public RFDynHUDEditor( String gameId )
     {
         super();
         
@@ -1867,7 +1866,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             return;
         }
         
-        SupportedGames gameId = SupportedGames.rFactor; // make this dynamic somehow!
+        String gameId = "rFactor1"; // make this dynamic somehow!
         
         WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
         

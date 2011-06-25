@@ -2,12 +2,19 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
-import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.util.PluginINI;
+import net.ctdp.rfdynhud.util.RFDHLog;
+
+import org.jagatoo.util.classes.ClassSearcher;
+import org.jagatoo.util.classes.SuperClassCriterium;
 
 public abstract class _LiveGameDataObjectsFactory
 {
+    public abstract String getGameId();
+    
     public abstract GameFileSystem newGameFileSystem( PluginINI pluginIni );
     
     public abstract ProfileInfo newProfileInfo( LiveGameData gameData );
@@ -30,14 +37,37 @@ public abstract class _LiveGameDataObjectsFactory
     
     public abstract _VehicleScoringInfoCapsule newVehicleScoringInfoCapsule( LiveGameData gameData );
     
-    public static _LiveGameDataObjectsFactory get( SupportedGames gameId )
+    private static final HashMap<String, _LiveGameDataObjectsFactory> gdFactoriesMap = new HashMap<String, _LiveGameDataObjectsFactory>();
+    
+    public static synchronized _LiveGameDataObjectsFactory get( String gameId )
     {
-        switch ( gameId )
+        if ( gdFactoriesMap.containsKey( gameId ) )
+            return ( gdFactoriesMap.get( gameId ) );
+        
+        List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( _LiveGameDataObjectsFactory.class, false ), (String[])null );
+        
+        for ( Class<?> clazz : classes )
         {
-            case rFactor: //rFactor1_v1_255
-                return ( new _rf1_LiveGameDataObjectsFactory() );
+            _LiveGameDataObjectsFactory f = null;
+            try
+            {
+                f = (_LiveGameDataObjectsFactory)clazz.newInstance();
+            }
+            catch ( InstantiationException e )
+            {
+                RFDHLog.println( e );
+            }
+            catch ( IllegalAccessException e )
+            {
+                RFDHLog.println( e );
+            }
+            
+            if ( f != null )
+            {
+                gdFactoriesMap.put( f.getGameId(), f );
+            }
         }
         
-        throw new Error( "Unsupported game: " + gameId );
+        return ( gdFactoriesMap.get( gameId ) );
     }
 }

@@ -52,16 +52,16 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     private static final int MAX_TRACK_NAME_LENGTH = 64;
     
     private static final int OFFSET_POSITION = OFFSET_TRACK_NAME + MAX_TRACK_NAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3;
+    private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3F;
     
-    private static final int OFFSET_ORIENTATION_X = OFFSET_LOCAL_ACCELERATION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ORIENTATION_Y = OFFSET_ORIENTATION_X + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ORIENTATION_Z = OFFSET_ORIENTATION_Y + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ROTATION = OFFSET_ORIENTATION_Z + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ROTATION_ACCELERATION = OFFSET_LOCAL_ROTATION + ByteUtil.SIZE_VECTOR3;
+    private static final int OFFSET_ORIENTATION_X = OFFSET_LOCAL_ACCELERATION + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_ORIENTATION_Y = OFFSET_ORIENTATION_X + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_ORIENTATION_Z = OFFSET_ORIENTATION_Y + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_LOCAL_ROTATION = OFFSET_ORIENTATION_Z + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_LOCAL_ROTATION_ACCELERATION = OFFSET_LOCAL_ROTATION + ByteUtil.SIZE_VECTOR3F;
     
-    private static final int OFFSET_GEAR = OFFSET_LOCAL_ROTATION_ACCELERATION + ByteUtil.SIZE_VECTOR3;
+    private static final int OFFSET_GEAR = OFFSET_LOCAL_ROTATION_ACCELERATION + ByteUtil.SIZE_VECTOR3F;
     private static final int OFFSET_ENGINE_RPM = OFFSET_GEAR + ByteUtil.SIZE_LONG;
     private static final int OFFSET_ENGINE_WATER_TEMP = OFFSET_ENGINE_RPM + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_ENGINE_OIL_TEMP = OFFSET_ENGINE_WATER_TEMP + ByteUtil.SIZE_FLOAT;
@@ -84,7 +84,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     private static final int OFFSET_LAST_IMPACT_MAGNITUDE = OFFSET_LAST_IMPACT_TIME + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_LAST_IMPACT_POSITION = OFFSET_LAST_IMPACT_MAGNITUDE + ByteUtil.SIZE_FLOAT;
     
-    private static final int OFFSET_EXPANSION = OFFSET_LAST_IMPACT_POSITION + ByteUtil.SIZE_VECTOR3;
+    private static final int OFFSET_EXPANSION = OFFSET_LAST_IMPACT_POSITION + ByteUtil.SIZE_VECTOR3F;
     
     private static final int OFFSET_WHEEL_DATA = OFFSET_EXPANSION + 64 * ByteUtil.SIZE_CHAR;
     
@@ -225,7 +225,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mPos
         
-        ByteUtil.readVector( buffer, OFFSET_POSITION, position );
+        ByteUtil.readVectorF( buffer, OFFSET_POSITION, position );
         
         return ( position );
     }
@@ -271,7 +271,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mLocalVel
         
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_VELOCITY, localVel );
+        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_VELOCITY, localVel );
         
         return ( localVel );
     }
@@ -297,7 +297,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mLocalAccel
         
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ACCELERATION, localAccel );
+        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_ACCELERATION, localAccel );
         
         return ( localAccel );
     }
@@ -334,7 +334,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mOriX
         
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_X, oriX );
+        ByteUtil.readVectorF( buffer, OFFSET_ORIENTATION_X, oriX );
         
         return ( oriX );
     }
@@ -347,7 +347,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mOriY
         
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_Y, oriY );
+        ByteUtil.readVectorF( buffer, OFFSET_ORIENTATION_Y, oriY );
         
         return ( oriY );
     }
@@ -360,7 +360,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mOriZ
         
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_Z, oriZ );
+        ByteUtil.readVectorF( buffer, OFFSET_ORIENTATION_Z, oriZ );
         
         return ( oriZ );
     }
@@ -373,7 +373,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mLocalRot
         
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ROTATION, localRot );
+        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_ROTATION, localRot );
         
         return ( localRot );
     }
@@ -386,7 +386,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mLocalRotAccel
         
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ROTATION_ACCELERATION, localRotAccel );
+        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_ROTATION_ACCELERATION, localRotAccel );
         
         return ( localRotAccel );
     }
@@ -618,7 +618,7 @@ class _rf1_TelemetryDataCapsule extends _TelemetryDataCapsule
     {
         // TelemVect3 mLastImpactPos
         
-        ByteUtil.readVector( buffer, OFFSET_LAST_IMPACT_POSITION, lastImpactPos );
+        ByteUtil.readVectorF( buffer, OFFSET_LAST_IMPACT_POSITION, lastImpactPos );
         
         return ( lastImpactPos );
     }

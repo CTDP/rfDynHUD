@@ -28,7 +28,7 @@ import net.ctdp.rfdynhud.util.__UtilHelper;
  */
 public class LiveGameData
 {
-    private final SupportedGames gameId;
+    private final String gameId;
     
     private final _LiveGameDataObjectsFactory gdFactory;
     
@@ -202,7 +202,7 @@ public class LiveGameData
         gameEventsListeners = tmp;
     }
     
-    public final SupportedGames getGameID()
+    public final String getGameID()
     {
         return ( gameId );
     }
@@ -473,7 +473,7 @@ public class LiveGameData
      * @param gameResolution
      * @param eventsManager
      */
-    public LiveGameData( SupportedGames gameId, GameResolution gameResolution, GameEventsManager eventsManager )
+    public LiveGameData( String gameId, GameResolution gameResolution, GameEventsManager eventsManager )
     {
         registerDataUpdateListener( DataCache.INSTANCE );
         

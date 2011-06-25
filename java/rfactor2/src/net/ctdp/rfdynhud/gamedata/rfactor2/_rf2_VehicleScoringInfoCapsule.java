@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.gamedata.rfactor1;
+package net.ctdp.rfdynhud.gamedata.rfactor2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +32,10 @@ import net.ctdp.rfdynhud.gamedata._VehicleScoringInfoCapsule;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
+class _rf2_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
 {
-    private static final int OFFSET_DRIVER_NAME = 0;
+    private static final int OFFSET_SLOT_ID = 0;
+    private static final int OFFSET_DRIVER_NAME = OFFSET_SLOT_ID + ByteUtil.SIZE_LONG;
     private static final int MAX_DRIVER_NAME_LENGTH = 32;
     private static final int OFFSET_VEHICLE_NAME = OFFSET_DRIVER_NAME + MAX_DRIVER_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int MAX_VEHICLE_NAME_LENGTH = 64;
@@ -44,19 +45,19 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     private static final int OFFSET_SECTOR = OFFSET_TOTAL_LAPS + ByteUtil.SIZE_SHORT;
     private static final int OFFSET_FINISH_STATUS = OFFSET_SECTOR + ByteUtil.SIZE_CHAR;
     private static final int OFFSET_LAP_DISTANCE = OFFSET_FINISH_STATUS + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_PATH_LATERAL = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TRACK_EDGE = OFFSET_PATH_LATERAL + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_PATH_LATERAL = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_TRACK_EDGE = OFFSET_PATH_LATERAL + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_BEST_SECTOR_1 = OFFSET_TRACK_EDGE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_BEST_SECTOR_2 = OFFSET_BEST_SECTOR_1 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_BEST_LAP_TIME = OFFSET_BEST_SECTOR_2 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_SECTOR_1 = OFFSET_BEST_LAP_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_SECTOR_2 = OFFSET_LAST_SECTOR_1 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_LAP_TIME = OFFSET_LAST_SECTOR_2 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_CURR_SECTOR_1 = OFFSET_LAST_LAP_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_CURR_SECTOR_2 = OFFSET_CURR_SECTOR_1 + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_BEST_SECTOR_1 = OFFSET_TRACK_EDGE + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_BEST_SECTOR_2 = OFFSET_BEST_SECTOR_1 + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_BEST_LAP_TIME = OFFSET_BEST_SECTOR_2 + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_LAST_SECTOR_1 = OFFSET_BEST_LAP_TIME + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_LAST_SECTOR_2 = OFFSET_LAST_SECTOR_1 + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_LAST_LAP_TIME = OFFSET_LAST_SECTOR_2 + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_CURR_SECTOR_1 = OFFSET_LAST_LAP_TIME + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_CURR_SECTOR_2 = OFFSET_CURR_SECTOR_1 + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_NUM_PITSTOPS = OFFSET_CURR_SECTOR_2 + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_NUM_PITSTOPS = OFFSET_CURR_SECTOR_2 + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_NUM_PENALTIES = OFFSET_NUM_PITSTOPS + ByteUtil.SIZE_SHORT;
     
     private static final int OFFSET_IS_PLAYER = OFFSET_NUM_PENALTIES + ByteUtil.SIZE_SHORT;
@@ -67,22 +68,22 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     private static final int MAX_VEHICLE_CLASS_LENGTH = 32;
     
     private static final int OFFSET_TIME_BEHIND_NEXT = OFFSET_VEHICLE_CLASS + MAX_VEHICLE_CLASS_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_LAPS_BEHIND_NEXT = OFFSET_TIME_BEHIND_NEXT + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_LAPS_BEHIND_NEXT = OFFSET_TIME_BEHIND_NEXT + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_TIME_BEHIND_LEADER = OFFSET_LAPS_BEHIND_NEXT + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_LAPS_BEHIND_LEADER = OFFSET_TIME_BEHIND_LEADER + ByteUtil.SIZE_FLOAT;
+    private static final int OFFSET_LAPS_BEHIND_LEADER = OFFSET_TIME_BEHIND_LEADER + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_LAP_START_TIME = OFFSET_LAPS_BEHIND_LEADER + ByteUtil.SIZE_LONG;
     
-    private static final int OFFSET_POSITION = OFFSET_LAP_START_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_POSITION = OFFSET_LAP_START_TIME + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3D;
     
-    private static final int OFFSET_ORIENTATION_X = OFFSET_LOCAL_ACCELERATION + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_ORIENTATION_Y = OFFSET_ORIENTATION_X + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_ORIENTATION_Z = OFFSET_ORIENTATION_Y + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_LOCAL_ROTATION = OFFSET_ORIENTATION_Z + ByteUtil.SIZE_VECTOR3F;
-    private static final int OFFSET_LOCAL_ROTATION_ACCELERATION = OFFSET_LOCAL_ROTATION + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_ORIENTATION_X = OFFSET_LOCAL_ACCELERATION + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_ORIENTATION_Y = OFFSET_ORIENTATION_X + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_ORIENTATION_Z = OFFSET_ORIENTATION_Y + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_LOCAL_ROTATION = OFFSET_ORIENTATION_Z + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_LOCAL_ROTATION_ACCELERATION = OFFSET_LOCAL_ROTATION + ByteUtil.SIZE_VECTOR3D;
     
-    private static final int OFFSET_EXPANSION = OFFSET_LOCAL_ROTATION_ACCELERATION + ByteUtil.SIZE_VECTOR3F;
+    private static final int OFFSET_EXPANSION = OFFSET_LOCAL_ROTATION_ACCELERATION + ByteUtil.SIZE_VECTOR3D;
     
     static final int BUFFER_SIZE = OFFSET_EXPANSION + 128 * ByteUtil.SIZE_CHAR;
     
@@ -142,9 +143,9 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
         {
             byte[] buffer2;
             int offset2;
-            if ( o instanceof _rf1_VehicleScoringInfoCapsule )
+            if ( o instanceof _rf2_VehicleScoringInfoCapsule )
             {
-                buffer2 = ( (_rf1_VehicleScoringInfoCapsule)o ).buffer;
+                buffer2 = ( (_rf2_VehicleScoringInfoCapsule)o ).buffer;
                 offset2 = OFFSET_DRIVER_NAME;
             }
             else if ( o instanceof HashItem )
@@ -172,7 +173,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
             return ( true );
         }
         
-        public HashItem( _rf1_VehicleScoringInfoCapsule vsic )
+        public HashItem( _rf2_VehicleScoringInfoCapsule vsic )
         {
             System.arraycopy( vsic.buffer, OFFSET_DRIVER_NAME, this.buffer, 0, MAX_DRIVER_NAME_LENGTH );
             this.hash = vsic.hashCode();
@@ -231,9 +232,9 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         byte[] buffer2;
         int offset2;
-        if ( o instanceof _rf1_VehicleScoringInfoCapsule )
+        if ( o instanceof _rf2_VehicleScoringInfoCapsule )
         {
-            buffer2 = ( (_rf1_VehicleScoringInfoCapsule)o ).buffer;
+            buffer2 = ( (_rf2_VehicleScoringInfoCapsule)o ).buffer;
             offset2 = OFFSET_DRIVER_NAME;
         }
         else if ( o instanceof HashItem )
@@ -295,9 +296,20 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     
     /*
      * ################################
-     * VehicleScoringInfo
+     * VehicleScoringV01
      * ################################
      */
+    
+    /**
+     * @return slot ID (note that it can be re-used in multiplayer after someone leaves)
+     */
+    //@Override
+    public final int getSlotId()
+    {
+        // float mID
+        
+        return ( (int)ByteUtil.readLong( buffer, OFFSET_SLOT_ID ) );
+    }
     
     /**
      * {@inheritDoc}
@@ -421,7 +433,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mLapDist
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_DISTANCE ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_LAP_DISTANCE ) );
     }
     
     /**
@@ -432,7 +444,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mPathLateral
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_PATH_LATERAL ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_PATH_LATERAL ) );
     }
     
     /**
@@ -443,7 +455,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mTrackEdge
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_TRACK_EDGE ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_TRACK_EDGE ) );
     }
     
     /**
@@ -454,7 +466,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mBestSector1
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_BEST_SECTOR_1 ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_BEST_SECTOR_1 ) );
     }
     
     /**
@@ -465,7 +477,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mBestSector2
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_BEST_SECTOR_2 ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_BEST_SECTOR_2 ) );
     }
     
     /**
@@ -476,7 +488,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mBestLapTime
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_BEST_LAP_TIME ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_BEST_LAP_TIME ) );
     }
     
     /**
@@ -487,7 +499,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mLastSector1
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_SECTOR_1 ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_LAST_SECTOR_1 ) );
     }
     
     /**
@@ -498,7 +510,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mLastSector2
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_SECTOR_2 ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_LAST_SECTOR_2 ) );
     }
     
     /**
@@ -509,7 +521,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mLastLapTime
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_LAP_TIME ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_LAST_LAP_TIME ) );
     }
     
     /**
@@ -522,7 +534,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
         
         // TODO: Check result, if sector1 is invalid
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CURR_SECTOR_1 ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_CURR_SECTOR_1 ) );
     }
     
     /**
@@ -533,7 +545,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mCurSector2
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CURR_SECTOR_2 ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_CURR_SECTOR_2 ) );
     }
     
     /**
@@ -557,12 +569,6 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
         
         return ( ByteUtil.readShort( buffer, OFFSET_NUM_PENALTIES ) );
     }
-    
-    /*
-     * ################################
-     * VehicleScoringInfoV2
-     * ################################
-     */
     
     /**
      * {@inheritDoc}
@@ -653,7 +659,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mTimeBehindNext
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_TIME_BEHIND_NEXT ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_TIME_BEHIND_NEXT ) );
     }
     
     /**
@@ -675,7 +681,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mTimeBehindLeader
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_TIME_BEHIND_LEADER ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_TIME_BEHIND_LEADER ) );
     }
     
     /**
@@ -697,7 +703,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // float mLapStartET
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_START_TIME ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_LAP_START_TIME ) );
     }
     
     // Position and derivatives
@@ -710,7 +716,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mPos
         
-        ByteUtil.readVectorF( buffer, OFFSET_POSITION, position );
+        ByteUtil.readVectorD( buffer, OFFSET_POSITION, position );
     }
     
     /**
@@ -721,7 +727,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mPos
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 0 * ByteUtil.SIZE_FLOAT ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_POSITION + 0 * ByteUtil.SIZE_FLOAT ) );
     }
     
     /**
@@ -732,7 +738,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mPos
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 1 * ByteUtil.SIZE_FLOAT ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_POSITION + 1 * ByteUtil.SIZE_FLOAT ) );
     }
     
     /**
@@ -743,7 +749,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mPos
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 2 * ByteUtil.SIZE_FLOAT ) );
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_POSITION + 2 * ByteUtil.SIZE_FLOAT ) );
     }
     
     /**
@@ -754,7 +760,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mLocalVel
         
-        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_VELOCITY, localVel );
+        ByteUtil.readVectorD( buffer, OFFSET_LOCAL_VELOCITY, localVel );
     }
     
     /**
@@ -763,9 +769,9 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     @Override
     public final float getScalarVelocity()
     {
-        float vecX = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 0 * ByteUtil.SIZE_FLOAT );
-        float vecY = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 1 * ByteUtil.SIZE_FLOAT );
-        float vecZ = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 2 * ByteUtil.SIZE_FLOAT );
+        double vecX = ByteUtil.readDouble( buffer, OFFSET_LOCAL_VELOCITY + 0 * ByteUtil.SIZE_FLOAT );
+        double vecY = ByteUtil.readDouble( buffer, OFFSET_LOCAL_VELOCITY + 1 * ByteUtil.SIZE_FLOAT );
+        double vecZ = ByteUtil.readDouble( buffer, OFFSET_LOCAL_VELOCITY + 2 * ByteUtil.SIZE_FLOAT );
         
         return ( (float)Math.sqrt( vecX * vecX + vecY * vecY + vecZ * vecZ ) );
     }
@@ -778,7 +784,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mLocalAccel
         
-        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_ACCELERATION, localAccel );
+        ByteUtil.readVectorD( buffer, OFFSET_LOCAL_ACCELERATION, localAccel );
     }
     
     // Orientation and derivatives
@@ -791,7 +797,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mOriX
         
-        ByteUtil.readVectorF( buffer, OFFSET_ORIENTATION_X, oriX );
+        ByteUtil.readVectorD( buffer, OFFSET_ORIENTATION_X, oriX );
     }
     
     /**
@@ -802,7 +808,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mOriY
         
-        ByteUtil.readVectorF( buffer, OFFSET_ORIENTATION_Y, oriY );
+        ByteUtil.readVectorD( buffer, OFFSET_ORIENTATION_Y, oriY );
     }
     
     /**
@@ -813,7 +819,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mOriZ
         
-        ByteUtil.readVectorF( buffer, OFFSET_ORIENTATION_Z, oriZ );
+        ByteUtil.readVectorD( buffer, OFFSET_ORIENTATION_Z, oriZ );
     }
     
     /**
@@ -824,7 +830,7 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mLocalRot
         
-        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_ROTATION, localRot );
+        ByteUtil.readVectorD( buffer, OFFSET_LOCAL_ROTATION, localRot );
     }
     
     /**
@@ -835,13 +841,13 @@ class _rf1_VehicleScoringInfoCapsule extends _VehicleScoringInfoCapsule
     {
         // TelemVect3 mLocalRotAccel
         
-        ByteUtil.readVectorF( buffer, OFFSET_LOCAL_ROTATION_ACCELERATION, localRotAccel );
+        ByteUtil.readVectorD( buffer, OFFSET_LOCAL_ROTATION_ACCELERATION, localRotAccel );
     }
     
     // Future use
     //unsigned char mExpansion[128];
     
-    _rf1_VehicleScoringInfoCapsule()
+    _rf2_VehicleScoringInfoCapsule()
     {
         super();
     }

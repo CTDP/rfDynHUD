@@ -27,7 +27,27 @@ import java.io.OutputStream;
  */
 public abstract class _CommentaryRequestInfoCapsule
 {
+    private long updateId = 0L;
+    
     public abstract byte[] getBuffer();
+    
+    /**
+     * This is incremented every time the info is updated.
+     *  
+     * @return the current update id.
+     */
+    public final long getUpdateId()
+    {
+        return ( updateId );
+    }
+    
+    /**
+     * Increments the update ID.
+     */
+    protected void onDataUpdated()
+    {
+        this.updateId++;
+    }
     
     public abstract void loadFromStream( InputStream in ) throws IOException;
     

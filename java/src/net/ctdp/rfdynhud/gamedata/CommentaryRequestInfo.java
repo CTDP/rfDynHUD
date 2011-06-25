@@ -31,8 +31,6 @@ public class CommentaryRequestInfo
     
     private final LiveGameData gameData;
     
-    private long updateId = 0L;
-    
     public static interface CommentaryInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
         public void onCommentaryInfoUpdated( LiveGameData gameData, boolean isEditorMode );
@@ -103,7 +101,7 @@ public class CommentaryRequestInfo
     
     void onDataUpdated( boolean isEditorMode )
     {
-        this.updateId++;
+        data.onDataUpdated();
         
         if ( updateListeners != null )
         {
@@ -119,7 +117,7 @@ public class CommentaryRequestInfo
      */
     public final long getUpdateId()
     {
-        return ( updateId );
+        return ( data.getUpdateId() );
     }
     
     void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException

@@ -33,8 +33,6 @@ public class GraphicsInfo
     
     private boolean updatedInRealtimeMode = false;
     
-    private long updateId = 0L;
-    
     public static interface GraphicsInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
         public void onViewportChanged( LiveGameData gameData, int viewportX, int viewportY, int viewportWidth, int viewportHeight );
@@ -117,7 +115,7 @@ public class GraphicsInfo
     void onDataUpdated( boolean isEditorMode )
     {
         this.updatedInRealtimeMode = gameData.isInRealtimeMode();
-        this.updateId++;
+        data.onDataUpdated();
         
         if ( updateListeners != null )
         {
@@ -142,7 +140,7 @@ public class GraphicsInfo
      */
     public final long getUpdateId()
     {
-        return ( updateId );
+        return ( data.getUpdateId() );
     }
     
     void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException
