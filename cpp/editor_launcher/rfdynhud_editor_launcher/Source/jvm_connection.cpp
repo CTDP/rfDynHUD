@@ -259,6 +259,11 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\rfdynhud.jar", fileBuffer );
     
+    // TODO: Detect rFactor version somehow!
+    addPostFix( ";", fileBuffer );
+    addPostFix( PLUGIN_PATH, fileBuffer );
+    addPostFix( "\\rfdynhud_gamedata_rfactor1.jar", fileBuffer );
+    
     addPostFix( ";", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\editor\\rfdynhud_editor.jar", fileBuffer );
