@@ -67,6 +67,16 @@ public abstract class ProfileInfo
             public static final float KPA_TO_PSI = 0.14503773773375085503535504944423f;
             
             /**
+             * Kilometers (km) to Miles (mi)
+             */
+            public static final float KM_TO_MI = 0.621371192f;
+            
+            /**
+             * Miles (mi) to Kilometers (km)
+             */
+            public static final float MI_TO_KM = 1.609344f;
+            
+            /**
              * Centimenter (cm) to Inch (in)
              */
             public static final float CM_TO_INCH = 0.3937007874015748031496062992126f;

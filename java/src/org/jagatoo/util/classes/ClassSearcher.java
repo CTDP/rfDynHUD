@@ -49,7 +49,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * The {@link ClassSearcher} provides utility methods to search classes.
+ * The ClassSearcher provides utility methods to search classes.
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
@@ -229,16 +229,15 @@ public class ClassSearcher
      * Reads all classnames from given packages into a List, that match certrain
      * criteria.
      * 
+     * @param classLoader
      * @param packagePrefixesDot dot separated package prefix names (like "org.jagatoo.test")
      * @param packagePrefixesSlash slash separated package prefix names (like "org/jagatoo/test")
      * @param crit the Criterium to check for each class
      * @param classes
      * @param jarMap
      */
-    private static void findClassesInClassPath( String[] packagePrefixesDot, String[] packagePrefixesSlash, ClassSearchCriterium crit, Set<Class<?>> classes, Map<Class<?>, JarFile> jarMap )
+    private static void findClassesInClassPath( ClassLoader classLoader, String[] packagePrefixesDot, String[] packagePrefixesSlash, ClassSearchCriterium crit, Set<Class<?>> classes, Map<Class<?>, JarFile> jarMap )
     {
-        ClassLoader classLoader = ClassSearcher.class.getClassLoader();
-        
         String[] classPath = System.getProperty( "java.class.path" ).split( System.getProperty( "path.separator" ) );
         for ( String cp: classPath )
         {
@@ -247,6 +246,43 @@ public class ClassSearcher
             else
                 findClassNamesFromFolder( classLoader, new File( cp ), packagePrefixesDot, crit, classes );
         }
+    }
+    
+    /**
+     * Reads all classnames from given packages into a List, that match certrain
+     * criteria.
+     * 
+     * @param classLoader
+     * @param jarMap a map to fill with class-to-jar mappings (or null to ignore)
+     * @param crit the Criterium to check for each class
+     * @param packagePrefixes dot separated package prefix names (like "org.jagatoo.test")
+     * 
+     * @return the filled up List
+     */
+    public static List<Class<?>> findClasses( ClassLoader classLoader, Map<Class<?>, JarFile> jarMap, ClassSearchCriterium crit, String... packagePrefixes )
+    {
+        String[] packagePrifixes_slash = getPackagePrefixesSlash( packagePrefixes );
+        
+        Set<Class<?>> tmp = new HashSet<Class<?>>();
+        
+        findClassesInClassPath( classLoader, packagePrefixes, packagePrifixes_slash, crit, tmp, jarMap );
+        
+        return ( getSortedList( tmp ) );
+    }
+    
+    /**
+     * Reads all classnames from given packages into a List, that match certrain
+     * criteria.
+     * 
+     * @param classLoader
+     * @param crit the Criterium to check for each class
+     * @param packagePrefixes dot separated package prefix names (like "org.jagatoo.test")
+     * 
+     * @return the filled up List
+     */
+    public static List<Class<?>> findClasses( ClassLoader classLoader, ClassSearchCriterium crit, String... packagePrefixes )
+    {
+        return ( findClasses( classLoader, (Map<Class<?>, JarFile>)null, crit, packagePrefixes ) );
     }
     
     /**
@@ -265,7 +301,7 @@ public class ClassSearcher
         
         Set<Class<?>> tmp = new HashSet<Class<?>>();
         
-        findClassesInClassPath( packagePrefixes, packagePrifixes_slash, crit, tmp, jarMap );
+        findClassesInClassPath( ClassSearcher.class.getClassLoader(), packagePrefixes, packagePrifixes_slash, crit, tmp, jarMap );
         
         return ( getSortedList( tmp ) );
     }
@@ -338,7 +374,7 @@ public class ClassSearcher
         Set<Class<?>> tmp = new HashSet<Class<?>>();
         
         if ( includeClassPath )
-            findClassesInClassPath( packagePrefixes, packagePrifixes_slash, crit, tmp, jarMap );
+            findClassesInClassPath( classLoader, packagePrefixes, packagePrifixes_slash, crit, tmp, jarMap );
         
         findClassesFromURLClassLoader( classLoader, packagePrefixes, packagePrifixes_slash, crit, tmp, jarMap );
         

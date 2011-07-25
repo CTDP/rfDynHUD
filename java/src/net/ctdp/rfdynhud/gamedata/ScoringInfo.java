@@ -680,9 +680,12 @@ public class ScoringInfo
         this.sessionRunning = false;
         this.updatedInTimeScope = false;
         
-        for ( int i = 0; i < vehicleScoringInfo.length; i++ )
+        if ( vehicleScoringInfo != null )
         {
-            vehicleScoringInfo[i].onSessionEnded();
+            for ( int i = 0; i < vehicleScoringInfo.length; i++ )
+            {
+                vehicleScoringInfo[i].onSessionEnded();
+            }
         }
     }
     

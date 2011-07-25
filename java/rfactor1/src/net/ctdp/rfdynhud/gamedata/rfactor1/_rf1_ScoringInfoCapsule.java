@@ -71,7 +71,7 @@ class _rf1_ScoringInfoCapsule extends _ScoringInfoCapsule
     
     private static final int OFFSET_VEHICLES = OFFSET_EXPANSION + ( 256 * ByteUtil.SIZE_CHAR );
     
-    private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_FLOAT /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
+    private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_POINTER /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     

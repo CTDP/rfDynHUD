@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.util.PluginINI;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
@@ -44,7 +45,7 @@ public abstract class _LiveGameDataObjectsFactory
         if ( gdFactoriesMap.containsKey( gameId ) )
             return ( gdFactoriesMap.get( gameId ) );
         
-        List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( _LiveGameDataObjectsFactory.class, false ), (String[])null );
+        List<Class<?>> classes = ClassSearcher.findClasses( RFDynHUD.class.getClassLoader(), new SuperClassCriterium( _LiveGameDataObjectsFactory.class, false ), (String[])null );
         
         for ( Class<?> clazz : classes )
         {
