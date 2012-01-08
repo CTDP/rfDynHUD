@@ -6,15 +6,15 @@ Please read the readme with care to learn how to use this plugin.
 
 ## Project structure
 
-rfDynHUD consists of two compenents:
+rfDynHUD consists of two components:
 
-### rFactor-Plugin: `cpp/`
+### rFactor-plugin: `cpp/`
 
-The plugin written in C++ that interfaces data from rFactor to the rfDynHUD instance.
+The plugin is written in C++ and interfaces data from rFactor to the rfDynHUD instance.
 
 ### rFDynHUD: `java/`
 
-rFDynHUD written in Java features the plugin as well as the rfDynHUD Editor for Widget creation, as well as some examples for Widget development.
+rFDynHUD is written in Java features the plugin as well as the rfDynHUD Editor for Widget creation and some examples for Widget development.
 
 ## Contributing to rfDynHUD
  
@@ -28,14 +28,16 @@ rFDynHUD written in Java features the plugin as well as the rfDynHUD Editor for 
 
 ## Links
 * [Project Homepage][website]
-* [Code Repository]
-* [Bug Tracker]
+* [Code Repository][github]
+* [Bug Tracker][bugtracker]
 
 ## License
 
-This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.  
 [GNU General Public License v2][license].
 
 
-[license]: https://github.com/CTDP/rfDynHUD/LICENSE.md
+[license]: https://github.com/CTDP/rfDynHUD/tree/master/LICENSE.md
 [website]: http://www.ctdp.net/rfdynhud.html
+[github]: https://github.com/CTDP
+[bugtracker]: https://github.com/CTDP
