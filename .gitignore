@@ -1,0 +1,3 @@
+# TODO misses ignores for cpp building
+java/bin
+java/build
