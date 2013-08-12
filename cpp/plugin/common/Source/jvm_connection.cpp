@@ -7,22 +7,30 @@
 #include "util.h"
 #include "logging.h"
 
+int JAVA_VERSION = 0;
 char* readJavaHomeFromRegistry()
-{
+{//int& version
     char* buffer = (char*)malloc( MAX_PATH );
     HKEY keyHandle;
     DWORD size1;
     DWORD Type;
     
+    if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.7", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
+    {
+        size1 = MAX_PATH - 1;
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegCloseKey( keyHandle );
+        JAVA_VERSION = 7;
+        return ( buffer );
+    }
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.6", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
         RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
         RegCloseKey( keyHandle );
-        
+        JAVA_VERSION = 6;
         return ( buffer );
     }
-    
     free( buffer );
     
     logg( "WARNING: Registry key for 32 bit Java 6 Runtime Environment not found." );
@@ -33,8 +41,10 @@ char* readJavaHomeFromRegistry()
 char* guessJavaHome()
 {
     char* buffer = (char*)malloc( MAX_PATH );
+    char* buffer7 = (char*)malloc( MAX_PATH );
     
     DWORD len = GetEnvironmentVariable( "ProgramFiles", buffer, MAX_PATH );
+    DWORD len7 = GetEnvironmentVariable( "ProgramFiles", buffer, MAX_PATH );
     
     char* buff = buffer + len;
     memcpy( buff, "\\Java\\jre6", 11 );
@@ -43,36 +53,50 @@ char* guessJavaHome()
     char* result = (char*)malloc( len );
     memcpy( result, buffer, len );
     free( buffer );
+
+	char* buff7 = buffer7 + len7;
+    memcpy( buff7, "\\Java\\jre7", 11 );
+    len7 += 11;
     
-	if ( checkDirectoryExists( result, false ) != 1 )
+    char* result7 = (char*)malloc( len7 );
+    memcpy( result7, buffer7, len7 );
+    free( buffer7 );
+    
+	if ( checkDirectoryExists( result, false ) != 1 && checkDirectoryExists( result7, false ) != 1)
     {
         free( result );
+        free( result7 );
         
-        logg( "WARNING: Couldn't find 32 bit Java 6 Runtime Environment in the default folder." );
+        logg( "WARNING: Couldn't find 32 bit Java 6 or Java 7 Runtime Environment in the default folder." );
         
         return ( NULL );
     }
-    
-    return ( result );
+    if ( checkDirectoryExists( result7, false ) != 1)
+	{
+		JAVA_VERSION = 7;
+		return ( result7 );
+	}
+	JAVA_VERSION = 6;
+	return ( result );
 }
 
 char* getJavaHome()
 {
     char* result;
-    
     result = readJavaHomeFromRegistry();
-    if ( result != NULL )
+    logg( "JAVA_VERSION :" + JAVA_VERSION );
+	if ( result != NULL )
         return ( result );
     
     result = guessJavaHome();
     if ( result != NULL )
         return ( result );
-    
+	
     // TODO: Read the path from a user defined file.
     
     return ( NULL );
 }
-
+//static const int& JAVA_VERSION;
 static const char* JAVA_HOME = getJavaHome();
 
 jboolean isCopy = false;
@@ -109,14 +133,24 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     memcpy( fileBuffer + 24 + strlen( JAVA_HOME ), "\".", 3 );
 
     logg( fileBuffer );
-    
-    getFullPath( JAVA_HOME, "bin\\msvcr71.dll", fileBuffer );
-    logg( "    Loading msvcr71.dll...", false );
+    if(JAVA_VERSION == 7)
+	{
+		getFullPath( JAVA_HOME, "bin\\msvcr100.dll", fileBuffer );
+		logg( "    Loading msvcr100.dll...", false );
+	}
+	else
+	{
+		getFullPath( JAVA_HOME, "bin\\msvcr71.dll", fileBuffer );
+		logg( "    Loading msvcr71.dll...", false );
+	}
     HMODULE msvcdll = LoadLibrary( fileBuffer );
     
     if ( msvcdll == NULL )
     {
-        logg( " ERROR: Failed to load msvcr71.dll." );
+        if(JAVA_VERSION == 7)
+			logg( " ERROR: Failed to load msvcr100.dll." );
+		else
+			logg( " ERROR: Failed to load msvcr71.dll." );
         return ( false );
     }
     else
