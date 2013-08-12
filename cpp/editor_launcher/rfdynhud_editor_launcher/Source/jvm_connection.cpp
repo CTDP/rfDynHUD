@@ -1,3 +1,5 @@
+#pragma comment(lib, "advapi32")
+
 #include "jvm_connection.hpp"
 #include <Windows.h>
 #include <winreg.h>
@@ -255,12 +257,12 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
 	if(JAVA_VERSION == 7)
 	{
 		getFullPath( JAVA_HOME, "bin\\msvcr100.dll", fileBuffer );
-		logg( "    Loading msvcr100.dll...", false );
+		logg( "    Loading msvcr100.dll...");
 	}
 	else
 	{
 		getFullPath( JAVA_HOME, "bin\\msvcr71.dll", fileBuffer );
-		logg( "    Loading msvcr71.dll...", false );
+		logg( "    Loading msvcr71.dll...");
 	}
 
     HMODULE msvcdll = LoadLibrary( fileBuffer );
