@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -145,8 +145,8 @@ public class SpeedoWidget extends NeedleMeterWidget
     @Override
     protected float getMaxDataValue( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
-            return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KPH_TO_MPH );
+        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MIH )
+            return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KMH_TO_MIH );
         
         return ( maxVelocity.getFloatValue() );
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -249,7 +249,7 @@ public class StartingLightWidget extends Widget
     {
         if ( !isEditorMode && ( offImage != null ) )
         {
-            int newWidth = offImage.getWidth() * Math.min( gameData.getScoringInfo().getNumRedLights(), MAX_LIGHTS );
+            int newWidth = offImage.getWidth() * Math.min( gameData.getScoringInfo().getNumStartingLights(), MAX_LIGHTS );
             
             if ( newWidth != width )
             {
@@ -267,7 +267,7 @@ public class StartingLightWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        int m = scoringInfo.getNumRedLights();
+        int m = scoringInfo.getNumStartingLights();
         int numIgnoredLights = ( m <= MAX_LIGHTS ) ? 0 : m - MAX_LIGHTS;
         m = Math.min( m, MAX_LIGHTS );
         

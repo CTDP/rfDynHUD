@@ -125,28 +125,81 @@ void deleteLogFile( const char* PLUGIN_FOLDER )
     }
 }
 
-void logg( const char* message )
+void logg( const char* message, const bool newLine )
 {
     FILE* f;
     fopen_s( &f, LOG_FILENAME, "a" );
-    fprintf( f, "%s\n", message );
-    fclose( f );
+    if ( f )
+    {
+        if ( newLine )
+            fprintf( f, "%s\n", message );
+        else
+            fprintf( f, "%s", message );
+        fclose( f );
+    }
 }
 
-void logg2( const char* message )
+void logg( const char* message )
+{
+    logg( message, true );
+}
+
+void logg2( const char* message1, const char* message2, const bool newLine )
 {
     FILE* f;
     fopen_s( &f, LOG_FILENAME, "a" );
-    fprintf( f, "%s", message );
-    fclose( f );
+    if ( f )
+    {
+        if ( newLine )
+            fprintf( f, "%s%s\n", message1, message2 );
+        else
+            fprintf( f, "%s%s", message1, message2 );
+        fclose( f );
+    }
+}
+
+void logg2( const char* message1, const char* message2 )
+{
+    logg2( message1, message2, true );
+}
+
+void loggi( const char* message, const int value, const bool newLine )
+{
+    FILE* f;
+    fopen_s( &f, LOG_FILENAME, "a" );
+    if ( f )
+    {
+        if ( newLine )
+            fprintf( f, "%s%d\n", message, value );
+        else
+            fprintf( f, "%s%d", message, value );
+        fclose( f );
+    }
+}
+
+void loggi( const char* message, const int value )
+{
+    loggi( message, value, true );
 }
 
 char* readJavaHomeFromRegistry()
 {
-    char* buffer = (char*)malloc( MAX_PATH );
+    char* buffer0 = (char*)malloc( sizeof( int ) + MAX_PATH );
+    char* buffer = buffer0 + sizeof( int );
     HKEY keyHandle;
     DWORD size1;
     DWORD Type;
+    
+    if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.7", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
+    {
+        size1 = MAX_PATH - 1;
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegCloseKey( keyHandle );
+        
+        *((int*)buffer0) = 17;
+        
+        return ( buffer0 );
+    }
     
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.6", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
@@ -154,40 +207,53 @@ char* readJavaHomeFromRegistry()
         RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
         RegCloseKey( keyHandle );
         
-        return ( buffer );
+        *((int*)buffer0) = 16;
+        
+        return ( buffer0 );
     }
     
-    free( buffer );
+    free( buffer0 );
     
-    logg( "WARNING: Registry key for 32 bit Java 6 Runtime Environment not found." );
+    logg( "WARNING: Registry key for 32 bit Java 7 or 6 Runtime Environment not found." );
     
     return ( NULL );
 }
 
 char* guessJavaHome()
 {
-    char* buffer = (char*)malloc( MAX_PATH );
+    char* buffer0 = (char*)malloc( sizeof( int ) + MAX_PATH );
+    char* buffer = buffer0 + sizeof( int );
     
     DWORD len = GetEnvironmentVariable( "ProgramFiles", buffer, MAX_PATH );
+    DWORD lenPF = len;
     
-    char* buff = buffer + len;
+    char* buff = buffer + lenPF;
+    memcpy( buff, "\\Java\\jre7", 11 );
+    len += 11;
+    
+	if ( checkDirectoryExists( buffer, false ) == 1 )
+    {
+        *((int*)buffer0) = 17;
+        
+        return ( buffer0 );
+    }
+    
+    buff = buffer + lenPF;
     memcpy( buff, "\\Java\\jre6", 11 );
     len += 11;
     
-    char* result = (char*)malloc( len );
-    memcpy( result, buffer, len );
-    free( buffer );
-    
-	if ( checkDirectoryExists( result, false ) != 1 )
+	if ( checkDirectoryExists( buffer, false ) == 1 )
     {
-        free( result );
+        *((int*)buffer0) = 16;
         
-        logg( "WARNING: Couldn't find 32 bit Java 6 Runtime Environment in the default folder." );
-        
-        return ( NULL );
+        return ( buffer0 );
     }
     
-    return ( result );
+    free( buffer0 );
+    
+    logg( "WARNING: Couldn't find 32 bit Java 7 or 6 Runtime Environment in the default folder." );
+    
+    return ( NULL );
 }
 
 char* getJavaHome()
@@ -213,7 +279,8 @@ typedef jint ( APIENTRY * CreateJavaVMPROC ) ( JavaVM** pvm, void** penv, void* 
 
 bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
 {
-    char* fileBuffer = (char*)malloc( 16384 );
+    const unsigned int FILEBUFFER_LENGTH = 16384;
+    char* fileBuffer = (char*)malloc( FILEBUFFER_LENGTH );
     
     if ( JAVA_HOME == NULL )
     {
@@ -222,38 +289,74 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
         return ( false );
     }
     
+    const char* jh = JAVA_HOME +  + sizeof( int );
+    
     memcpy( fileBuffer, "Using Java from folder \"", 24 );
-    memcpy( fileBuffer + 24, JAVA_HOME, strlen( JAVA_HOME ) );
-    memcpy( fileBuffer + 24 + strlen( JAVA_HOME ), "\".", 3 );
+    memcpy( fileBuffer + 24, jh, strlen( jh ) );
+    memcpy( fileBuffer + 24 + strlen( jh ), "\".", 3 );
 
     logg( fileBuffer );
     
-    getFullPath( JAVA_HOME, "bin\\msvcr71.dll", fileBuffer );
-    logg( "    Loading msvcr71.dll..." );
-    HMODULE msvcdll = LoadLibrary( fileBuffer );
+    const int jreVersion = *((int*) JAVA_HOME );
     
-    if ( msvcdll == NULL )
+    if ( jreVersion == 16 )
     {
-        logg( "ERROR: Failed to load msvcr71.dll." );
+        getFullPath( jh, "bin\\msvcr71.dll", fileBuffer );
+        logg( "    Loading msvcr71.dll...", false );
+        HMODULE msvcdll = LoadLibrary( fileBuffer );
+        
+        if ( msvcdll == NULL )
+        {
+            logg( " ERROR: Failed to load msvcr71.dll." );
+            return ( false );
+        }
+        else
+        {
+            logg( " done." );
+        }
+    }
+    else if ( jreVersion == 17 )
+    {
+        getFullPath( jh, "bin\\msvcr100.dll", fileBuffer );
+        logg( "    Loading msvcr100.dll...", false );
+        HMODULE msvcdll = LoadLibrary( fileBuffer );
+        
+        if ( msvcdll == NULL )
+        {
+            logg( " ERROR: Failed to load msvcr100.dll." );
+            return ( false );
+        }
+        else
+        {
+            logg( " done." );
+        }
+    }
+    else
+    {
+        loggi( " ERROR: Unsupported JRE version ", jreVersion );
         return ( false );
     }
     
-    getFullPath( JAVA_HOME, "bin\\client\\jvm.dll", fileBuffer );
-    logg( "    Loading jvm.dll..." );
+    getFullPath( jh, "bin\\client\\jvm.dll", fileBuffer );
+    logg( "    Loading jvm.dll...", false );
     HMODULE jvmdll = LoadLibrary( fileBuffer );
     
     if ( jvmdll == NULL )
     {
-        logg( "ERROR: Failed to load jvm.dll." );
+        logg( " ERROR: Failed to load jvm.dll." );
         return ( false );
+    }
+    else
+    {
+        logg( " done." );
     }
     
     logg( "Successfully loaded Java dlls." );
     
     logg( "Invoking Java VM..." );
     
-    const unsigned int NUM_OPTIONS = 7;
-    JavaVMOption options[NUM_OPTIONS];
+    JavaVMOption* options = new JavaVMOption[32];
+    unsigned int i = 0;
     
     setBuffer( "-Djava.class.path=", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
@@ -267,30 +370,37 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     addPostFix( ";", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\editor\\rfdynhud_editor.jar", fileBuffer );
+	options[i++].optionString = cropBuffer2( fileBuffer );
     
-    options[0].optionString = cropBuffer2( fileBuffer );
-    options[1].optionString = cropBuffer2( addPreFix( "-Dworkdir=", setBuffer( PLUGIN_PATH, fileBuffer ) ) );
-    options[2].optionString = "-Xms512m";
-    options[3].optionString = "-Xmx512m";
-    options[4].optionString = "-XX:MaxGCPauseMillis=5";
-    options[5].optionString = "-XX:+UseAdaptiveSizePolicy";
-    options[6].optionString = "-Xincgc";
+    options[i++].optionString = cropBuffer2( addPreFix( "-Dworkdir=", setBuffer( PLUGIN_PATH, fileBuffer ) ) );
+    options[i++].optionString = "-Xms512m";
+    options[i++].optionString = "-Xmx512m";
+    options[i++].optionString = "-XX:MaxGCPauseMillis=5";
+    options[i++].optionString = "-XX:+UseAdaptiveSizePolicy";
+    options[i++].optionString = "-Xincgc";
+//options[i++].optionString = "-Xcheck:jni";
+    
+    DWORD len = GetEnvironmentVariable( "YourKitAgentDLL", fileBuffer + 11, FILEBUFFER_LENGTH - 11 );
+    if ( len > 0 )
+    {
+		memcpy( fileBuffer, "-agentpath:", 11 );
+        options[i++].optionString = cropBuffer( fileBuffer, 11 + len + 1 );
+    }
     
     free( fileBuffer );
     
-    logg( "JVM options:" );
-    for ( unsigned int i = 0; i < NUM_OPTIONS; i++ )
-    {
-        logg2( "    " );
-        logg( options[i].optionString );
-    }
+    const unsigned int nOptions = i;
+    
+    logg( "    JVM options:" );
+    for ( i = 0; i < nOptions; i++ )
+        logg2( "        ", options[i].optionString, true );
     
     JavaVMInitArgs vm_args;
     
     vm_args.version = JNI_VERSION_1_6;
     vm_args.options = options;
-    vm_args.nOptions = 7;
-    vm_args.ignoreUnrecognized = TRUE;
+    vm_args.nOptions = nOptions;
+    vm_args.ignoreUnrecognized = FALSE;
     
     CreateJavaVMPROC CreateJavaVM = (CreateJavaVMPROC)GetProcAddress( jvmdll, "JNI_CreateJavaVM" );
     

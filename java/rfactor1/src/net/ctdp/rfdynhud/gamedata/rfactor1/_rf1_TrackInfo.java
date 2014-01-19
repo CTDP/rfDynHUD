@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.Track;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -34,12 +33,33 @@ import org.jagatoo.util.strings.StringUtils;
  * 
  * @author Marvin Froehlich
  */
-public class _rf1_TrackInfo extends TrackInfo
+class _rf1_TrackInfo extends TrackInfo
 {
+    private final _rf1_ProfileInfo profileInfo;
+    
+    private File trackFolder = null;
     private String trackName = null;
     private int raceLaps = -1;
     private File aiwFile = null;
     private Track lastTrack = null;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isValid()
+    {
+        if ( getTrackFolder() == null )
+            return ( false );
+        
+        if ( getSceneFile() == null )
+            return ( false );
+        
+        if ( !getSceneFile().exists() )
+            return ( false );
+        
+        return ( true );
+    }
     
     private static Object[] checkGDB( File gdb, String trackname )
     {
@@ -168,6 +188,7 @@ public class _rf1_TrackInfo extends TrackInfo
     {
         super.reset();
         
+        this.trackFolder = null;
         this.trackName = null;
         this.raceLaps = -1;
         this.aiwFile = null;
@@ -175,11 +196,19 @@ public class _rf1_TrackInfo extends TrackInfo
     }
     
     /**
-     * {@inheritDoc}
+     * <p>
+     * Finds the folder from the GameData\Locations folder, in which a .gdb file
+     * exists, that contains a line<br>
+     *   TrackName = trackname
+     * </p>
+     * WARNING:<br>
+     * This operation may take a long time.
      */
     @Override
-    protected void updateImpl( File sceneFile )
+    protected void updateImpl()
     {
+        File sceneFile = profileInfo.getLastUsedSceneFile();
+        
         if ( sceneFile == null )
         {
             reset();
@@ -201,6 +230,26 @@ public class _rf1_TrackInfo extends TrackInfo
     }
     
     /**
+     * Gets the track's folder.
+     * 
+     * @return the track's folder.
+     */
+    public final File getTrackFolder()
+    {
+        return ( trackFolder );
+    }
+    
+    /**
+     * Gets the track's scene file.
+     * 
+     * @return the track's scene file.
+     */
+    public final File getSceneFile()
+    {
+        return ( profileInfo.getLastUsedSceneFile() );
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -208,7 +257,7 @@ public class _rf1_TrackInfo extends TrackInfo
     {
         if ( trackName == null )
         {
-            readTrackHeader( trackFolder, null );
+            readTrackHeader( getTrackFolder(), null );
         }
         
         return ( trackName );
@@ -222,7 +271,7 @@ public class _rf1_TrackInfo extends TrackInfo
     {
         if ( raceLaps < 0 )
         {
-            readTrackHeader( trackFolder, null );
+            readTrackHeader( getTrackFolder(), null );
         }
         
         return ( raceLaps );
@@ -258,14 +307,19 @@ public class _rf1_TrackInfo extends TrackInfo
     }
     
     /**
-     * {@inheritDoc}
+     * <p>
+     * Finds the AIW file for the given track.
+     * </p>
+     * WARNING:<br>
+     * This operation may take a long time.
+     * 
+     * @return the AIW file for the given track.
      */
-    @Override
     public File getAIWFile()
     {
         if ( aiwFile == null )
         {
-            aiwFile = findAIWFile( trackFolder );
+            aiwFile = findAIWFile( getTrackFolder() );
         }
         
         return ( aiwFile );
@@ -286,7 +340,7 @@ public class _rf1_TrackInfo extends TrackInfo
                 this.aiwFile = aiw;
                 try
                 {
-                    this.lastTrack = Track.parseTrackFromAIW( aiw );
+                    this.lastTrack = _rf1_AIWParser.parseTrackFromAIW( aiw );
                 }
                 catch ( IOException e )
                 {
@@ -304,8 +358,10 @@ public class _rf1_TrackInfo extends TrackInfo
      * 
      * @param profileInfo
      */
-    public _rf1_TrackInfo( ProfileInfo profileInfo )
+    public _rf1_TrackInfo( _rf1_ProfileInfo profileInfo )
     {
         super( profileInfo );
+        
+        this.profileInfo = profileInfo;
     }
 }

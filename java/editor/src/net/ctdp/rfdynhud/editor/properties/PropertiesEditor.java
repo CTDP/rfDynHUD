@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,8 +29,6 @@ import net.ctdp.rfdynhud.properties.Property;
  */
 public class PropertiesEditor
 {
-    private static final long serialVersionUID = -1723298567515621091L;
-    
     private GridItemsContainer<Property> properties;
     
     private final ArrayList<PropertyChangeListener> changeListeners = new ArrayList<PropertyChangeListener>();

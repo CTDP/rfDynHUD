@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,20 +45,21 @@ import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 public class StrategyTool
 {
     private final JDialog frame;
     
-    private JComboBox cbxNumQualiLaps;
-    private JComboBox cbxNumReconnaissanceLaps;
+    private JComboBox<Integer> cbxNumQualiLaps;
+    private JComboBox<Integer> cbxNumReconnaissanceLaps;
     private JCheckBox chkFormationLap;
     private JTextField txtRaceLength100;
-    private JComboBox cbxRaceLengthMulti;
+    private JComboBox<Integer> cbxRaceLengthMulti;
     private JTextField txtRaceLength;
     private JTextField txtAverageFuelUsage;
-    private JComboBox cbxNumPitstops;
+    private JComboBox<Integer> cbxNumPitstops;
     private JTextField txtFirstStop;
     private JTextField txtSecondStop;
     private JTextField txtThirdStop;
@@ -211,7 +212,7 @@ public class StrategyTool
     
     private StrategyTool( JFrame owner )
     {
-        LiveGameData gameData = new LiveGameData( RFDynHUDEditor.GAME_ID, null, null );
+        LiveGameData gameData = new LiveGameData( null, new _rf1_LiveGameDataObjectsFactory() );
         
         ProfileInfo profileInfo = gameData.getProfileInfo();
         __GDPrivilegedAccess.updateProfileInfo( profileInfo );
@@ -233,14 +234,14 @@ public class StrategyTool
         JLabel lblNumQualiLaps = new JLabel( "Num quali laps:" );
         table.add( lblNumQualiLaps );
         
-        cbxNumQualiLaps = new JComboBox( new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } );
+        cbxNumQualiLaps = new JComboBox<Integer>( new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } );
         cbxNumQualiLaps.setSelectedIndex( 2 );
         table.add( cbxNumQualiLaps );
         
         JLabel lblReconnaissanceLaps = new JLabel( "Reconnaissance laps:" );
         table.add( lblReconnaissanceLaps );
         
-        cbxNumReconnaissanceLaps = new JComboBox( new Integer[] { 0, 1, 2, 3, 4 } );
+        cbxNumReconnaissanceLaps = new JComboBox<Integer>( new Integer[] { 0, 1, 2, 3, 4 } );
         Integer numReconLaps = profileInfo.getNumReconLaps();
         if ( numReconLaps == null )
             cbxNumReconnaissanceLaps.setSelectedIndex( 0 );
@@ -278,7 +279,7 @@ public class StrategyTool
             multis[i - 1] = i;
         }
         
-        cbxRaceLengthMulti = new JComboBox( multis );
+        cbxRaceLengthMulti = new JComboBox<Integer>( multis );
         
         Float raceLengthMulti = profileInfo.getRaceLengthMultiplier();
         if ( raceLengthMulti == null )
@@ -315,7 +316,7 @@ public class StrategyTool
         JLabel lblNumPitstops = new JLabel( "Number of pitstops:" );
         table.add( lblNumPitstops );
         
-        cbxNumPitstops = new JComboBox( new Integer[] { 0, 1, 2, 3, 4 } );
+        cbxNumPitstops = new JComboBox<Integer>( new Integer[] { 0, 1, 2, 3, 4 } );
         cbxNumPitstops.setSelectedIndex( 2 );
         table.add( cbxNumPitstops );
         

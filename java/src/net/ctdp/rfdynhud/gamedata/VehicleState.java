@@ -64,7 +64,7 @@ public enum VehicleState
         
         if ( vsi.isInPits() )
         {
-            if ( Math.abs( vsi.getScalarVelocityMPS() ) < 0.1f )
+            if ( Math.abs( vsi.getScalarVelocityMS() ) < 0.1f )
                 state = PITTING;
             else
                 state = PITLANE;

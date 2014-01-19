@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,6 +47,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 
@@ -141,7 +142,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
     private JLabel lblVehicle = null;
     private JLabel lblSession = null;
     
-    private JComboBox cbxMod = null;
+    private JComboBox<String> cbxMod = null;
     private ButtonGroup bgSituation = null;
     private JRadioButton[] rdoSituation = null;
     private JTextField tbxVehicle = null;
@@ -248,7 +249,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         }
     }
     
-    private File parseSelectedFile( boolean useFallback )
+    private File parseSelectedFile( GameFileSystem fileSystem, boolean useFallback )
     {
         String filename = tbxFilename.getText().trim();
         File file = null;
@@ -261,7 +262,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
                 if ( !filename.startsWith( "/" ) && !filename.startsWith( "\\" ) )
                     filename = File.separator + filename;
                 
-                file = new File( RFDynHUDEditor.FILESYSTEM.getConfigPath() + filename );
+                file = new File( fileSystem.getConfigPath() + filename );
             }
             
             File path = file.getParentFile();
@@ -270,7 +271,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
             {
                 if ( useFallback )
                 {
-                    path = RFDynHUDEditor.FILESYSTEM.getConfigFolder();
+                    path = fileSystem.getConfigFolder();
                     file = new File( path, file.getName() );
                 }
             }
@@ -278,7 +279,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
             {
                 if ( useFallback )
                 {
-                    path = RFDynHUDEditor.FILESYSTEM.getConfigFolder();
+                    path = fileSystem.getConfigFolder();
                     file = new File( path, file.getName() );
                 }
                 else
@@ -294,7 +295,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         }
         else if ( useFallback )
         {
-            file = new File( RFDynHUDEditor.FILESYSTEM.getConfigFolder(), "overlay.ini" );
+            file = new File( fileSystem.getConfigFolder(), "overlay.ini" );
         }
         
         if ( file != null )
@@ -315,7 +316,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         return ( file );
     }
     
-    private boolean unparseFilename( File file )
+    private boolean unparseFilename( GameFileSystem fileSystem, File file )
     {
         if ( file == null )
         {
@@ -331,10 +332,10 @@ public class SaveAsDialog extends JDialog implements ActionListener
         {
             String path = folder.getAbsolutePath();
             
-            if ( path.toLowerCase().equals( RFDynHUDEditor.FILESYSTEM.getConfigPath().toLowerCase() ) )
+            if ( path.toLowerCase().equals( fileSystem.getConfigPath().toLowerCase() ) )
                 path = "";
-            else if ( path.toLowerCase().startsWith( RFDynHUDEditor.FILESYSTEM.getConfigPath().toLowerCase() ) )
-                path = path.substring( RFDynHUDEditor.FILESYSTEM.getConfigPath().length() + 1 );
+            else if ( path.toLowerCase().startsWith( fileSystem.getConfigPath().toLowerCase() ) )
+                path = path.substring( fileSystem.getConfigPath().length() + 1 );
             
             int p = path.lastIndexOf( File.separatorChar );
             if ( p >= 0 )
@@ -344,7 +345,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
             boolean found = false;
             for ( int i = 0; !found && i < cbxMod.getItemCount(); i++ )
             {
-                if ( ( (String)cbxMod.getItemAt( i ) ).equalsIgnoreCase( mod ) )
+                if ( cbxMod.getItemAt( i ).equalsIgnoreCase( mod ) )
                 {
                     cbxMod.setSelectedIndex( i );
                     found = true;
@@ -412,7 +413,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         return ( true );
     }
     
-    public void setSelectedFile( File file )
+    public void setSelectedFile( GameFileSystem fileSystem, File file )
     {
         if ( file == null )
         {
@@ -425,18 +426,18 @@ public class SaveAsDialog extends JDialog implements ActionListener
             File path = file.getParentFile();
             if ( ( path == null ) || !path.exists() )
             {
-                path = RFDynHUDEditor.FILESYSTEM.getConfigFolder();
+                path = fileSystem.getConfigFolder();
                 file = new File( path, file.getName() );
             }
             
-            if ( file.getAbsolutePath().toLowerCase().equals( RFDynHUDEditor.FILESYSTEM.getConfigPath().toLowerCase() ) )
+            if ( file.getAbsolutePath().toLowerCase().equals( fileSystem.getConfigPath().toLowerCase() ) )
                 tbxFilename.setText( "" );
-            else if ( file.getAbsolutePath().toLowerCase().startsWith( RFDynHUDEditor.FILESYSTEM.getConfigPath().toLowerCase() ) )
-                tbxFilename.setText( file.getAbsolutePath().substring( RFDynHUDEditor.FILESYSTEM.getConfigPath().length() + 1 ) );
+            else if ( file.getAbsolutePath().toLowerCase().startsWith( fileSystem.getConfigPath().toLowerCase() ) )
+                tbxFilename.setText( file.getAbsolutePath().substring( fileSystem.getConfigPath().length() + 1 ) );
             else
                 tbxFilename.setText( file.getAbsolutePath() );
             
-            if ( unparseFilename( file ) )
+            if ( unparseFilename( fileSystem, file ) )
             {
                 rdoConstruct.setSelected( true );
                 onMainGroupSelectionChanged( MainGroupItem.CONSTRUCT );
@@ -449,15 +450,15 @@ public class SaveAsDialog extends JDialog implements ActionListener
         }
     }
     
-    public final File getSelectedFile()
+    public final File getSelectedFile( GameFileSystem fileSystem )
     {
-        return ( parseSelectedFile( false ) );
+        return ( parseSelectedFile( fileSystem, false ) );
     }
     
-    private void browse()
+    private void browse( GameFileSystem fileSystem )
     {
         JFileChooser fc = new JFileChooser();
-        File file = parseSelectedFile( true );
+        File file = parseSelectedFile( fileSystem, true );
         if ( file != null )
         {
             fc.setCurrentDirectory( file.getParentFile() );
@@ -476,10 +477,10 @@ public class SaveAsDialog extends JDialog implements ActionListener
         
         file = fc.getSelectedFile();
         
-        if ( file.getAbsolutePath().toLowerCase().equals( RFDynHUDEditor.FILESYSTEM.getConfigPath().toLowerCase() ) )
+        if ( file.getAbsolutePath().toLowerCase().equals( fileSystem.getConfigPath().toLowerCase() ) )
             tbxFilename.setText( "" );
-        else if ( file.getAbsolutePath().toLowerCase().startsWith( RFDynHUDEditor.FILESYSTEM.getConfigPath().toLowerCase() ) )
-            tbxFilename.setText( file.getAbsolutePath().substring( RFDynHUDEditor.FILESYSTEM.getConfigPath().length() + 1 ) );
+        else if ( file.getAbsolutePath().toLowerCase().startsWith( fileSystem.getConfigPath().toLowerCase() ) )
+            tbxFilename.setText( file.getAbsolutePath().substring( fileSystem.getConfigPath().length() + 1 ) );
         else
             tbxFilename.setText( file.getAbsolutePath() );
     }
@@ -491,12 +492,12 @@ public class SaveAsDialog extends JDialog implements ActionListener
         this.setVisible( false );
     }
     
-    private void save()
+    private void save( GameFileSystem fileSystem )
     {
         if ( tbxFilename.getText().trim().equals( "" ) )
             return;
         
-        File file = getSelectedFile();
+        File file = getSelectedFile( fileSystem );
         
         boolean doIt = true;
         
@@ -530,7 +531,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
                 if ( !lblMod.isEnabled() )
                 {
                     if ( !tbxFilename.getText().trim().equals( "" ) )
-                        unparseFilename( new File( tbxFilename.getText().trim() ) );
+                        unparseFilename( RFDynHUDEditor.FILESYSTEM, new File( tbxFilename.getText().trim() ) );
                     onMainGroupSelectionChanged( MainGroupItem.CONSTRUCT );
                 }
                 break;
@@ -549,14 +550,14 @@ public class SaveAsDialog extends JDialog implements ActionListener
                 break;
             
             case BROWSE:
-                browse();
+                browse( RFDynHUDEditor.FILESYSTEM );
                 break;
             
             case CANCEL:
                 cancel();
                 break;
             case SAVE:
-                save();
+                save( RFDynHUDEditor.FILESYSTEM );
                 break;
         }
     }
@@ -570,7 +571,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         onActionPerformed( Actions.valueOf( e.getActionCommand() ) );
     }
     
-    private JPanel createConstructPanel()
+    private JPanel createConstructPanel( ModInfo modInfo )
     {
         int i = 0;
         
@@ -609,7 +610,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         
         JPanel pr = new JPanel( new GridLayout( numRows, 1 ) );
         
-        cbxMod = new JComboBox( ModInfo.getInstalledModNames( RFDynHUDEditor.FILESYSTEM ) );
+        cbxMod = new JComboBox<String>( modInfo.getInstalledModNames() );
         cbxMod.setEditable( true );
         cbxMod.setSelectedIndex( -1 );
         cbxMod.setActionCommand( Actions.MOD.name() );
@@ -748,7 +749,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         return ( p );
     }
     
-    public SaveAsDialog( RFDynHUDEditor editor )
+    public SaveAsDialog( RFDynHUDEditor editor, ModInfo modInfo )
     {
         super( editor.getMainWindow(), "Save As...", true );
         
@@ -771,7 +772,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         JPanel p = new JPanel( new BorderLayout() );
         p.add( rdoConstruct, BorderLayout.NORTH );
         center.add( p, BorderLayout.WEST );
-        center.add( createConstructPanel(), BorderLayout.CENTER );
+        center.add( createConstructPanel( modInfo ), BorderLayout.CENTER );
         
         getContentPane().add( center, BorderLayout.CENTER );
         

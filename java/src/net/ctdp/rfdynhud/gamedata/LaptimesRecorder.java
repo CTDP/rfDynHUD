@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.util.ArrayList;
+import java.util.List;
 
 class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
@@ -27,9 +27,9 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     @Override
     public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
-    private static ArrayList<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
+    private static List<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
     {
-        ArrayList<Laptime> laps = vsi.laptimes;
+        List<Laptime> laps = vsi.laptimes;
         
         for ( int i = laps.size(); i < lapsCompleted; i++ )
             laps.add( null );
@@ -135,7 +135,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             if ( vsi.isLapJustStarted() )
             {
                 Laptime laptime = new Laptime( vsi.getDriverId(), lapsCompleted + 1 );
-                ArrayList<Laptime> laps = addLaptime( vsi, lapsCompleted, laptime );
+                List<Laptime> laps = addLaptime( vsi, lapsCompleted, laptime );
                 
                 Laptime last = ( lapsCompleted == 0 ) ? null : laps.get( lapsCompleted - 1 );
                 

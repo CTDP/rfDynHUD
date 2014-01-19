@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,11 +17,8 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.File;
-
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.input.InputMapping;
-import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.render.WidgetsManager;
@@ -36,60 +33,52 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
 import org.jagatoo.util.Tools;
-import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * The events manager receives events from rFactor and modifies state-flags appropriately.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class GameEventsManager implements ConfigurationLoadListener
+public abstract class GameEventsManager implements ConfigurationLoadListener
 {
     public static boolean simulationMode = false;
-    private final RFDynHUD rfDynHUD;
-    private final WidgetsDrawingManager widgetsManager;
-    private final LiveGameData gameData;
+    protected final RFDynHUD rfDynHUD;
+    protected final WidgetsDrawingManager widgetsManager;
+    protected final LiveGameData gameData;
     
-    private boolean running = false;
+    protected boolean running = false;
     
-    private boolean sessionRunning = false;
+    protected boolean sessionRunning = false;
     
-    @SuppressWarnings( "unused" )
-    private boolean isComingOutOfGarage = true;
+    protected boolean isComingOutOfGarage = true;
     
-    private boolean sessionJustStarted = false;
-    private Boolean currentSessionIsRace = null;
+    protected boolean sessionJustStarted = false;
+    protected Boolean currentSessionIsRace = null;
     
-    private boolean waitingForGraphics = false;
-    private boolean waitingForTelemetry = false;
-    private boolean waitingForScoring = false;
-    private boolean waitingForGarageStartLocation = false;
-    private boolean waitingForSetup = false;
-    private long setupReloadTryTime = -1L;
-    private boolean waitingForData = false;
-    private Boolean cockpitLeftInRaceSession = null;
+    protected boolean waitingForRender = false;
+    protected boolean waitingForGraphics = false;
+    protected boolean waitingForTelemetry = false;
+    protected boolean waitingForScoring = false;
+    protected boolean waitingForGarageStartLocation = false;
+    protected boolean waitingForSetup = false;
+    protected long setupReloadTryTime = -1L;
+    protected boolean waitingForData = false;
+    protected Boolean cockpitLeftInRaceSession = null;
     
-    private boolean needsOnVehicleControlChangedEvent = false;
+    protected boolean needsOnVehicleControlChangedEvent = false;
     
-    private boolean isInGarage = true;
-    private boolean isInPits = true;
-    private final TelemVect3 garageStartLocation = new TelemVect3();
-    private final TelemVect3 garageStartOrientationX = new TelemVect3();
-    private final TelemVect3 garageStartOrientationY = new TelemVect3();
-    private final TelemVect3 garageStartOrientationZ = new TelemVect3();
+    protected boolean isInGarage = true;
+    protected boolean isInPits = true;
     
     private int lastViewedVSIId = -1;
     private VehicleControl lastControl = null;
     
-    private boolean physicsLoadedOnce = false;
+    protected boolean physicsLoadedOnce = false;
     
     private String lastTrackname = null;
     
-    private long lastSessionStartedTimestamp = -1L;
-    private float lastSessionTime = 0f;
-    
-    private GameEventsDispatcher eventsDispatcher;
-    private WidgetsManager renderListenersManager;
+    protected final GameEventsDispatcher eventsDispatcher;
+    private final WidgetsManager renderListenersManager;
     
     private final ConfigurationLoader loader = new ConfigurationLoader( this );
     private boolean texturesRequested = false;
@@ -97,6 +86,16 @@ public class GameEventsManager implements ConfigurationLoadListener
     public final LiveGameData getGameData()
     {
         return ( gameData );
+    }
+    
+    protected final WidgetsDrawingManager getWidgetsManager()
+    {
+        return ( widgetsManager );
+    }
+    
+    protected final GameEventsDispatcher getEventsDispatcher()
+    {
+        return ( eventsDispatcher );
     }
     
     public final boolean hasWaitingWidgets()
@@ -123,78 +122,10 @@ public class GameEventsManager implements ConfigurationLoadListener
         if ( !gameData.getProfileInfo().isValid() )
             return;
         
-        if ( ( gameData.getProfileInfo().getPLRFile() == null ) || !gameData.getProfileInfo().getPLRFile().exists() )
-            return;
-        
-        File controller_ini = new File( gameData.getProfileInfo().getPLRFile().getParentFile(), "Controller.ini" );
-        if ( !controller_ini.exists() )
-            return;
-        
-        String[] warning = null;
-        
-        String value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Increment Boost", null );
-        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
-        {
-            if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.IncBoost ) )
-            {
-                String message = "No Input Binding for IncBoost, but bound in rFactor.";
-                RFDHLog.exception( "Warning: ", message );
-                //if ( warning == null )
-                    warning = new String[] { message };
-            }
-        }
-        
-        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Decrement Boost", null );
-        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
-        {
-            if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.DecBoost ) )
-            {
-                String message = "No Input Binding for DecBoost, but bound in rFactor.";
-                RFDHLog.exception( "Warning: ", message );
-                if ( warning == null )
-                {
-                    warning = new String[] { message };
-                }
-                else
-                {
-                    String[] tmp = new String[ warning.length + 1 ];
-                    System.arraycopy( warning, 0, tmp, 0, warning.length );
-                    warning = tmp;
-                    warning[warning.length - 1] = message;
-                }
-            }
-        }
-        
-        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Temporary Boost", null );
-        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
-        {
-            if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.TempBoost ) )
-            {
-                String message = "No Input Binding for TempBoost, but bound in rFactor.";
-                RFDHLog.exception( "Warning: ", message );
-                if ( warning == null )
-                {
-                    warning = new String[] { message };
-                }
-                else
-                {
-                    String[] tmp = new String[ warning.length + 1 ];
-                    System.arraycopy( warning, 0, tmp, 0, warning.length );
-                    warning = tmp;
-                    warning[warning.length - 1] = message;
-                }
-            }
-        }
+        String[] warning = gameData.getProfileInfo().validateInputBindings( rfDynHUD.getInputMappings() );
         
         if ( warning != null )
         {
-            String[] tmp = new String[ warning.length + 3 ];
-            System.arraycopy( warning, 0, tmp, 0, warning.length );
-            warning = tmp;
-            warning[warning.length - 3] = "Engine wear display will be wrong.";
-            warning[warning.length - 2] = "Edit the Input Bindings in the editor (Tools->Edit Input Bindings)";
-            warning[warning.length - 1] = "and add proper bindings.";
-            
             net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
             internalWidget.setMessage( warning );
             __WCPrivilegedAccess.addWidget( widgetsManager.getWidgetsConfiguration(), internalWidget, true );
@@ -245,9 +176,10 @@ public class GameEventsManager implements ConfigurationLoadListener
     /**
      * This method must be called when the game started up.
      * 
+     * @param userObject custom user object from native side
      * @param isEditorMode
      */
-    public void onStartup( boolean isEditorMode )
+    public void onStartup( Object userObject, boolean isEditorMode )
     {
         this.running = true;
         
@@ -256,18 +188,21 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * This method must be called when the game started up.
+     * 
+     * @param userObject custom user object from native side
      */
-    public final void onStartup()
+    public final void onStartup( Object userObject )
     {
-        onStartup( false );
+        onStartup( userObject, false );
     }
     
     /**
      * This method must be called when the game shut down.
      * 
+     * @param userObject custom user object from native side
      * @param isEditorMode
      */
-    public void onShutdown( boolean isEditorMode )
+    public void onShutdown( Object userObject, boolean isEditorMode )
     {
         this.running = false;
         
@@ -276,10 +211,12 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * This method must be called when the game shut down.
+     * 
+     * @param userObject custom user object from native side
      */
-    public final void onShutdown()
+    public final void onShutdown( Object userObject )
     {
-        onShutdown( false );
+        onShutdown( userObject, false );
     }
     
     /**
@@ -307,16 +244,9 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     private void reloadVehicleInfo()
     {
-        gameData.getVehicleInfo().reset();
-        
         try
         {
-            File playerVEHFile = gameData.getProfileInfo().getVehicleFile();
-            
-            if ( ( playerVEHFile != null ) && playerVEHFile.exists() )
-            {
-                gameData.getGameDataObjectsFactory().parseVehicleInfo( playerVEHFile, playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() );
-            }
+            gameData.getVehicleInfo().reload( gameData );
         }
         catch ( Throwable t )
         {
@@ -328,7 +258,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         if ( !onlyOnce || !physicsLoadedOnce )
         {
-            __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getGameID(), gameData.getProfileInfo(), gameData.getTrackInfo(), gameData.getPhysics() );
+            __GDPrivilegedAccess.loadVehiclePhysics( gameData );
             
             physicsLoadedOnce = true;
             
@@ -340,7 +270,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         boolean result = false;
         
-        if ( VehicleSetupParser.loadSetup( gameData ) )
+        if ( gameData.getGameDataObjectsFactory().loadVehicleSetupIfChanged( gameData ) )
         {
             result = true;
         }
@@ -414,12 +344,45 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
+     * @param userObject custom user object from native side
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode editor mode?
+     */
+    protected void onSessionStartedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
+        __GDPrivilegedAccess.updateInfo( gameData );
+        
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            boolean loadPhysicsAndSetup = gameData.getSetup().checkLoadPhysicsAndSetupOnSessionStarted( gameData, isEditorMode );
+            
+            reloadVehicleInfo();
+            
+            if ( loadPhysicsAndSetup )
+            {
+                reloadPhysics( true, isEditorMode );
+                reloadSetup();
+            }
+            
+            __GDPrivilegedAccess.onSessionStarted( gameData, timestamp, isEditorMode );
+            
+            // We cannot load the configuration here, because we don't know, which one to load (no scoring info).
+        }
+    }
+    
+    /**
+     * 
+     * @param userObject custom user object from native side
      * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onSessionStarted( boolean isEditorMode )
+    public byte onSessionStarted( Object userObject, boolean isEditorMode )
     {
         RFDHLog.profile( "[PROFILE]: onSessionStarted()" );
+        
+        long now = System.nanoTime();
+        
         //if ( currentSessionIsRace == Boolean.TRUE )
         if ( sessionRunning )
         {
@@ -441,7 +404,6 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         this.sessionJustStarted = true;
         this.currentSessionIsRace = null;
-        this.lastSessionStartedTimestamp = System.nanoTime();
         this.lastViewedVSIId = -1;
         this.lastControl = null;
         
@@ -459,45 +421,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
-            __GDPrivilegedAccess.updateInfo( gameData );
-            
-            if ( gameData.getProfileInfo().isValid() )
-            {
-                boolean loadPhysicsAndSetup = true;
-                
-                if ( isEditorMode )
-                {
-                    File cchFile = gameData.getProfileInfo().getCCHFile();
-                    File playerVEHFile = gameData.getProfileInfo().getVehicleFile();
-                    String trackName = gameData.getTrackInfo().getTrackName();
-                    File setupFile = gameData.getFileSystem().locateSetupFile( gameData );
-                    
-                    if ( ( cchFile == null ) || !cchFile.exists() )
-                        loadPhysicsAndSetup = false;
-                    
-                    if ( ( playerVEHFile == null ) || !playerVEHFile.exists() )
-                        loadPhysicsAndSetup = false;
-                    
-                    if ( ( trackName == null ) || trackName.equals( "" ) )
-                        loadPhysicsAndSetup = false;
-                    
-                    if ( ( setupFile == null ) || !setupFile.exists() )
-                        loadPhysicsAndSetup = false;
-                }
-                
-                reloadVehicleInfo();
-                
-                if ( loadPhysicsAndSetup )
-                {
-                    reloadPhysics( true, isEditorMode );
-                    reloadSetup();
-                }
-                
-                __GDPrivilegedAccess.onSessionStarted( gameData, isEditorMode );
-                
-                // We cannot load the configuration here, because we don't know, which one to load (no scoring info).
-            }
+            onSessionStartedImpl( userObject, now, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -515,20 +439,41 @@ public class GameEventsManager implements ConfigurationLoadListener
      * This method must be called when a session has been started.
      * Note: LiveGameData must have been updated before.
      * 
+     * @param userObject custom user object from native side
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onSessionStarted()
+    public final byte onSessionStarted( Object userObject )
     {
-        return ( onSessionStarted( false ) );
+        return ( onSessionStarted( userObject, false ) );
     }
     
     /**
      * 
+     * @param userObject custom user object from native side
+     * @param timestamp event timestamp in nano seconds
      * @param isEditorMode editor mode?
      */
-    public void onSessionEnded( boolean isEditorMode )
+    protected void onSessionEndedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            __GDPrivilegedAccess.onSessionEnded( gameData, timestamp );
+        }
+    }
+    
+    /**
+     * 
+     * @param userObject custom user object from native side
+     * @param isEditorMode editor mode?
+     */
+    public void onSessionEnded( Object userObject, boolean isEditorMode )
     {
         RFDHLog.profile( "[PROFILE]: onSessionEnded()" );
+        
+        long now = System.nanoTime();
+        
+        this.waitingForRender = false;
         this.waitingForGraphics = false;
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
@@ -541,9 +486,13 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.sessionRunning = false;
         this.currentSessionIsRace = null;
         
-        if ( gameData.getProfileInfo().isValid() )
+        try
         {
-            __GDPrivilegedAccess.onSessionEnded( gameData );
+            onSessionEndedImpl( userObject, now, isEditorMode );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
         }
         
         __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
@@ -551,13 +500,15 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * This method must be called when a session has been ended.
+     * 
+     * @param userObject custom user object from native side
      */
-    public final void onSessionEnded()
+    public final void onSessionEnded( Object userObject )
     {
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( false );
         
-        onSessionEnded( false );
+        onSessionEnded( userObject, false );
     }
     
     /**
@@ -571,14 +522,47 @@ public class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * 
+     * @param userObject custom user object from native side
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode editor mode?
+     */
+    protected void onRealtimeEnteredImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
+        
+        __GDPrivilegedAccess.updateInfo( gameData );
+        
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            __GDPrivilegedAccess.setRealtimeMode( true, gameData, timestamp, isEditorMode );
+            
+            if ( !isEditorMode )
+            {
+                reloadPhysics( false, isEditorMode );
+                
+                if ( reloadSetup() )
+                {
+                    waitingForSetup = false;
+                    
+                    eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
+                }
+            }
+            
+            widgetsManager.onRealtimeEntered( gameData );
+            eventsDispatcher.fireOnRealtimeEntered( gameData, isEditorMode );
+        }
+    }
+    
+    /**
+     * @param userObject custom user object from native side
      * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onRealtimeEntered( boolean isEditorMode )
+    public byte onRealtimeEntered( Object userObject, boolean isEditorMode )
     {
         RFDHLog.profile( "[PROFILE]: onRealtimeEntered()" );
         byte result = 0;
+        long now = System.nanoTime();
         
         if ( texturesRequested )
         {
@@ -591,12 +575,13 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.lastViewedVSIId = -1;
         this.lastControl = null;
         
+        this.waitingForRender = waitingForRender || !isEditorMode;
         this.waitingForGraphics = waitingForGraphics || !isEditorMode;
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForGarageStartLocation = true;
         this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
-        this.setupReloadTryTime = System.nanoTime() + 5000000000L;
+        this.setupReloadTryTime = now + 5000000000L;
         this.waitingForData = !isEditorMode;
         this.needsOnVehicleControlChangedEvent = true;
         
@@ -607,29 +592,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
-            
-            __GDPrivilegedAccess.updateInfo( gameData );
-            
-            if ( gameData.getProfileInfo().isValid() )
-            {
-                __GDPrivilegedAccess.setRealtimeMode( true, gameData, isEditorMode );
-                
-                if ( !isEditorMode )
-                {
-                    reloadPhysics( false, isEditorMode );
-                    
-                    if ( reloadSetup() )
-                    {
-                        waitingForSetup = false;
-                        
-                        eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
-                    }
-                }
-                
-                widgetsManager.onRealtimeEntered( gameData );
-                eventsDispatcher.fireOnRealtimeEntered( gameData, isEditorMode );
-            }
+            onRealtimeEnteredImpl( userObject, now, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -646,22 +609,44 @@ public class GameEventsManager implements ConfigurationLoadListener
     /**
      * This method must be called when realtime mode has been entered (the user clicked on "Drive").
      * 
+     * @param userObject custom user object from native side
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onRealtimeEntered()
+    public final byte onRealtimeEntered( Object userObject )
     {
-        return ( onRealtimeEntered( false ) );
+        return ( onRealtimeEntered( userObject, false ) );
     }
     
     /**
      * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
      * 
+     * @param userObject custom user object from native side
+     * @param timestamp event timestamp in nano seconds
      * @param isEditorMode
      */
-    public void onRealtimeExited( boolean isEditorMode )
+    protected void onRealtimeExitedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            __GDPrivilegedAccess.setRealtimeMode( false, gameData, timestamp, isEditorMode );
+            
+            eventsDispatcher.fireOnRealtimeExited( gameData, isEditorMode );
+        }
+    }
+    
+    /**
+     * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
+     * 
+     * @param userObject custom user object from native side
+     * @param isEditorMode
+     */
+    public void onRealtimeExited( Object userObject, boolean isEditorMode )
     {
         RFDHLog.profile( "[PROFILE]: onRealtimeExited()" );
         RFDHLog.printlnEx( "Exited cockpit." );
+        
+        long now = System.nanoTime();
         
         //realtimeStartTime = -1f;
         this.isComingOutOfGarage = true;
@@ -669,7 +654,8 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.isInPits = true;
         this.isInGarage = true;
         
-        this.waitingForGraphics = true;
+        this.waitingForRender = true;
+        //this.waitingForGraphics = true;
         this.waitingForData = true;
         
         this.needsOnVehicleControlChangedEvent = true;
@@ -679,12 +665,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            if ( gameData.getProfileInfo().isValid() )
-            {
-                __GDPrivilegedAccess.setRealtimeMode( false, gameData, isEditorMode );
-                
-                eventsDispatcher.fireOnRealtimeExited( gameData, isEditorMode );
-            }
+            onRealtimeExitedImpl( userObject, now, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -695,11 +676,13 @@ public class GameEventsManager implements ConfigurationLoadListener
     /**
      * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
      * 
+     * @param userObject custom user object from native side
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onRealtimeExited()
+    public final byte onRealtimeExited( Object userObject )
     {
-        onRealtimeExited( false );
+        onRealtimeExited( userObject, false );
         
         //byte result = reloadConfigAndSetupTexture( false );
         __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
@@ -713,91 +696,220 @@ public class GameEventsManager implements ConfigurationLoadListener
         return ( 0 );
     }
     
-    private final TelemVect3 position = new TelemVect3();
-    
-    private final boolean checkIsInGarage()
+    /**
+     * Checks, whether re-entering the garage and showing the garage WidgetConfiguration is supported.
+     * 
+     * @return whether re-entering the garage and showing the garage WidgetConfiguration is supported.
+     */
+    protected boolean isReendetingGarageSupported()
     {
-        if ( !gameData.isInRealtimeMode() )
-            return ( true );
-        
-        if ( !gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() )
-            return ( false );
-        
-        gameData.getTelemetryData().getPosition( position );
-        
-        float relWorldX = position.getX() - garageStartLocation.getX();
-        float relWorldY = position.getY() - garageStartLocation.getY();
-        float relWorldZ = position.getZ() - garageStartLocation.getZ();
-        float currLocalX = ( garageStartOrientationX.getX() * relWorldX ) + ( garageStartOrientationY.getX() * relWorldY ) + ( garageStartOrientationZ.getX() * relWorldZ );
-        //float currLocalY = ( garageStartOrientationX.getY() * relWorldX ) + ( garageStartOrientationY.getY() * relWorldY ) + ( garageStartOrientationZ.getY() * relWorldZ );
-        float currLocalZ = ( garageStartOrientationX.getZ() * relWorldX ) + ( garageStartOrientationY.getZ() * relWorldY ) + ( garageStartOrientationZ.getZ() * relWorldZ );
-        
-        if ( ( currLocalX < -5f ) || ( currLocalX > +5f ) )
-            return ( false );
-        
-        if ( ( currLocalZ < -1.75f ) || ( currLocalZ > +10f ) )
-            return ( false );
-        
         return ( true );
     }
     
-    private byte checkPosition( boolean isEditorMode )
+    /**
+     * Checks, whether the player's vehicle is in the garage.
+     * 
+     * @return whether the player's vehicle is in the garage.
+     */
+    protected abstract boolean checkIsInGarage();
+    
+    /**
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param isEditorMode
+     * 
+     * @return the result back again.
+     */
+    protected byte onGarageExisted( byte result, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
+        
+        if ( !isEditorMode )
+        {
+            result = reloadConfigAndSetupTexture( false );
+            
+            if ( result != 0 )
+                eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
+        }
+        
+        return ( result );
+    }
+    
+    /**
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param isEditorMode
+     * 
+     * @return the result back again.
+     */
+    protected byte onGarageEntered( byte result, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
+        
+        if ( !isEditorMode )
+        {
+            result = reloadConfigAndSetupTexture( false );
+            
+            if ( result != 0 )
+                eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
+        }
+        
+        return ( result );
+    }
+    
+    protected boolean checkIsInPits()
+    {
+        return ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() );
+    }
+    
+    /**
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param isEditorMode
+     * 
+     * @return the result back again.
+     */
+    protected byte onPitsExited( byte result, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnPitsExited( gameData, isEditorMode );
+        
+        return ( result );
+    }
+    
+    /**
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param isEditorMode
+     * 
+     * @return the result back again.
+     */
+    protected byte onPitsEntered( byte result, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnPitsEntered( gameData, isEditorMode );
+        
+        return ( result );
+    }
+    
+    protected byte checkPosition( boolean isEditorMode )
     {
         byte result = 1;
         
-        if ( isInGarage ) // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
+        if ( isInGarage || isReendetingGarageSupported() )
         {
             boolean isInGarage = checkIsInGarage();
             
             if ( this.isInGarage && !isInGarage )
             {
                 this.isInGarage = false;
-                eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
                 
-                if ( !isEditorMode )
-                {
-                    result = reloadConfigAndSetupTexture( false );
-                    
-                    if ( result != 0 )
-                        eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
-                }
+                result = onGarageExisted( result, isEditorMode );
             }
             else if ( !this.isInGarage && isInGarage )
             {
                 this.isInGarage = true;
-                eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
                 
-                if ( !isEditorMode )
-                {
-                    result = reloadConfigAndSetupTexture( false );
-                    
-                    if ( result != 0 )
-                        eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
-                }
+                onGarageEntered( result, isEditorMode );
             }
         }
         
-        final boolean isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
+        final boolean isInPits = checkIsInPits();
         
         if ( this.isInPits && !isInPits )
         {
             this.isInPits = isInPits;
-            eventsDispatcher.fireOnPitsExited( gameData, isEditorMode );
+            
+            result = onPitsExited( result, isEditorMode );
         }
         else if ( !this.isInPits && isInPits )
         {
             this.isInPits = isInPits;
-            eventsDispatcher.fireOnPitsEntered( gameData, isEditorMode );
+            
+            result = onPitsEntered( result, isEditorMode );
         }
         
         return ( result );
     }
     
-    private byte checkWaitingData( boolean isEditorMode, boolean forceReload )
+    protected void onVehicleSetupUpdated( boolean isEditorMode )
     {
+        eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
+    }
+    
+    /**
+     * 
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode
+     * @return
+     */
+    protected boolean checkTrackChanged( long timestamp, boolean isEditorMode )
+    {
+        String trackname = gameData.getTrackInfo().getTrackName();
+        
+        boolean result = !Tools.objectsEqual( trackname, lastTrackname );
+        
+        lastTrackname = trackname;
+        
+        return ( result );
+    }
+    
+    /**
+     * 
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode
+     */
+    protected void onTrackChanged( long timestamp, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnTrackChanged( gameData.getTrackInfo().getTrackName(), gameData, isEditorMode );
+    }
+    
+    protected static byte mergeResults( byte result1, byte result2 )
+    {
+        if ( ( result1 == 0 ) || ( result2 == 0 ) )
+            return ( 0 );
+        
+        if ( ( result1 == 2 ) || ( result2 == 2 ) )
+            return ( 2 );
+        
+        return ( 1 );
+    }
+    
+    protected void onWaitingForDataCompleted( long timestamp, boolean isEditorMode )
+    {
+        if ( sessionJustStarted )
+        {
+            __GDPrivilegedAccess.onSessionStarted2( gameData, timestamp, isEditorMode );
+            
+            if ( !gameData.isInRealtimeMode() || gameData.getScoringInfo().getSessionType().isRace() )
+            {
+                String modName = gameData.getModInfo().getName();
+                String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
+                String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
+                if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
+                    vehicleName = null;
+                SessionType sessionType = gameData.getScoringInfo().getSessionType();
+                String trackname = gameData.getTrackInfo().getTrackName();
+                RFDHLog.printlnEx( "Session started. (Mod: \"" + modName + "\", Vehicle-Class: \"" + vehicleClass + "\", Car: \"" + ( vehicleName == null ? "N/A" : vehicleName ) + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackname + "\")" );
+                
+                if ( checkTrackChanged( timestamp, isEditorMode ) )
+                {
+                    onTrackChanged( timestamp, isEditorMode );
+                }
+                
+                eventsDispatcher.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, isEditorMode );
+                needsOnVehicleControlChangedEvent = true;
+            }
+            
+            this.sessionJustStarted = false;
+        }
+    }
+    
+    protected byte checkWaitingData( boolean isEditorMode, boolean forceReload )
+    {
+        long now = System.nanoTime();
+        
         eventsDispatcher.checkAndFireOnNeededDataComplete( gameData, isEditorMode );
         
-        boolean waitingForSetup2 = ( System.nanoTime() <= setupReloadTryTime );
+        boolean waitingForSetup2 = ( now <= setupReloadTryTime );
         if ( simulationMode )
             waitingForSetup2 = false;
         
@@ -819,7 +931,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                 waitingForSetup2 = false;
                 setupReloadTryTime = -1L;
                 
-                eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
+                onVehicleSetupUpdated( isEditorMode );
             }
             else if ( waitingForSetup && !waitingForSetup2 )
             {
@@ -844,38 +956,9 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         byte result = 0;
         
-        if ( !waitingForGraphics && !waitingForTelemetry && !waitingForScoring/* && !waitingForSetup && !waitingForSetup2*/ )
+        if ( !waitingForRender && !waitingForGraphics && !waitingForTelemetry && !waitingForScoring/* && !waitingForSetup && !waitingForSetup2*/ )
         {
-            isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
-            
-            if ( sessionJustStarted )
-            {
-                __GDPrivilegedAccess.onSessionStarted2( gameData, isEditorMode );
-                
-                if ( !gameData.isInRealtimeMode() || gameData.getScoringInfo().getSessionType().isRace() )
-                {
-                    String modName = gameData.getModInfo().getName();
-                    String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-                    String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
-                    if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
-                        vehicleName = null;
-                    SessionType sessionType = gameData.getScoringInfo().getSessionType();
-                    String trackName = gameData.getTrackInfo().getTrackName();
-                    RFDHLog.printlnEx( "Session started. (Mod: \"" + modName + "\", Vehicle-Class: \"" + vehicleClass + "\", Car: \"" + ( vehicleName == null ? "N/A" : vehicleName ) + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
-                    
-                    String trackname = gameData.getTrackInfo().getTrackName();
-                    if ( !trackname.equals( lastTrackname ) )
-                    {
-                        eventsDispatcher.fireOnTrackChanged( trackname, gameData, isEditorMode );
-                        lastTrackname = trackname;
-                    }
-                    
-                    eventsDispatcher.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, isEditorMode );
-                    needsOnVehicleControlChangedEvent = true;
-                }
-                
-                this.sessionJustStarted = false;
-            }
+            onWaitingForDataCompleted( now, isEditorMode );
             
             waitingForData = false;
             
@@ -899,95 +982,44 @@ public class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * Will and must be called any time, the game is redendered (called from the C++-Plugin).
-     * 
-     * @param viewportX the left coordinate of the viewport
-     * @param viewportY the top coordinate of the viewport
-     * @param viewportWidth the width of the viewport
-     * @param viewportHeight the height of the viewport
-     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
+    protected byte onTelemetryDataUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
     {
-        RFDHLog.profile( "[PROFILE]: onGraphicsInfoUpdated()" );
-        this.waitingForGraphics = false;
+        if ( !isEditorMode )
+            gameData.getTelemetryData().updateData( userObject, System.nanoTime() );
         
-        byte result = 0;
+        this.waitingForTelemetry = false;
         
-        try
+        if ( gameData.getProfileInfo().isValid() )
         {
-            boolean vpChanged = __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager.getWidgetsConfiguration() );
-            
-            if ( ( viewportWidth > gameData.getGameResolution().getResX() ) || ( viewportHeight > gameData.getGameResolution().getResY() ) )
-            {
-                widgetsManager.resizeMainTexture( viewportWidth, viewportHeight );
-            }
-            
-            if ( isSessionRunning() && gameData.getProfileInfo().isValid() )
-            {
-                if ( vpChanged )
-                {
-                    RFDHLog.debug( "[DEBUG]: (Viewport changed): ", viewportX, ", ", viewportY, ", ", viewportWidth, "x", viewportHeight );
-                    
-                    if ( gameData.getProfileInfo().isValid() )
-                    {
-                        if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
-                        {
-                            __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
-                            result = 0;
-                        }
-                        else
-                        {
-                            //result = reloadConfigAndSetupTexture( true );
-                            waitingForData = true;
-                            result = checkWaitingData( false, true );
-                        }
-                    }
-                    
-                    gameData.getGraphicsInfo().onViewportChanged( viewportX, viewportY, viewportWidth, viewportHeight );
-                }
-                else if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
-                {
-                    __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
-                    result = 0;
-                }
-                else
-                {
-                    result = checkWaitingData( false, false );
-                }
-            }
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( t );
+            result = checkWaitingData( isEditorMode, false );
         }
         
-        if ( rfDynHUD != null )
-            rfDynHUD.setRenderMode( result != 0 );
-        
-        //Logger.log( ">>> /onGraphicsInfoUpdated(), result: " + result );
         return ( result );
     }
     
     /**
-     * 
+     * @param userObject a custom user object passed through to the sim specific implementation 
      * @param isEditorMode editor mode?
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onTelemetryDataUpdated( boolean isEditorMode )
+    public byte onTelemetryDataUpdated( Object userObject, boolean isEditorMode )
     {
         RFDHLog.profile( "[PROFILE]: onTelemetryDataUpdated()" );
+        
         byte result = 0;
+        
+        long now = System.nanoTime();
         
         try
         {
-            this.waitingForTelemetry = false;
-            
-            if ( gameData.getProfileInfo().isValid() )
-            {
-                result = checkWaitingData( isEditorMode, false );
-            }
+            result = onTelemetryDataUpdatedImpl( result, userObject, now, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -997,137 +1029,37 @@ public class GameEventsManager implements ConfigurationLoadListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> /onTelemetryDataUpdated(), result: " + result );
+        //RFDHLog.println( ">>> /onTelemetryDataUpdated(), result: " + result );
         return ( result );
     }
     
     /**
      * This method must be called when TelemetryData has been updated.
      * 
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onTelemetryDataUpdated()
-    {
-        return ( onTelemetryDataUpdated( false ) );
-    }
-    
-    /**
-     * 
-     * @param isEditorMode editor mode?
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onScoringInfoUpdated( boolean isEditorMode )
-    {
-        RFDHLog.profile( "[PROFILE]: onScoringInfoUpdated()" );
-        //RFDHLog.profile( "[PROFILE]: onScoringInfoUpdated(", gameData.getScoringInfo().getNumVehicles(), ")" );
-        if ( gameData.getScoringInfo().getNumVehicles() == 0 ) // What the hell is this again???
-        {
-            if ( rfDynHUD != null )
-                rfDynHUD.setRenderMode( false );
-            
-            return ( 0 );
-        }
-        
-        byte result = 0;
-        
-        try
-        {
-            this.currentSessionIsRace = gameData.getScoringInfo().getSessionType().isRace();
-            
-            if ( waitingForGarageStartLocation )
-            {
-                final VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
-                vsi.getWorldPosition( garageStartLocation );
-                vsi.getOrientationX( garageStartOrientationX );
-                vsi.getOrientationY( garageStartOrientationY );
-                vsi.getOrientationZ( garageStartOrientationZ );
-                
-                this.isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
-                this.isInGarage = isInPits;
-                
-                this.waitingForGarageStartLocation = false;
-            }
-            
-            this.waitingForScoring = false;
-            
-            this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
-            
-            if ( gameData.getProfileInfo().isValid() )
-            {
-                result = checkWaitingData( isEditorMode, false );
-                
-                eventsDispatcher.fireOnScoringInfoUpdated( gameData, isEditorMode );
-                
-                if ( !waitingForData && ( result != 0 ) )
-                {
-                    byte result2 = checkPosition( isEditorMode );
-                    
-                    if ( result2 != 1 )
-                    {
-                        result = result2;
-                    }
-                    
-                    VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
-                    
-                    if ( ( lastViewedVSIId == -1 ) || ( viewedVSI.getDriverId() != lastViewedVSIId ) || ( viewedVSI.getVehicleControl() != lastControl ) )
-                    {
-                        lastViewedVSIId = viewedVSI.getDriverId();
-                        lastControl = viewedVSI.getVehicleControl();
-                        eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
-                        
-                        result2 = reloadConfigAndSetupTexture( false );
-                        
-                        if ( result2 == 2 )
-                        {
-                            eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
-                            needsOnVehicleControlChangedEvent = false;
-                        }
-                        
-                        if ( result2 != 1 )
-                        {
-                            result = result2;
-                        }
-                    }
-                    else if ( needsOnVehicleControlChangedEvent )
-                    {
-                        eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
-                        needsOnVehicleControlChangedEvent = false;
-                    }
-                }
-            }
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( t );
-        }
-        
-        if ( rfDynHUD != null )
-            rfDynHUD.setRenderMode( result != 0 );
-        
-        //Logger.log( ">>> /onScoringInfoUpdated(), result: " + result );
-        return ( result );
-    }
-    
-    /**
-     * This method must be called when ScoringInfo has been updated.
+     * @param userObject a custom user object passed through to the sim specific implementation 
      * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onScoringInfoUpdated()
+    public final byte onTelemetryDataUpdated( Object userObject )
     {
-        return ( onScoringInfoUpdated( false ) );
+        return ( onTelemetryDataUpdated( userObject, false ) );
     }
     
     /**
      * 
      * @param updateTimestamp the timestamp at the update
+     * 
+     * @return <code>true</code>, if the race has been restarted, <code>false</code> otherwise.
      */
-    public final void checkRaceRestart( long updateTimestamp )
+    protected abstract boolean checkRaceRestartImpl( long updateTimestamp );
+    
+    /**
+     * 
+     * @param updateTimestamp the timestamp at the update
+     */
+    public void checkRaceRestart( long updateTimestamp )
     {
-        ScoringInfo scoringInfo = gameData.getScoringInfo();
-        
-        //RFDHLog.debugCS( waitingForScoring, lastSessionStartedTimestamp, updateTimestamp, updateTimestamp - lastSessionStartedTimestamp > 3000000000L, scoringInfo.getSessionTime(), lastSessionTime, lastSessionTime > scoringInfo.getSessionTime() );
-        if ( !waitingForScoring && scoringInfo.getSessionType().isRace() && ( lastSessionStartedTimestamp != -1L ) && ( updateTimestamp - lastSessionStartedTimestamp > 3000000000L ) && ( scoringInfo.getSessionTime() > 0f ) && ( lastSessionTime > scoringInfo.getSessionTime() ) )
+        if ( checkRaceRestartImpl( updateTimestamp ) )
         {
             //RFDHLog.debug( "RACE RESTART" );
             onSessionStarted( false );
@@ -1138,7 +1070,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      * 
      * @param isEditorMode editor mode?
      */
-    public final void checkAndFireOnLapStarted( boolean isEditorMode )
+    protected void checkAndFireOnLapStarted( boolean isEditorMode )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -1158,18 +1090,348 @@ public class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
+     * 
+     * @param viewedVSI
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode
+     */
+    protected void onVehicleControlChanged( VehicleScoringInfo viewedVSI, long timestamp, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+    }
+    
+    /**
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param numVehicles
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode editor mode?
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    protected byte onScoringInfoUpdatedImpl( byte result, int numVehicles, Object userObject, long timestamp, boolean isEditorMode )
+    {
+        if ( !isEditorMode )
+            gameData.getScoringInfo().updateData( numVehicles, userObject, timestamp );
+        
+        this.waitingForScoring = false;
+        
+        checkRaceRestart( timestamp );
+        checkAndFireOnLapStarted( isEditorMode );
+        
+        this.currentSessionIsRace = gameData.getScoringInfo().getSessionType().isRace();
+        
+        if ( waitingForGarageStartLocation )
+        {
+            this.isInPits = checkIsInPits();
+            this.isInGarage = isInPits;
+            
+            this.waitingForGarageStartLocation = false;
+        }
+        
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            result = checkWaitingData( isEditorMode, false );
+            
+            eventsDispatcher.fireOnScoringInfoUpdated( gameData, isEditorMode );
+            
+            if ( !waitingForData && ( result != 0 ) )
+            {
+                byte result2 = checkPosition( isEditorMode );
+                
+                result = mergeResults( result, result2 );
+                
+                VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+                
+                if ( ( lastViewedVSIId == -1 ) || ( viewedVSI.getDriverId() != lastViewedVSIId ) || ( viewedVSI.getVehicleControl() != lastControl ) )
+                {
+                    lastViewedVSIId = viewedVSI.getDriverId();
+                    lastControl = viewedVSI.getVehicleControl();
+                    onVehicleControlChanged( viewedVSI, timestamp, isEditorMode );
+                    
+                    result2 = reloadConfigAndSetupTexture( false );
+                    
+                    if ( result2 == 2 )
+                    {
+                        onVehicleControlChanged( viewedVSI, timestamp, isEditorMode );
+                        needsOnVehicleControlChangedEvent = false;
+                    }
+                    
+                    result = mergeResults( result, result2 );
+                }
+                else if ( needsOnVehicleControlChangedEvent )
+                {
+                    onVehicleControlChanged( viewedVSI, timestamp, isEditorMode );
+                    needsOnVehicleControlChangedEvent = false;
+                }
+            }
+        }
+        
+        return ( result );
+    }
+    
+    /**
+     * 
+     * @param numVehicles
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param isEditorMode editor mode?
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    public byte onScoringInfoUpdated( int numVehicles, Object userObject, boolean isEditorMode )
+    {
+        RFDHLog.profile( "[PROFILE]: onScoringInfoUpdated()" );
+        
+        final long now = System.nanoTime();
+        
+        byte result = 0;
+        
+        try
+        {
+            result = onScoringInfoUpdatedImpl( result, numVehicles, userObject, now, isEditorMode );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
+        //RFDHLog.println( ">>> /onScoringInfoUpdated(), result: " + result );
+        return ( result );
+    }
+    
+    /**
+     * This method must be called when ScoringInfo has been updated.
+     * 
+     * @param numVehicles
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    public final byte onScoringInfoUpdated( int numVehicles, Object userObject )
+    {
+        return ( onScoringInfoUpdated( numVehicles, userObject, false ) );
+    }
+    
+    /**
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode editor mode?
+     
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    protected byte onCommentaryRequestInfoUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    {
+        //if ( !isEditorMode )
+            gameData.getCommentaryRequestInfo().updateData( userObject, System.nanoTime() );
+        
+        return ( checkWaitingData( isEditorMode, false ) );
+    }
+    
+    /**
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @return
+     */
+    public final byte onCommentaryRequestInfoUpdated( Object userObject )
+    {
+        RFDHLog.profile( "[PROFILE]: onCommentaryRequestInfoUpdated()" );
+        
+        byte result = 0;
+        
+        long now = System.nanoTime();
+        
+        try
+        {
+            result = onCommentaryRequestInfoUpdatedImpl( result, userObject, now, false );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        //RFDHLog.println( ">>> /onCommentaryRequestInfoUpdated(), result: " + result );
+        return ( result );
+    }
+    
+    /**
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param userObject a custom user object passed through to the sim specific implementation
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    protected byte onGraphicsInfoUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    {
+        //if ( !isEditorMode )
+            gameData.getGraphicsInfo().updateData( userObject, timestamp );
+        
+        return ( result );
+    }
+    
+    /**
+     * @param userObject a custom user object passed through to the sim specific implementation
+     *  
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    public final byte onGraphicsInfoUpdated( Object userObject )
+    {
+        RFDHLog.profile( "[PROFILE]: onGraphicsInfoUpdated()" );
+        this.waitingForGraphics = false;
+        
+        byte result = 1;
+        
+        long now = System.nanoTime();
+        
+        try
+        {
+            result = onGraphicsInfoUpdatedImpl( result, userObject, now, false );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        result = mergeResults( result, checkWaitingData( false, false ) );
+        
+        //RFDHLog.println( ">>> /onGraphicsInfoUpdated(), result: " + result );
+        return ( result );
+    }
+    
+    /**
+     * 
+     * @param viewportX the left coordinate of the viewport
+     * @param viewportY the top coordinate of the viewport
+     * @param viewportWidth the width of the viewport
+     * @param viewportHeight the height of the viewport
+     * 
+     * @return <code>true</code>, if the viewport has changed, <code>false</code> otherwise.
+     */
+    protected boolean checkAndApplyChangedViewport( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
+    {
+        boolean vpChanged = __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager.getWidgetsConfiguration() );
+        
+        if ( ( viewportWidth > gameData.getGameResolution().getResX() ) || ( viewportHeight > gameData.getGameResolution().getResY() ) )
+        {
+            widgetsManager.resizeMainTexture( viewportWidth, viewportHeight );
+        }
+        
+        return ( vpChanged );
+    }
+    
+    protected void onViewportChanged( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
+    {
+        gameData.getGraphicsInfo().onViewportChanged( viewportX, viewportY, viewportWidth, viewportHeight );
+    }
+    
+    /**
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param viewportX the left coordinate of the viewport
+     * @param viewportY the top coordinate of the viewport
+     * @param viewportWidth the width of the viewport
+     * @param viewportHeight the height of the viewport
+     * @param viewportChanged
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    protected byte handleViewport( byte result, short viewportX, short viewportY, short viewportWidth, short viewportHeight, boolean viewportChanged )
+    {
+        if ( viewportChanged )
+        {
+            RFDHLog.debug( "[DEBUG]: (Viewport changed): ", viewportX, ", ", viewportY, "; ", viewportWidth, "x", viewportHeight );
+            
+            if ( gameData.getProfileInfo().isValid() )
+            {
+                //result = reloadConfigAndSetupTexture( true );
+                waitingForData = true;
+                result = checkWaitingData( false, true );
+            }
+            
+            onViewportChanged( viewportX, viewportY, viewportWidth, viewportHeight );
+        }
+        else
+        {
+            result = checkWaitingData( false, false );
+        }
+        
+        return ( result );
+    }
+    
+    /**
+     * Will and must be called any time, the game is redendered (called from the C++-Plugin).
+     * 
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param viewportX the left coordinate of the viewport
+     * @param viewportY the top coordinate of the viewport
+     * @param viewportWidth the width of the viewport
+     * @param viewportHeight the height of the viewport
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    protected byte beforeRenderImpl( byte result, short viewportX, short viewportY, short viewportWidth, short viewportHeight )
+    {
+        boolean vpChanged = checkAndApplyChangedViewport( viewportX, viewportY, viewportWidth, viewportHeight );
+        
+        if ( isSessionRunning() && gameData.getProfileInfo().isValid() )
+        {
+            handleViewport( result, viewportX, viewportY, viewportWidth, viewportHeight, vpChanged );
+        }
+        
+        return ( result );
+    }
+    
+    /**
+     * Will and must be called any time, the game is redendered (called from the C++-Plugin).
+     * 
+     * @param viewportX the left coordinate of the viewport
+     * @param viewportY the top coordinate of the viewport
+     * @param viewportWidth the width of the viewport
+     * @param viewportHeight the height of the viewport
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    public final byte beforeRender( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
+    {
+        RFDHLog.profile( "[PROFILE]: beforeRender()" );
+        this.waitingForRender = false;
+        
+        byte result = 1;
+        
+        try
+        {
+            result = beforeRenderImpl( result, viewportX, viewportY, viewportWidth, viewportHeight );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
+        result = mergeResults( result, checkWaitingData( false, false ) );
+        
+        //RFDHLog.println( ">>> /beforeRender(), result: " + result );
+        return ( result );
+    }
+    
+    /**
      * Creates a new {@link GameEventsManager}.
      * 
-     * @param gameId
+     * @param gameId a String, identifying the used simulation
      * @param rfDynHUD the main {@link RFDynHUD} instance
      * @param drawingManager the widgets drawing manager
+     * @param gdFactory
      */
-    public GameEventsManager( String gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager )
+    public GameEventsManager( String gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager, _LiveGameDataObjectsFactory gdFactory )
     {
         this.rfDynHUD = rfDynHUD;
         this.widgetsManager = drawingManager;
         
-        this.gameData = new LiveGameData( gameId, drawingManager.getWidgetsConfiguration().getGameResolution(), this );
+        this.gameData = gdFactory.newLiveGameData( this );
         
         this.eventsDispatcher = GameEventsDispatcher.createGameEventsDispatcher( gameData.getFileSystem() );
         eventsDispatcher.setWidgetsConfiguration( widgetsManager.getWidgetsConfiguration() );

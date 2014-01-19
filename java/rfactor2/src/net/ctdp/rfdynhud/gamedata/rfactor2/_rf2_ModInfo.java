@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,10 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleInfo;
@@ -31,22 +27,9 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class _rf2_ModInfo extends ModInfo
+class _rf2_ModInfo extends ModInfo
 {
-    //private final _LiveGameDataObjectsFactory gdFactory;
-    private final GameFileSystem fileSystem;
-    
     private final _rf2_VehicleRegistry vehicleRegistry;
-    
-    /**
-     * 
-     * @param rfmFile
-     */
-    private void parseRFM( File rfmFile )
-    {
-        maxOpponents = Integer.MAX_VALUE;
-        raceDuration = -1f;
-    }
     
     /**
      * {@inheritDoc}
@@ -54,14 +37,8 @@ public class _rf2_ModInfo extends ModInfo
     @Override
     protected void updateImpl()
     {
-        this.rfmFile = new File( new File( fileSystem.getGameFolder(), "rfm" ), getName() + ".rfm" );
-        this.vehiclesDir = new File( new File( fileSystem.getGameFolder(), "GameData" ), "Vehicles" );
-        this.vehicleFilter = null;
-        
-        parseRFM( rfmFile );
-        
-        if ( vehiclesDir != null )
-            vehicleRegistry.update( vehicleFilter, vehiclesDir );
+        maxOpponents = 32; // 256
+        raceDuration = 120;//-1f;
     }
     
     /**
@@ -74,48 +51,25 @@ public class _rf2_ModInfo extends ModInfo
     }
     
     /**
-     * Creates a new ModInfo instance.
-     * 
-     * @param fileSystem
-     * @param profileInfo
+     * {@inheritDoc}
      */
-    public _rf2_ModInfo( GameFileSystem fileSystem, ProfileInfo profileInfo )
+    @Override
+    public String[] getInstalledModNames()
     {
-        super( profileInfo );
+        // TODO: Find a way to read the installed mods.
         
-        this.fileSystem = fileSystem;
-        
-        this.vehicleRegistry = new _rf2_VehicleRegistry();
+        return ( new String[ 0 ] );
     }
     
     /**
-     * Gets the RFM filenames of all installed mods.
+     * Creates a new ModInfo instance.
      * 
-     * @param fileSystem
-     * 
-     * @return the RFM filenames of all installed mods.
+     * @param profileInfo
      */
-    public static String[] getInstalledModNames( GameFileSystem fileSystem )
+    public _rf2_ModInfo( ProfileInfo profileInfo )
     {
-        File[] rfms = new File( fileSystem.getGameFolder(), "rfm" ).listFiles();
+        super( profileInfo );
         
-        if ( rfms == null )
-            return ( null );
-        
-        ArrayList<String> names = new ArrayList<String>();
-        
-        for ( File rfm : rfms )
-        {
-            String name = rfm.getName();
-            if ( rfm.isFile() && name.toLowerCase().endsWith( ".rfm" ) )
-            {
-                if ( name.length() == 4 )
-                    names.add( "" );
-                else
-                    names.add( name.substring( 0, name.length() - 4 ) );
-            }
-        }
-        
-        return ( names.toArray( new String[ names.size() ] ) );
+        this.vehicleRegistry = new _rf2_VehicleRegistry();
     }
 }

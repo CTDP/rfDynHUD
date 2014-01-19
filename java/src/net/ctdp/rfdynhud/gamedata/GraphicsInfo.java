@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,19 +17,16 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class GraphicsInfo
+public abstract class GraphicsInfo
 {
-    final _GraphicsInfoCapsule data;
+    private long updateTimestamp = -1L;
+    private long updateId = 0L;
     
-    private final LiveGameData gameData;
+    protected final LiveGameData gameData;
     
     private boolean updatedInRealtimeMode = false;
     
@@ -99,8 +96,68 @@ public class GraphicsInfo
         gameData.unregisterDataUpdateListener( l );
     }
     
-    void prepareDataUpdate()
+    /**
+     * Gets the system nano time for the last data update.
+     * 
+     * @return the system nano time for the last data update.
+     */
+    public final long getUpdateTimestamp()
     {
+        return ( updateTimestamp );
+    }
+    
+    /**
+     * This is incremented every time the info is updated.
+     *  
+     * @return the current update id.
+     */
+    public final long getUpdateId()
+    {
+        return ( updateId );
+    }
+    
+    /**
+     * 
+     * @param userObject
+     * @param timestamp
+     */
+    protected void prepareDataUpdate( Object userObject, long timestamp )
+    {
+    }
+    
+    /**
+     * Increments the update ID.
+     * 
+     * @param userObject
+     * @param timestamp
+     */
+    protected void onDataUpdated( Object userObject, long timestamp )
+    {
+        this.updateTimestamp = timestamp;
+        this.updateId++;
+    }
+    
+    protected void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
+        onDataUpdated( userObject, timestamp );
+        
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onGraphicsInfoUpdated( gameData, isEditorMode );
+        }
+    }
+    
+    protected abstract void updateDataImpl( Object userObject, long timestamp );
+    
+    protected void updateData( Object userObject, long timestamp )
+    {
+        prepareDataUpdate( userObject, timestamp );
+        
+        updateDataImpl( userObject, timestamp );
+        
+        onDataUpdated( userObject, timestamp, false );
     }
     
     void onViewportChanged( int viewportX, int viewportY, int viewportWidth, int viewportHeight )
@@ -109,18 +166,6 @@ public class GraphicsInfo
         {
             for ( int i = 0; i < updateListeners.length; i++ )
                 updateListeners[i].onViewportChanged( gameData, viewportX, viewportY, viewportWidth, viewportHeight );
-        }
-    }
-    
-    void onDataUpdated( boolean isEditorMode )
-    {
-        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
-        data.onDataUpdated();
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onGraphicsInfoUpdated( gameData, isEditorMode );
         }
     }
     
@@ -134,107 +179,89 @@ public class GraphicsInfo
     }
     
     /**
-     * This is incremented every time the info is updated.
-     *  
-     * @return the current update id.
-     */
-    public final long getUpdateId()
-    {
-        return ( data.getUpdateId() );
-    }
-    
-    void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException
-    {
-        prepareDataUpdate();
-        
-        data.loadFromStream( in );
-        
-        onDataUpdated( isEditorMode );
-    }
-    
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        loadFromStream( in, false );
-    }
-    
-    public void writeToStream( OutputStream out ) throws IOException
-    {
-        data.writeToStream( out );
-    }
-    
-    /**
      * camera position in meters
      * 
      * @param position output buffer
      */
-    public final void getCameraPosition( TelemVect3 position )
-    {
-        data.getCameraPosition( position );
-    }
+    public abstract void getCameraPosition( TelemVect3 position );
     
     /**
      * Gets camera position in meters.
      * 
      * @return camera position in meters.
      */
-    public final float getCameraPositionX()
-    {
-        return ( data.getCameraPositionX() );
-    }
+    public abstract float getCameraPositionX();
     
     /**
      * Gets camera position in meters.
      * 
      * @return camera position in meters.
      */
-    public final float getCameraPositionY()
-    {
-        return ( data.getCameraPositionY() );
-    }
+    public abstract float getCameraPositionY();
     
     /**
      * Gets camera position in meters.
      * 
      * @return camera position in meters.
      */
-    public final float getCameraPositionZ()
-    {
-        return ( data.getCameraPositionZ() );
-    }
+    public abstract float getCameraPositionZ();
     
     /**
      * camera orientation
      * 
      * @param orientation output buffer
      */
-    public final void getCameraOrientation( TelemVect3 orientation )
-    {
-        data.getCameraOrientation( orientation );
-    }
+    public abstract void getCameraOrientation( TelemVect3 orientation );
     
     /**
      * Gets the current ambient color.
      * 
      * @return the current ambient color.
      */
-    public final java.awt.Color getAmbientColor()
-    {
-        return ( data.getAmbientColor() );
-    }
+    public abstract java.awt.Color getAmbientColor();
+    
+    private final TelemVect3 camPos = new TelemVect3();
+    private final TelemVect3 carPos = new TelemVect3();
     
     /**
-     * Gets the currently viewed vehicle.
+     * Gets the vehicle closest to camera.
      * 
-     * @return the currently viewed vehicle or <code>null</code>, if N/A.
+     * @return the vehicle or <code>null</code>, if N/A.
      */
-    public final VehicleScoringInfo getViewedVehicleScoringInfo()
+    public final VehicleScoringInfo getVehicleScoringInfoClosestToCamera()
     {
-        return ( data.getViewedVehicleScoringInfo() );
+        //if ( !isUpdatedInRealtimeMode() )
+        //    return ( null );
+        
+        VehicleScoringInfo viewedVSI = null;
+        
+        getCameraPosition( camPos );
+        camPos.invert();
+        
+        float closestDist = Float.MAX_VALUE;
+        
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        int n = scoringInfo.getNumVehicles();
+        
+        for ( short i = 0; i < n; i++ )
+        {
+            scoringInfo.getVehicleScoringInfo( i ).getWorldPosition( carPos );
+            
+            float dist = carPos.getDistanceToSquared( camPos );
+            
+            if ( dist < closestDist )
+            {
+                closestDist = dist;
+                viewedVSI = scoringInfo.getVehicleScoringInfo( i );
+            }
+        }
+        
+        return ( viewedVSI );
     }
     
-    GraphicsInfo( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory )
+    protected GraphicsInfo( LiveGameData gameData )
     {
         this.gameData = gameData;
-        this.data = gdFactory.newGraphicsInfoCapsule( gameData );
     }
 }

@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{ECD1E5EA-A782-47F8-B751-F2652FC1EF49}</ProjectGuid>
+    <RootNamespace>overlay</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)\common\Include;$(ProjectDir)\Include;$(DXSDK_DIR)\Include;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Include;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TATNIUMD3D_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)d3d9.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Lib;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0A\Lib\x86;$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>.\d3d9.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(SolutionDir)\common\Include;$(ProjectDir)\Include;$(WINSDK_DIR)\Include;$(DXSDK2010_DIR)\Include;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(WINSDK_DIR)\Lib\user32.lib;$(WINSDK_DIR)\Lib\Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)d3d9.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(WINSDK_DIR)\Lib;$(WINSDK_DIR)\Lib\x86;$(DXSDK2010_DIR)\Lib;$(DXSDK2010_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>.\d3d9.def</ModuleDefinitionFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\common\Source\common.cpp" />
+    <ClCompile Include="Source\d3d9.cpp" />
+    <ClCompile Include="Source\d3d9dev.cpp" />
+    <ClCompile Include="Source\d3d9int.cpp" />
+    <ClCompile Include="Source\d3d9tex.cpp" />
+    <ClCompile Include="Source\D3DManager.cpp" />
+    <ClCompile Include="Source\direct_input.cpp" />
+    <ClCompile Include="..\common\Source\filesystem.cpp" />
+    <ClCompile Include="..\common\Source\handshake.cpp" />
+    <ClCompile Include="Source\image_util.cpp" />
+    <ClCompile Include="..\common\Source\jvm_connection.cpp" />
+    <ClCompile Include="..\common\Source\logging.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\overlay_texture.cpp" />
+    <ClCompile Include="..\common\Source\timing.cpp" />
+    <ClCompile Include="..\common\Source\util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\Include\common.h" />
+    <ClInclude Include="..\common\Include\java_native_methods.h" />
+    <ClInclude Include="Include\d3d9.h" />
+    <ClInclude Include="Include\d3d9dev.h" />
+    <ClInclude Include="Include\d3d9int.h" />
+    <ClInclude Include="Include\d3d9tex.h" />
+    <ClInclude Include="..\common\Include\direct_input.h" />
+    <ClInclude Include="..\common\Include\dll_handle.h" />
+    <ClInclude Include="Include\extended_ISI_API.h" />
+    <ClInclude Include="..\common\Include\filesystem.h" />
+    <ClInclude Include="..\common\Include\handshake.hpp" />
+    <ClInclude Include="Include\image_util.h" />
+    <ClInclude Include="..\common\Include\jvm_connection.hpp" />
+    <ClInclude Include="..\common\Include\logging.h" />
+    <ClInclude Include="Include\main.h" />
+    <ClInclude Include="Include\overlay_texture.h" />
+    <ClInclude Include="..\common\Include\timing.h" />
+    <ClInclude Include="..\common\Include\util.h" />
+    <ClInclude Include="Include\window_handle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

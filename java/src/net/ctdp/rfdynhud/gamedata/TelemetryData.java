@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,14 +17,10 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
@@ -41,15 +37,15 @@ import net.ctdp.rfdynhud.util.RFDHLog;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class TelemetryData
+public abstract class TelemetryData
 {
-    final _TelemetryDataCapsule data;
+    private long updateId = 0L;
     
     private boolean updatedInTimeScope = false;
     private long lastUpdateTimestamp = -1L;
     private long updateTimestamp = -1L;
     
-    private final LiveGameData gameData;
+    protected final LiveGameData gameData;
     
     private float engineRPM = -1f;
     private float engineBaseMaxRPM = 1000.12345f;
@@ -143,26 +139,43 @@ public class TelemetryData
         this.updateTimestamp = -1L;
     }
     
-    void onSessionEnded()
+    /**
+     * 
+     * @param timestamp
+     */
+    void onSessionEnded( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
     
-    void onRealtimeEntered()
+    /**
+     * 
+     * @param timestamp
+     */
+    void onRealtimeEntered( long timestamp )
     {
         this.updatedInTimeScope = true;
     }
     
-    void onRealtimeExited()
+    /**
+     * 
+     * @param timestamp
+     */
+    void onRealtimeExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
     
-    void prepareDataUpdate()
+    /**
+     * 
+     * @param userObject
+     * @param timestamp
+     */
+    protected void prepareDataUpdate( Object userObject, long timestamp )
     {
     }
     
-    void applyEditorPresets( EditorPresets editorPresets )
+    protected void applyEditorPresets( EditorPresets editorPresets )
     {
         if ( editorPresets == null )
             return;
@@ -185,16 +198,40 @@ public class TelemetryData
         this.fuelLoad = editorPresets.getFuelLoad();
     }
     
-    void onDataUpdated( boolean isEditorMode )
+    /**
+     * This is incremented every time the data is updated.
+     *  
+     * @return the current update id.
+     */
+    public final long getUpdateId()
+    {
+        return ( updateId );
+    }
+    
+    /**
+     * Increments the update ID.
+     */
+    protected void onDataUpdated()
+    {
+        this.updateId++;
+    }
+    
+    /**
+     * 
+     * @param userObject
+     * @param timestamp
+     * @param isEditorMode
+     */
+    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
         try
         {
             this.updatedInTimeScope = gameData.isInRealtimeMode();
-            data.onDataUpdated();
+            onDataUpdated();
             this.lastUpdateTimestamp = updateTimestamp;
-            this.updateTimestamp = System.nanoTime();
+            this.updateTimestamp = timestamp;
             
-            float bmr = data.getEngineMaxRPM();
+            float bmr = getEngineMaxRPMImpl();
             bmr = gameData.getPhysics().getEngine().getRevLimitRange().clampValue( bmr );
             
             if ( bmr != engineBaseMaxRPM )
@@ -234,16 +271,18 @@ public class TelemetryData
         }
     }
     
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        data.loadFromStream( in );
-        
-        onDataUpdated( false );
-    }
+    protected abstract void updateDataImpl( Object userObject, long timestamp );
     
-    public void writeToStream( OutputStream out ) throws IOException
+    protected void updateData( Object userObject, long timestamp )
     {
-        data.writeToStream( out );
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            prepareDataUpdate( userObject, timestamp );
+            
+            updateDataImpl( userObject, timestamp );
+            
+            onDataUpdated( userObject, timestamp, false );
+        }
     }
     
     boolean checkGamePaused( long timestamp )
@@ -286,25 +325,6 @@ public class TelemetryData
     public final boolean isUpdatedInTimeScope()
     {
         return ( updatedInTimeScope );
-    }
-    
-    /**
-     * This is incremented every time the info is updated.
-     *  
-     * @return the current update id.
-     */
-    public final long getUpdateId()
-    {
-        return ( data.getUpdateId() );
-    }
-    
-    void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException
-    {
-        prepareDataUpdate();
-        
-        data.loadFromStream( in );
-        
-        onDataUpdated( isEditorMode );
     }
     
     void setEngineBoostMapping( int boost )
@@ -498,10 +518,7 @@ public class TelemetryData
      * 
      * @return the time since last update (seconds).
      */
-    public final float getDeltaTime()
-    {
-        return ( data.getDeltaTime() );
-    }
+    public abstract float getDeltaTime();
     
     /*
      * Gets the current lap number.
@@ -509,10 +526,7 @@ public class TelemetryData
      * @return the current lap number.
      */
     /*
-    public final int getCurrentLapNumber()
-    {
-        return ( data.getCurrentLapNumber() );
-    }
+    public abstract int getCurrentLapNumber();
     */
     
     /*
@@ -521,10 +535,7 @@ public class TelemetryData
      * @return the time this lap was started at.
      */
     /*
-    public final float getLapStartTime()
-    {
-        return ( data.getLapStartET() );
-    }
+    public abstract float getLapStartTime();
     */
     
     /*
@@ -533,10 +544,7 @@ public class TelemetryData
      * @return the current vehicle name.
      */
     /*
-    public final String getVehicleName()
-    {
-        return ( data.getVehicleName() );
-    }
+    public abstract String getVehicleName();
     */
     
     /*
@@ -545,10 +553,7 @@ public class TelemetryData
      * @return the current track name.
      */
     /*
-    public final String getTrackName()
-    {
-        return ( data.getTrackName() );
-    }
+    public abstract String getTrackName();
     */
     
     /**
@@ -558,40 +563,28 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getPosition( TelemVect3 position )
-    {
-        return ( data.getPosition( position ) );
-    }
+    public abstract TelemVect3 getPosition( TelemVect3 position );
     
     /**
      * Gets world position in meters.
      * 
      * @return world position in meters.
      */
-    public final float getPositionX()
-    {
-        return ( data.getPositionX() );
-    }
+    public abstract float getPositionX();
     
     /**
      * Gets world position in meters.
      * 
      * @return world position in meters.
      */
-    public final float getPositionY()
-    {
-        return ( data.getPositionY() );
-    }
+    public abstract float getPositionY();
     
     /**
      * Gets world position in meters.
      * 
      * @return world position in meters.
      */
-    public final float getPositionZ()
-    {
-        return ( data.getPositionZ() );
-    }
+    public abstract float getPositionZ();
     
     /**
      * velocity (meters/sec) in local vehicle coordinates
@@ -600,31 +593,48 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getLocalVelocity( TelemVect3 localVel )
-    {
-        return ( data.getLocalVelocity( localVel ) );
-    }
+    public abstract TelemVect3 getLocalVelocity( TelemVect3 localVel );
     
     /**
      * Gets the velocity (meters/sec).
      * 
      * @return the velocity (meters/sec).
      */
+    public abstract float getScalarVelocityMS();
+//        return ( data.getScalarVelocity() );
+    
+    /**
+     * @deprecated replaced by {@link #getScalarVelocityMih()}
+     * 
+     * @return m/h
+     */
+    @Deprecated
     public final float getScalarVelocityMPS()
     {
-        return ( data.getScalarVelocity() );
+        return ( getScalarVelocityMS() );
     }
     
     /**
-     * Gets the velocity (mph).
+     * Gets the velocity (mi/h).
      * 
-     * @return the velocity (mph).
+     * @return the velocity (mi/h).
      */
-    public final float getScalarVelocityMPH()
+    public final float getScalarVelocityMih()
     {
         float mps = getScalarVelocityMPS();
         
-        return ( mps * SpeedUnits.Convert.MPS_TO_MPH );
+        return ( mps * SpeedUnits.Convert.MS_TO_MIH );
+    }
+    
+    /**
+     * @deprecated replaced by {@link #getScalarVelocityMih()}
+     * 
+     * @return mi/h
+     */
+    @Deprecated
+    public final float getScalarVelocityMPH()
+    {
+        return ( getScalarVelocityMih() );
     }
     
     /**
@@ -632,11 +642,22 @@ public class TelemetryData
      * 
      * @return the velocity (km/h).
      */
-    public final float getScalarVelocityKPH()
+    public final float getScalarVelocityKmh()
     {
         float mps = getScalarVelocityMPS();
         
-        return ( mps * SpeedUnits.Convert.MPS_TO_KPH );
+        return ( mps * SpeedUnits.Convert.MS_TO_KMH );
+    }
+    
+    /**
+     * @deprecated replaced by {@link #getScalarVelocityKmh()}
+     * 
+     * @return km/h
+     */
+    @Deprecated
+    public final float getScalarVelocityKPH()
+    {
+        return ( getScalarVelocityKmh() );
     }
     
     /**
@@ -646,10 +667,10 @@ public class TelemetryData
      */
     public final float getScalarVelocity()
     {
-        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
-            return ( getScalarVelocityMPH() );
+        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MIH )
+            return ( getScalarVelocityMih() );
         
-        return ( getScalarVelocityKPH() );
+        return ( getScalarVelocityKmh() );
     }
     
     /**
@@ -659,30 +680,21 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getLocalAcceleration( TelemVect3 localAccel )
-    {
-        return ( data.getLocalAcceleration( localAccel ) );
-    }
+    public abstract TelemVect3 getLocalAcceleration( TelemVect3 localAccel );
     
     /**
      * Gets longitudinal acceleration (meters/sec^2).
      * 
      * @return longitudinal acceleration (meters/sec^2).
      */
-    public final float getLongitudinalAcceleration()
-    {
-        return ( data.getLongitudinalAcceleration() );
-    }
+    public abstract float getLongitudinalAcceleration();
     
     /**
      * Gets the lateral acceleration (meters/sec^2).
      * 
      * @return the lateral acceleration (meters/sec^2).
      */
-    public final float getLateralAcceleration()
-    {
-        return ( data.getLateralAcceleration() );
-    }
+    public abstract float getLateralAcceleration();
     
     /**
      * top row of orientation matrix
@@ -693,10 +705,7 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getOrientationX( TelemVect3 oriX )
-    {
-        return ( data.getOrientationX( oriX ) );
-    }
+    public abstract TelemVect3 getOrientationX( TelemVect3 oriX );
     
     /**
      * mid row of orientation matrix
@@ -707,10 +716,7 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getOrientationY( TelemVect3 oriY )
-    {
-        return ( data.getOrientationY( oriY ) );
-    }
+    public abstract TelemVect3 getOrientationY( TelemVect3 oriY );
     
     /**
      * bot row of orientation matrix
@@ -721,10 +727,7 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getOrientationZ( TelemVect3 oriZ )
-    {
-        return ( data.getOrientationZ( oriZ ) );
-    }
+    public abstract TelemVect3 getOrientationZ( TelemVect3 oriZ );
     
     /**
      * rotation (radians/sec) in local vehicle coordinates
@@ -733,10 +736,7 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getLocalRotation( TelemVect3 localRot )
-    {
-        return ( data.getLocalRotation( localRot ) );
-    }
+    public abstract TelemVect3 getLocalRotation( TelemVect3 localRot );
     
     /**
      * rotational acceleration (radians/sec^2) in local vehicle coordinates
@@ -745,20 +745,21 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getLocalRotationalAcceleration( TelemVect3 localRotAccel )
-    {
-        return ( data.getLocalRotationalAcceleration( localRotAccel ) );
-    }
+    public abstract TelemVect3 getLocalRotationalAcceleration( TelemVect3 localRotAccel );
     
     /**
      * Gets the current gear (-1=reverse, 0=neutral, 1+=forward gears).
      * 
      * @return the current gear.
      */
-    public final short getCurrentGear()
-    {
-        return ( data.getCurrentGear() );
-    }
+    public abstract short getCurrentGear();
+    
+    /**
+     * Gets the current engine RPM.
+     * 
+     * @return the current engine RPM.
+     */
+    protected abstract float getEngineRPMImpl();
     
     /**
      * Gets the current engine RPM.
@@ -770,7 +771,7 @@ public class TelemetryData
         if ( engineRPM >= 0 )
             return ( engineRPM );
         
-        return ( data.getEngineRPM() );
+        return ( getEngineRPMImpl() );
     }
     
     /**
@@ -778,10 +779,8 @@ public class TelemetryData
      * 
      * @return the current engine water temperature in Celsius.
      */
-    public final float getEngineWaterTemperatureC()
-    {
-        return ( data.getEngineWaterTemperature() );
-    }
+    public abstract float getEngineWaterTemperatureC();
+//        return ( data.getEngineWaterTemperature() );
     
     /**
      * Gets the current engine water temperature in Fahrenheit.
@@ -815,10 +814,8 @@ public class TelemetryData
      * 
      * @return the current engine oil temperature in Celsius.
      */
-    public final float getEngineOilTemperatureC()
-    {
-        return ( data.getEngineOilTemperature() );
-    }
+    public abstract float getEngineOilTemperatureC();
+//        return ( data.getEngineOilTemperature() );
     
     /**
      * Gets the current engine oil temperature in Fahrenheit.
@@ -852,60 +849,49 @@ public class TelemetryData
      * 
      * @return the current clutch RPM.
      */
-    public final float getClutchRPM()
-    {
-        return ( data.getClutchRPM() );
-    }
+    public abstract float getClutchRPM();
     
     /**
      * Get the current unfiltered throttle application [0.0,1.0].
      * 
      * @return the current unfiltered throttle application [0.0,1.0].
      */
-    public final float getUnfilteredThrottle()
-    {
-        return ( data.getUnfilteredThrottle() );
-    }
+    public abstract float getUnfilteredThrottle();
     
     /**
      * Get the current unfiltered brake application [0.0,1.0].
      * 
      * @return the current unfiltered brake application [0.0,1.0].
      */
-    public final float getUnfilteredBrake()
-    {
-        return ( data.getUnfilteredBrake() );
-    }
+    public abstract float getUnfilteredBrake();
     
     /**
      * Get the current unfiltered clutch application [0.0,1.0].
      * 
      * @return the current unfiltered clutch application [0.0,1.0].
      */
-    public final float getUnfilteredClutch()
-    {
-        return ( data.getUnfilteredClutch() );
-    }
+    public abstract float getUnfilteredClutch();
     
     /**
      * Get the current unfiltered steering application [-1.0,1.0] (left to right).
      * 
      * @return the current unfiltered steering application [-1.0,1.0] (left to right).
      */
-    public final float getUnfilteredSteering()
-    {
-        return ( data.getUnfilteredSteering() );
-    }
+    public abstract float getUnfilteredSteering();
     
     /**
      * Gets the force on steering arms.
      * 
      * @return the force on steering arms.
      */
-    public final float getSteeringArmForce()
-    {
-        return ( data.getSteeringArmForce() );
-    }
+    public abstract float getSteeringArmForce();
+    
+    /**
+     * Gets the amount of fuel (liters).
+     * 
+     * @return the amount of fuel (liters).
+     */
+    protected abstract float getFuelImpl();
     
     /**
      * Gets the amount of fuel (liters).
@@ -917,7 +903,7 @@ public class TelemetryData
         if ( fuelLoad >= 0f )
             return ( fuelLoad );
         
-        return ( data.getFuel() );
+        return ( getFuelImpl() );
     }
     
     /**
@@ -965,72 +951,59 @@ public class TelemetryData
      * 
      * @return the engine rev limit with max boost.
      */
+    protected abstract float getEngineMaxRPMImpl();
+    
+    /**
+     * Gets the engine rev limit with max boost.
+     * 
+     * @return the engine rev limit with max boost.
+     */
     public final float getEngineMaxRPM()
     {
         return ( engineMaxRPM );
     }
     
-    /*
+    /**
      * Gets the number of scheduled pitstops.
      * 
      * @return the number of scheduled pitstops.
      */
-    /*
-    public short getNumberOfScheduledPitstops()
-    {
-        return ( data.getNumberOfScheduledPitstops() );
-    }
-    */
+    protected abstract short getNumberOfScheduledPitstops();
     
     /**
      * Gets whether overheating icon is shown.
      * 
      * @return whether overheating icon is shown.
      */
-    public final boolean isOverheating()
-    {
-        return ( data.isOverheating() );
-    }
+    public abstract boolean isOverheating();
     
     /**
      * Gets whether any parts (besides wheels) have been detached.
      * 
      * @return whether any parts (besides wheels) have been detached
      */
-    public final boolean isAnythingDetached()
-    {
-        return ( data.isAnythingDetached() );
-    }
+    public abstract boolean isAnythingDetached();
     
     /**
      * Gets dent severity at 8 locations around the car (0=none, 1=some, 2=more).
      * 
      * @return dent severity at 8 locations around the car.
      */
-    public final short[] getDentSevirity()
-    {
-        return ( data.getDentSevirity() );
-    }
+    public abstract short[] getDentSevirity();
     
     /**
      * Gets the time of last impact.
      * 
      * @return the time of last impact.
      */
-    public final float getLastImpactTime()
-    {
-        return ( data.getLastImpactTime() );
-    }
+    public abstract float getLastImpactTime();
     
     /**
      * Gets the magnitude of last impact.
      * 
      * @return the magnitude of last impact.
      */
-    public final float getLastImpactMagnitude()
-    {
-        return ( data.getLastImpactMagnitude() );
-    }
+    public abstract float getLastImpactMagnitude();
     
     /**
      * location of last impact
@@ -1039,10 +1012,7 @@ public class TelemetryData
      * 
      * @return the output buffer back again.
      */
-    public final TelemVect3 getLastImpactPosition( TelemVect3 lastImpactPos )
-    {
-        return ( data.getLastImpactPosition( lastImpactPos ) );
-    }
+    public abstract TelemVect3 getLastImpactPosition( TelemVect3 lastImpactPos );
     
     /**
      * Gets the curent wheel rotation in radians/sec.
@@ -1051,10 +1021,7 @@ public class TelemetryData
      * 
      * @return the curent wheel rotation in radians/sec.
      */
-    public final float getWheelRotation( Wheel wheel )
-    {
-        return ( data.getWheelRotation( wheel ) );
-    }
+    public abstract float getWheelRotation( Wheel wheel );
     
     /**
      * Gets the current suspension deflection in meters.
@@ -1063,10 +1030,8 @@ public class TelemetryData
      * 
      * @return the current suspension deflection in meters.
      */
-    public final float getWheelSuspensionDeflectionM( Wheel wheel )
-    {
-        return ( data.getWheelSuspensionDeflection( wheel ) );
-    }
+    public abstract float getWheelSuspensionDeflectionM( Wheel wheel );
+//        return ( data.getWheelSuspensionDeflection( wheel ) );
     
     /**
      * Gets the current suspension deflection in inches.
@@ -1077,7 +1042,7 @@ public class TelemetryData
      */
     public final float getWheelSuspensionDeflectionIn( Wheel wheel )
     {
-        return ( data.getWheelSuspensionDeflection( wheel ) * Convert.M_TO_INCH );
+        return ( getWheelSuspensionDeflectionM( wheel ) * Convert.M_TO_INCH );
     }
     
     /**
@@ -1102,10 +1067,8 @@ public class TelemetryData
      * 
      * @return the current ride height in meters.
      */
-    public final float getRideHeightM( Wheel wheel )
-    {
-        return ( data.getRideHeight( wheel ) );
-    }
+    public abstract float getRideHeightM( Wheel wheel );
+//        return ( data.getRideHeight( wheel ) );
     
     /**
      * Gets the current ride height in inches.
@@ -1116,7 +1079,7 @@ public class TelemetryData
      */
     public final float getRideHeightIn( Wheel wheel )
     {
-        return ( data.getRideHeight( wheel ) * Convert.M_TO_INCH );
+        return ( getRideHeightM( wheel ) * Convert.M_TO_INCH );
     }
     
     /**
@@ -1141,10 +1104,8 @@ public class TelemetryData
      * 
      * @return the current tire load in Newtons.
      */
-    public final float getTireLoadN( Wheel wheel )
-    {
-        return ( data.getTireLoad( wheel ) );
-    }
+    public abstract float getTireLoadN( Wheel wheel );
+//        return ( data.getTireLoad( wheel ) );
     
     /**
      * Gets the current tire load in LBS.
@@ -1155,7 +1116,7 @@ public class TelemetryData
      */
     public final float getTireLoadLBS( Wheel wheel )
     {
-        return ( data.getTireLoad( wheel ) * Convert.N_TO_LBS );
+        return ( getTireLoadN( wheel ) * Convert.N_TO_LBS );
     }
     
     /**
@@ -1180,10 +1141,7 @@ public class TelemetryData
      * 
      * @return the current lateral force in Newtons.
      */
-    public final float getLateralForce( Wheel wheel )
-    {
-        return ( data.getLateralForce( wheel ) );
-    }
+    public abstract float getLateralForce( Wheel wheel );
     
     /**
      * Gets an approximation of what fraction of the contact patch is sliding.
@@ -1192,10 +1150,7 @@ public class TelemetryData
      * 
      * @return an approximation of what fraction of the contact patch is sliding.
      */
-    public final float getGripFraction( Wheel wheel )
-    {
-        return ( data.getGripFraction( wheel ) );
-    }
+    public abstract float getGripFraction( Wheel wheel );
     
     /**
      * Gets the current brake temperature in Kelvin.
@@ -1204,10 +1159,8 @@ public class TelemetryData
      * 
      * @return the current brake temperature in Kelvin.
      */
-    public final float getBrakeTemperatureK( Wheel wheel )
-    {
-        return ( data.getBrakeTemperature( wheel ) );
-    }
+    public abstract float getBrakeTemperatureK( Wheel wheel );
+//        return ( data.getBrakeTemperature( wheel ) );
     
     /**
      * Gets the current brake temperature in Celsius.
@@ -1259,10 +1212,8 @@ public class TelemetryData
      * 
      * @return the current tire pressure in kPa.
      */
-    public final float getTirePressureKPa( Wheel wheel )
-    {
-        return ( data.getTirePressure( wheel ) );
-    }
+    public abstract float getTirePressureKPa( Wheel wheel );
+//        return ( data.getTirePressure( wheel ) );
     
     /**
      * Gets the current tire pressure in PSI.
@@ -1273,7 +1224,7 @@ public class TelemetryData
      */
     public final float getTirePressurePSI( Wheel wheel )
     {
-        return ( data.getTirePressure( wheel ) * Convert.KPA_TO_PSI );
+        return ( getTirePressureKPa( wheel ) * Convert.KPA_TO_PSI );
     }
     
     /**
@@ -1299,10 +1250,8 @@ public class TelemetryData
      * 
      * @return the current tire temperature in Celsius.
      */
-    public final float getTireTemperatureC( Wheel wheel, WheelPart part )
-    {
-        return ( data.getTireTemperature( wheel, part ) + Convert.ZERO_KELVIN );
-    }
+    public abstract float getTireTemperatureC( Wheel wheel, WheelPart part );
+//        return ( data.getTireTemperature( wheel, part ) + Convert.ZERO_KELVIN );
     
     /**
      * Gets the current tire temperature in Fahrenheit.
@@ -1431,10 +1380,7 @@ public class TelemetryData
      * 
      * @return current tire wear.
      */
-    public final float getTireWear( Wheel wheel )
-    {
-        return ( data.getTireWear( wheel ) );
-    }
+    public abstract float getTireWear( Wheel wheel );
     
     /**
      * Gets the material prefixes from the TDF file.
@@ -1443,10 +1389,7 @@ public class TelemetryData
      * 
      * @return the material prefixes from the TDF file.
      */
-    public final String getTerrainName( Wheel wheel )
-    {
-        return ( data.getTerrainName( wheel ) );
-    }
+    public abstract String getTerrainName( Wheel wheel );
     
     /**
      * Gets surface type under the tire.
@@ -1455,10 +1398,7 @@ public class TelemetryData
      * 
      * @return surface type under the tire.
      */
-    public final SurfaceType getSurfaceType( Wheel wheel )
-    {
-        return ( data.getSurfaceType( wheel ) );
-    }
+    public abstract SurfaceType getSurfaceType( Wheel wheel );
     
     /**
      * Gets whether tire is flat.
@@ -1467,10 +1407,7 @@ public class TelemetryData
      * 
      * @return whether tire is flat.
      */
-    public final boolean isWheelFlat( Wheel wheel )
-    {
-        return ( data.isWheelFlat( wheel ) );
-    }
+    public abstract boolean isWheelFlat( Wheel wheel );
     
     /**
      * Gets whether wheel is detached.
@@ -1479,19 +1416,15 @@ public class TelemetryData
      * 
      * @return whether wheel is detached.
      */
-    public final boolean isWheelDetached( Wheel wheel )
-    {
-        return ( data.isWheelDetached( wheel ) );
-    }
+    public abstract boolean isWheelDetached( Wheel wheel );
     
     // future use
     
     // unsigned char mExpansion[32];
     
-    TelemetryData( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory )
+    protected TelemetryData( LiveGameData gameData )
     {
         this.gameData = gameData;
-        this.data = gdFactory.newTelemetryDataCapsule( gameData );
         
         registerListener( TopspeedRecorder.MASTER_TOPSPEED_RECORDER );
         registerListener( LifetimeManager.INSTANCE );

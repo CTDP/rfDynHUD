@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -90,7 +90,7 @@ public abstract class ValueCellEditor<P extends Object, C extends JComponent, E 
         }
         else if ( editComponent instanceof JComboBox )
         {
-            ( (JComboBox)editComponent ).showPopup();
+            ( (JComboBox<?>)editComponent ).showPopup();
         }
         else if ( editComponent instanceof AbstractButton )
         {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +22,8 @@ import java.io.FileFilter;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
+import net.ctdp.rfdynhud.input.InputMappings;
+import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -32,7 +34,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  * 
  * @author Marvin Froehlich
  */
-public class _rf1_ProfileInfo extends ProfileInfo
+class _rf1_ProfileInfo extends ProfileInfo
 {
     private static final FileFilter DIRECTORY_FILE_FILTER = new FileFilter()
     {
@@ -51,6 +53,7 @@ public class _rf1_ProfileInfo extends ProfileInfo
     private long plrLastModified = -1L;
     
     private File lastUsedTrackFile = null;
+    private File vehFile = null;
     
     private Integer formationLapFlag = null;
     
@@ -60,7 +63,7 @@ public class _rf1_ProfileInfo extends ProfileInfo
     @Override
     public final boolean isValid()
     {
-        return ( plrFile != null );
+        return ( ( plrFile != null ) && plrFile.exists() );
     }
     
     private File findPLRFile()
@@ -96,6 +99,8 @@ public class _rf1_ProfileInfo extends ProfileInfo
         
         profileFolder = null;
         plrFile = null;
+        
+        vehFile = null;
         
         lastUsedTrackFile = null;
         formationLapFlag = 1;
@@ -250,7 +255,7 @@ public class _rf1_ProfileInfo extends ProfileInfo
                             catch ( Throwable t )
                             {
                                 RFDHLog.debug( "Unable to parse \"Speed Units\" from PLR file. Defaulting to KPH." );
-                                speedUnits = SpeedUnits.KPH;
+                                speedUnits = SpeedUnits.KMH;
                             }
                         }
                     }
@@ -295,18 +300,108 @@ public class _rf1_ProfileInfo extends ProfileInfo
      * {@inheritDoc}
      */
     @Override
-    public final File getPLRFile()
+    public final File getProfileFile()
     {
         return ( plrFile );
+    }
+    
+    /**
+     * Gets the last used scene file.
+     * 
+     * @return the last used scene file.
+     */
+    public final File getLastUsedSceneFile()
+    {
+        return ( lastUsedTrackFile );
+    }
+    
+    /**
+     * Gets the currently used vehicle file.
+     * 
+     * @return the currently used vehicle file.
+     */
+    public final File getVehicleFile()
+    {
+        return ( vehFile );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected final File getLastUsedSceneFile()
+    public String[] validateInputBindings( InputMappings mappings )
     {
-        return ( lastUsedTrackFile );
+        File controller_ini = new File( getProfileFolder(), "Controller.ini" );
+        if ( !controller_ini.exists() )
+            return ( null );
+        
+        String[] warning = null;
+        
+        String value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Increment Boost", null );
+        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        {
+            if ( !mappings.isActionMapped( KnownInputActions.IncBoost ) )
+            {
+                String message = "No Input Binding for IncBoost, but bound in rFactor.";
+                RFDHLog.exception( "Warning: ", message );
+                //if ( warning == null )
+                    warning = new String[] { message };
+            }
+        }
+        
+        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Decrement Boost", null );
+        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        {
+            if ( !mappings.isActionMapped( KnownInputActions.DecBoost ) )
+            {
+                String message = "No Input Binding for DecBoost, but bound in rFactor.";
+                RFDHLog.exception( "Warning: ", message );
+                if ( warning == null )
+                {
+                    warning = new String[] { message };
+                }
+                else
+                {
+                    String[] tmp = new String[ warning.length + 1 ];
+                    System.arraycopy( warning, 0, tmp, 0, warning.length );
+                    warning = tmp;
+                    warning[warning.length - 1] = message;
+                }
+            }
+        }
+        
+        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Temporary Boost", null );
+        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        {
+            if ( !mappings.isActionMapped( KnownInputActions.TempBoost ) )
+            {
+                String message = "No Input Binding for TempBoost, but bound in rFactor.";
+                RFDHLog.exception( "Warning: ", message );
+                if ( warning == null )
+                {
+                    warning = new String[] { message };
+                }
+                else
+                {
+                    String[] tmp = new String[ warning.length + 1 ];
+                    System.arraycopy( warning, 0, tmp, 0, warning.length );
+                    warning = tmp;
+                    warning[warning.length - 1] = message;
+                }
+            }
+        }
+        
+        if ( warning != null )
+        {
+            String[] tmp = new String[ warning.length + 3 ];
+            System.arraycopy( warning, 0, tmp, 0, warning.length );
+            warning = tmp;
+            warning[warning.length - 3] = "Engine wear display will be wrong.";
+            warning[warning.length - 2] = "Edit the Input Bindings in the editor (Tools->Edit Input Bindings)";
+            warning[warning.length - 1] = "and add proper bindings.";
+        }
+        
+        return ( warning );
     }
     
     /**
@@ -337,11 +432,13 @@ public class _rf1_ProfileInfo extends ProfileInfo
         return ( null );
     }
     
+    
     /**
-     * {@inheritDoc}
+     * Gets the currently used CCH file.
+     * 
+     * @return the currently used CCH file.
      */
-    @Override
-    protected final File getCCHFileImpl( String modName )
+    public final File getCCHFile()
     {
         if ( profileFolder == null )
             return ( null );

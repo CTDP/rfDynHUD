@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.File;
 
 /**
  * Model of the currently used track
@@ -26,60 +25,26 @@ import java.io.File;
  */
 public abstract class TrackInfo
 {
-    private final ProfileInfo profileInfo;
-    
-    protected File trackFolder = null;
+    /**
+     * Checks, whether this {@link TrackInfo} has successfully been read from somewhere.
+     * 
+     * @return whether this {@link TrackInfo} has successfully been read from somewhere.
+     */
+    public abstract boolean isValid();
     
     protected void reset()
     {
-        this.trackFolder = null;
     }
     
-    /**
-     * <p>
-     * Finds the folder from the GameData\Locations folder, in which a .gdb file
-     * exists, that contains a line<br>
-     *   TrackName = trackname
-     * </p>
-     * WARNING:<br>
-     * This operation may take a long time.
-     * 
-     * @param sceneFile
-     */
-    protected abstract void updateImpl( File sceneFile );
+    protected abstract void updateImpl();
     
     /**
-     * <p>
-     * Finds the folder from the GameData\Locations folder, in which a .gdb file
-     * exists, that contains a line<br>
-     *   TrackName = trackname
-     * </p>
      * WARNING:<br>
      * This operation may take a long time.
      */
     final void update()
     {
-        updateImpl( profileInfo.getLastUsedSceneFile() );
-    }
-    
-    /**
-     * Gets the track's folder.
-     * 
-     * @return the track's folder.
-     */
-    public final File getTrackFolder()
-    {
-        return ( trackFolder );
-    }
-    
-    /**
-     * Gets the track's scene file.
-     * 
-     * @return the track's scene file.
-     */
-    public final File getSceneFile()
-    {
-        return ( profileInfo.getLastUsedSceneFile() );
+        updateImpl();
     }
     
     /**
@@ -95,17 +60,6 @@ public abstract class TrackInfo
      * @return last read track race laps.
      */
     public abstract int getRaceLaps();
-    
-    /**
-     * <p>
-     * Finds the AIW file for the given track.
-     * </p>
-     * WARNING:<br>
-     * This operation may take a long time.
-     * 
-     * @return the AIW file for the given track.
-     */
-    public abstract File getAIWFile();
     
     /**
      * <p>
@@ -125,6 +79,5 @@ public abstract class TrackInfo
      */
     protected TrackInfo( ProfileInfo profileInfo )
     {
-        this.profileInfo = profileInfo;
     }
 }

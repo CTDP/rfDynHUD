@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,7 +28,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
-import java.io.File;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -330,21 +329,16 @@ public class MapWidget extends Widget
     
     private void initTrack( LiveGameData gameData )
     {
-        File sceneFolder = gameData.getTrackInfo().getTrackFolder();
-        if ( sceneFolder == null )
-        {
-            if ( gameData.getTrackInfo().getSceneFile() == null )
-                log( LogLevel.EXCEPTION, "Warning: Unable to read last used track file from PLR file." );
-            else
-                log( LogLevel.EXCEPTION, "Warning: Couldn't read track data from file \"" + gameData.getTrackInfo().getSceneFile() + "\"." );
-            
-            track = null;
-        }
-        else
+        if ( gameData.getTrackInfo().isValid() )
         {
             track = gameData.getTrackInfo().getTrack();
         }
-        //track = Track.parseTrackFromAIW( new File( GameFileSystem.INSTANCE.getLocationsFolder(), "4r2009FSone\\Northamptonshire\\NAS_BritishGP\\NAS_BritishGP.AIW" ) );
+        else
+        {
+            log( LogLevel.EXCEPTION, "Warning: Track uninitialized." );
+            
+            track = null;
+        }
     }
     
     /**

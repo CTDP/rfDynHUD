@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
-import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappings;
@@ -54,13 +53,12 @@ public class RFDynHUD
         //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
     }
     
-    public static final Version VERSION = new Version( 1, 3, 0, "Beta", 102 );
+    public static final Version VERSION = new Version( 1, 4, 0, "Beta", 117 );
     
     private final String gameId;
     
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;
-    private final _LiveGameData_CPP_Adapter gameData_CPP_Adapter;
     private final GameEventsManager eventsManager;
     private final InputDeviceManager inputDeviceManager;
     private final InputMappingsManager inputMappingsManager;
@@ -101,11 +99,6 @@ public class RFDynHUD
     public final LiveGameData getGameData()
     {
         return ( gameData );
-    }
-    
-    public final _LiveGameData_CPP_Adapter getGameData_CPP_Adapter()
-    {
-        return ( gameData_CPP_Adapter );
     }
     
     public final GameEventsManager getEventsManager()
@@ -229,34 +222,23 @@ public class RFDynHUD
         return ( result );
     }
     
-    private static String extractGameName( byte[] buffer )
-    {
-        return ( new String( buffer ) );
-    }
-    
-    public RFDynHUD( String gameName, int gameResX, int gameResY ) throws Throwable
+    private RFDynHUD( _LiveGameDataObjectsFactory gdFactory, int gameResX, int gameResY ) throws Throwable
     {
         //Logger.setStdStreams();
         
         RFDHLog.exception( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
         
-        boolean supported = ( _LiveGameDataObjectsFactory.get( gameName ) != null );
+        RFDHLog.println( "    Detected game \"" + gdFactory.getGameId() + "\" (supported)." );
         
-        RFDHLog.println( "    Detected game \"" + gameName + "\" (" + ( supported ? "supported" : "unsupported" ) + ")." );
-        
-        if ( !supported )
-            throw new Error( "Unsupported game: " + gameName );
-        
-        this.gameId = gameName;
+        this.gameId = gdFactory.getGameId();
         
         RFDHLog.print( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
         
         this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY );
         RFDHLog.println( " done." );
         
-        this.eventsManager = new GameEventsManager( gameId, this, drawingManager );
+        this.eventsManager = gdFactory.newGameEventsManager( this, drawingManager );
         this.gameData = eventsManager.getGameData();
-        this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
         
         __UtilHelper.configFolder = gameData.getFileSystem().getConfigFolder();
         __UtilHelper.bordersBolder = gameData.getFileSystem().getBordersFolder();
@@ -273,16 +255,11 @@ public class RFDynHUD
         RFDHLog.println( "Successfully created RFDynHUD instance." );
     }
     
-    private RFDynHUD( byte[] gameNameBuffer, int gameResX, int gameResY ) throws Throwable
-    {
-        this( extractGameName( gameNameBuffer ), gameResX, gameResY );
-    }
-    
-    public static final RFDynHUD createInstance( byte[] gameNameBuffer, int gameResX, int gameResY )
+    public static final RFDynHUD createInstance( _LiveGameDataObjectsFactory gdFactory, int gameResX, int gameResY )
     {
         try
         {
-            return ( new RFDynHUD( gameNameBuffer, gameResX, gameResY ) );
+            return ( new RFDynHUD( gdFactory, gameResX, gameResY ) );
         }
         catch ( Throwable t )
         {

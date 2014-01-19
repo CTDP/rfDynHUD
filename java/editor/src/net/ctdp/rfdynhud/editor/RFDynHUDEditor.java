@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -72,6 +72,7 @@ import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
@@ -1212,15 +1213,15 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     
     public File saveConfigAs()
     {
-        SaveAsDialog sad = new SaveAsDialog( this );
-        sad.setSelectedFile( currentConfigFile );
+        SaveAsDialog sad = new SaveAsDialog( this, gameData.getModInfo() );
+        sad.setSelectedFile( gameData.getFileSystem(), currentConfigFile );
         
         sad.setVisible( true );
         
-        if ( sad.getSelectedFile() == null )
+        if ( sad.getSelectedFile( gameData.getFileSystem() ) == null )
             return ( null );
         
-        currentConfigFile = sad.getSelectedFile();
+        currentConfigFile = sad.getSelectedFile( gameData.getFileSystem() );
         
         try
         {
@@ -1589,19 +1590,19 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             ClassLoader classLoader = RFDynHUDEditor.class.getClassLoader();
             
             InputStream in = classLoader.getResourceAsStream( "data/game_data/commentary_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getCommentaryRequestInfo(), true );
+            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_CommentaryRequestInfo)gameData.getCommentaryRequestInfo() ).readFromStream( in, true );
             in.close();
             
             in = classLoader.getResourceAsStream( "data/game_data/graphics_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getGraphicsInfo(), true );
+            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_GraphicsInfo)gameData.getGraphicsInfo() ).readFromStream( in, true );
             in.close();
             
             in = classLoader.getResourceAsStream( "data/game_data/scoring_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getScoringInfo(), editorPresets );
+            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_ScoringInfo)gameData.getScoringInfo() ).readFromStream( in, editorPresets );
             in.close();
             
             in = classLoader.getResourceAsStream( "data/game_data/telemetry_data" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData(), true );
+            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_TelemetryData)gameData.getTelemetryData() ).readFromStream( in, true );
             in.close();
             
             __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
@@ -1612,13 +1613,15 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private void initGameDataObjects( String gameId )
+    private void initGameDataObjects()
     {
-        int[] resolution = loadResolutionFromUserSettings( _LiveGameDataObjectsFactory.get( gameId ).newGameFileSystem( __UtilHelper.PLUGIN_INI ) );
+        _LiveGameDataObjectsFactory gdFactory = new _rf1_LiveGameDataObjectsFactory();
+        
+        int[] resolution = loadResolutionFromUserSettings( gdFactory.newGameFileSystem( __UtilHelper.PLUGIN_INI ) );
         
         this.drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1] );
         this.widgetsConfig = drawingManager.getWidgetsConfiguration();
-        this.eventsManager = new GameEventsManager( gameId, null, drawingManager );
+        this.eventsManager = gdFactory.newGameEventsManager( null, drawingManager );
         this.gameData = eventsManager.getGameData();
         
         RFDynHUDEditor.GAME_ID = this.gameData.getGameID();
@@ -1639,9 +1642,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         eventsManager.onStartup( true );
         eventsManager.onSessionStarted( true );
         eventsManager.onTelemetryDataUpdated( true );
-        eventsManager.onScoringInfoUpdated( true );
+        eventsManager.onScoringInfoUpdated( 22, null, true );
         
-        __GDPrivilegedAccess.setRealtimeMode( true, gameData, true );
+        __GDPrivilegedAccess.setRealtimeMode( true, gameData, System.nanoTime(), true );
         
         loadEditorPresets();
         initTestGameData( gameData, presets );
@@ -1713,7 +1716,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( templateConfigProp );
     }
     
-    public RFDynHUDEditor( String gameId )
+    public RFDynHUDEditor()
     {
         super();
         
@@ -1725,7 +1728,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         {
         }
         
-        initGameDataObjects( gameId );
+        initGameDataObjects();
         
         FontUtils.loadCustomFonts( gameData.getFileSystem() );
         
@@ -1866,15 +1869,13 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             return;
         }
         
-        String gameId = "rFactor1"; // make this dynamic somehow!
-        
         WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
         
         try
         {
             //Logger.setStdStreams();
             
-            final RFDynHUDEditor editor = new RFDynHUDEditor( gameId );
+            final RFDynHUDEditor editor = new RFDynHUDEditor();
             
             Rectangle screenBounds = GUITools.getCurrentScreenBounds();
             

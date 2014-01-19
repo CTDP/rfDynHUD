@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.IOException;
+
 /**
  * Keeps all descriptive information read from the .VEH file.
  * 
@@ -25,47 +27,49 @@ package net.ctdp.rfdynhud.gamedata;
 public abstract class VehicleInfo
 {
     private int carNumber = -1;
-    private String teamName = null;
-    private String teamNameCleaned = null;
-    private String pitGroup = null;
-    private String driverName = null;
-    private String driverDescription = null;
-    private String engineName = null;
-    private String manufacturer = null;
-    private String classes = null;
+    private String teamName = "N/A";//null;
+    private String teamNameCleaned = "N/A";//null;
+    private String pitGroup = "N/A";//null;
+    private String driverName = "N/A";//null;
+    private String driverDescription = "N/A";//null;
+    private String engineName = "N/A";//null;
+    private String manufacturer = "N/A";//null;
+    private String classes = "N/A";//null;
     
-    private String fullTeamName = null;
-    private String teamFounded = null;
-    private String teamHeadquarters = null;
+    private String fullTeamName = "N/A";//null;
+    private String teamFounded = "N/A";//null;
+    private String teamHeadquarters = "N/A";//null;
     private String teamStarts = "N/A";
     private String teamPoles = "N/A";
     private String teamWins = "N/A";
     private String teamWorldChampionships = "N/A";
     
-    private String category = null;
+    private String category = "N/A";//null;
     
-    void reset()
+    protected void reset()
     {
         carNumber = -1;
-        teamName = null;
-        teamNameCleaned = null;
-        pitGroup = null;
-        driverName = null;
-        driverDescription = null;
-        engineName = null;
-        manufacturer = null;
-        classes = null;
+        teamName = "N/A";//null;
+        teamNameCleaned = "N/A";//null;
+        pitGroup = "N/A";//null;
+        driverName = "N/A";//null;
+        driverDescription = "N/A";//null;
+        engineName = "N/A";//null;
+        manufacturer = "N/A";//null;
+        classes = "N/A";//null;
         
-        fullTeamName = null;
-        teamFounded = null;
-        teamHeadquarters = null;
+        fullTeamName = "N/A";//null;
+        teamFounded = "N/A";//null;
+        teamHeadquarters = "N/A";//null;
         teamStarts = "N/A";
         teamPoles = "N/A";
         teamWins = "N/A";
         teamWorldChampionships = "N/A";
         
-        category = null;
+        category = "N/A";//null;
     }
+    
+    protected abstract void reload( LiveGameData gameData ) throws IOException;
     
     protected void setCarNumber( int carNumber )
     {

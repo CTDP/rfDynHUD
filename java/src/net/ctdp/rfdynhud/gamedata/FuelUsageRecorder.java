@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -211,7 +211,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( !scoringInfo.isInRealtimeMode() )
+        if ( !scoringInfo.isInCockpit() )
             return;
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();

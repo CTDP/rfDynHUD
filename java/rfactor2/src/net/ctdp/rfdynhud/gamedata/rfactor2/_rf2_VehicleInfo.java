@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,10 +17,31 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
+import java.io.IOException;
+
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleInfo;
 
 class _rf2_VehicleInfo extends VehicleInfo
 {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void reload( LiveGameData gameData ) throws IOException
+    {
+        /*
+        reset();
+        
+        java.io.File playerVEHFile = ( (_rf2_ProfileInfo)gameData.getProfileInfo() ).getVehicleFile();
+        
+        if ( ( playerVEHFile != null ) && playerVEHFile.exists() )
+        {
+            net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess.getGameDataObjectsFactory( gameData ).parseVehicleInfo( playerVEHFile, playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() );
+        }
+        */
+    }
+    
     @Override
     protected void setCarNumber( int carNumber )
     {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,9 +38,9 @@ class _rf2_GameFileSystem extends GameFileSystem
      * {@inheritDoc}
      */
     @Override
-    protected File findGameFolder( PluginINI pluginINI, File pluginFolder )
+    protected File findGameFolderImpl( PluginINI pluginINI, File pluginFolder )
     {
-        File f = pluginFolder.getParentFile();
+        File f = pluginFolder.getParentFile().getParentFile();
         String exeFilename = pluginINI.getGeneralExeFilename();
         if ( exeFilename == null )
             exeFilename = "Core\\rFactor2.exe";
@@ -54,7 +54,7 @@ class _rf2_GameFileSystem extends GameFileSystem
         if ( isRoot( pluginFolder ) )
             return ( pluginFolder.getAbsoluteFile() );
         
-        return ( pluginFolder.getParentFile().getAbsoluteFile() );
+        return ( pluginFolder.getParentFile().getParentFile().getAbsoluteFile() );
     }
     
     /**

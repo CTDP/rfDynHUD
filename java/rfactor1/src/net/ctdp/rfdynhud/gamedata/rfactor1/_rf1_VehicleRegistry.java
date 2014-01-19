@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +21,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.VehicleInfo;
@@ -35,8 +37,8 @@ import org.jagatoo.util.strings.StringUtils;
  */
 class _rf1_VehicleRegistry
 {
-    private final ArrayList<VehicleInfo> vehicles = new ArrayList<VehicleInfo>();
-    private final HashMap<String, VehicleInfo> driverVehileMap = new HashMap<String, VehicleInfo>();
+    private final List<VehicleInfo> vehicles = new ArrayList<VehicleInfo>();
+    private final Map<String, VehicleInfo> driverVehicleMap = new HashMap<String, VehicleInfo>();
     
     private void findVehicleFiles( String[] vehicleFilter, File folder )
     {
@@ -152,7 +154,7 @@ class _rf1_VehicleRegistry
     public void update( String[] vehicleFilter, File vehiclesFolder )
     {
         vehicles.clear();
-        driverVehileMap.clear();
+        driverVehicleMap.clear();
         
         if ( __EDPrivilegedAccess.editorClassLoader == null )
             findVehicleFiles( vehicleFilter, vehiclesFolder );
@@ -161,13 +163,13 @@ class _rf1_VehicleRegistry
         
         for ( int i = 0; i < vehicles.size(); i++ )
         {
-            driverVehileMap.put( vehicles.get( i ).getDriverDescription(), vehicles.get( i ) );
+            driverVehicleMap.put( vehicles.get( i ).getDriverDescription(), vehicles.get( i ) );
         }
     }
     
     public final VehicleInfo getVehicleForDriver( String vehicleName )
     {
-        return ( driverVehileMap.get( vehicleName ) );
+        return ( driverVehicleMap.get( vehicleName ) );
     }
     
     public _rf1_VehicleRegistry()

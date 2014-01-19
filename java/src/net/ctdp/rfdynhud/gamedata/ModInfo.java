@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,9 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.File;
-import java.util.ArrayList;
-
 /**
  * Model of mod information
  * 
@@ -30,9 +27,6 @@ public abstract class ModInfo
     private final ProfileInfo profileInfo;
     
     private String modName = null;
-    protected File rfmFile = null;
-    protected File vehiclesDir = null;
-    protected String[] vehicleFilter = null;
     protected int maxOpponents = -1;
     protected float raceDuration = -1f;
     
@@ -53,36 +47,6 @@ public abstract class ModInfo
     public final String getName()
     {
         return ( modName );
-    }
-    
-    /**
-     * Gets the mod's RFM file.
-     * 
-     * @return the mod's RFM file.
-     */
-    public final File getRFMFile()
-    {
-        return ( rfmFile );
-    }
-    
-    /**
-     * Gets the vehicle filter.
-     * 
-     * @return the vehicle filter.
-     */
-    public final String[] getVehicleFilter()
-    {
-        return ( vehicleFilter );
-    }
-    
-    /**
-     * Gets the folder, where to search for .VEH files.
-     * 
-     * @return the folder, where to search for .VEH files.
-     */
-    public final File getVehiclesFolder()
-    {
-        return ( vehiclesDir );
     }
     
     /**
@@ -115,6 +79,13 @@ public abstract class ModInfo
     }
     
     /**
+     * Gets the filenames of all installed mods.
+     * 
+     * @return the filenames of all installed mods.
+     */
+    public abstract String[] getInstalledModNames();
+    
+    /**
      * Creates a new ModInfo instance.
      * 
      * @param profileInfo
@@ -122,36 +93,5 @@ public abstract class ModInfo
     protected ModInfo( ProfileInfo profileInfo )
     {
         this.profileInfo = profileInfo;
-    }
-    
-    /**
-     * Gets the RFM filenames of all installed mods.
-     * 
-     * @param fileSystem
-     * 
-     * @return the RFM filenames of all installed mods.
-     */
-    public static String[] getInstalledModNames( GameFileSystem fileSystem )
-    {
-        File[] rfms = new File( fileSystem.getGameFolder(), "rfm" ).listFiles();
-        
-        if ( rfms == null )
-            return ( null );
-        
-        ArrayList<String> names = new ArrayList<String>();
-        
-        for ( File rfm : rfms )
-        {
-            String name = rfm.getName();
-            if ( rfm.isFile() && name.toLowerCase().endsWith( ".rfm" ) )
-            {
-                if ( name.length() == 4 )
-                    names.add( "" );
-                else
-                    names.add( name.substring( 0, name.length() - 4 ) );
-            }
-        }
-        
-        return ( names.toArray( new String[ names.size() ] ) );
     }
 }

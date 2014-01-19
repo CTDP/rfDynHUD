@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -558,7 +558,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         texCanvas.setColor( velocityNumberFontColor.getColor() );
         texCanvas.drawString( s, x, y, bounds, true, null );
         
-        s = String.valueOf( units == SpeedUnits.MPH ? Loc.velocity_units_IMPERIAL : Loc.velocity_units_METRIC );
+        s = String.valueOf( units == SpeedUnits.MIH ? Loc.velocity_units_IMPERIAL : Loc.velocity_units_METRIC );
         bounds = metrics.getStringBounds( s, texCanvas );
         x = offsetX + Math.round( velocityUnitsPosX.getFloatValue() * scaleX - (float)( bounds.getWidth() / 2 ) );
         y = offsetY + Math.round( velocityUnitsPosY.getFloatValue() * scaleY -(float)bounds.getY() - (float)( bounds.getHeight() / 2 ) );
@@ -648,7 +648,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         
         if ( maxVelocityTexture != null )
         {
-            float normVelo = Math.min( telemData.getScalarVelocityKPH(), maxVelocity.getFloatValue() ) / maxVelocity.getFloatValue();
+            float normVelo = Math.min( telemData.getScalarVelocityKmh(), maxVelocity.getFloatValue() ) / maxVelocity.getFloatValue();
             int h = Math.round( maxVelocityTexture.getHeight() * normVelo );
             
             maxVelocityTexture.setClipRect( 0, maxVelocityTexture.getHeight() - h, maxVelocityTexture.getWidth(), h, true );

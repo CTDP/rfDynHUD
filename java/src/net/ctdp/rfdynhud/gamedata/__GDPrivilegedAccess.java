@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,10 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package net.ctdp.rfdynhud.gamedata;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
@@ -68,20 +64,24 @@ public class __GDPrivilegedAccess
         setup.updatedInTimeScope = true;
     }
     
-    public static final void loadFromPhysicsFiles( String gameId, ProfileInfo profileInfo, TrackInfo trackInfo, VehiclePhysics physics )
+    public static final void set( float baseValue, float stepSize, int numSteps, VehiclePhysics.PhysicsSetting setting )
     {
-        if ( gameId.equals( "rFactor1" ) )
-            physics.loadFromPhysicsFiles( profileInfo, trackInfo );
+        setting.set( baseValue, stepSize, numSteps );
     }
     
-    public static void parsePhysicsFiles( File cchFile, File vehicleFile, String trackName, VehiclePhysics physics ) throws Throwable
+    public static final _LiveGameDataObjectsFactory getGameDataObjectsFactory( LiveGameData gameData )
     {
-        VehiclePhysicsParser.parsePhysicsFiles( cchFile, vehicleFile, trackName, physics );
+        return ( gameData.getGameDataObjectsFactory() );
+    }
+    
+    public static final void loadVehiclePhysics( LiveGameData gameData )
+    {
+        gameData.getGameDataObjectsFactory().loadVehiclePhysics( gameData );
     }
     
     public static final boolean loadSetup( LiveGameData gameData )
     {
-        return ( VehicleSetupParser.loadSetup( gameData ) );
+        return ( gameData.getGameDataObjectsFactory().loadVehicleSetupIfChanged( gameData ) );
     }
     
     public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )
@@ -89,48 +89,28 @@ public class __GDPrivilegedAccess
         gameData.applyEditorPresets( editorPresets );
     }
     
-    public static final void loadFromStream( InputStream in, TelemetryData telemetryData, boolean isEditorMode ) throws IOException
-    {
-        telemetryData.loadFromStream( in, isEditorMode );
-    }
-    
-    public static final void loadFromStream( InputStream in, ScoringInfo scoringInfo, EditorPresets editorPresets ) throws IOException
-    {
-        scoringInfo.loadFromStream( in, editorPresets );
-    }
-    
-    public static final void loadFromStream( InputStream in, CommentaryRequestInfo commentaryInfo, boolean isEditorMode ) throws IOException
-    {
-        commentaryInfo.loadFromStream( in, isEditorMode );
-    }
-    
-    public static final void loadFromStream( InputStream in, GraphicsInfo graphicsInfo, boolean isEditorMode ) throws IOException
-    {
-        graphicsInfo.loadFromStream( in, isEditorMode );
-    }
-    
-    public static final void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
+    public static final void onSessionStarted( LiveGameData gameData, long timestamp, boolean isEditorMode )
     {
         gameData.getTelemetryData().onSessionStarted( isEditorMode );
-        gameData.getScoringInfo().onSessionStarted( isEditorMode );
-        gameData.getSetup().onSessionStarted();
+        gameData.getScoringInfo().onSessionStarted( timestamp, isEditorMode );
+        gameData.getSetup().onSessionStarted( timestamp );
     }
     
-    public static final void onSessionStarted2( LiveGameData gameData, boolean isEditorMode )
+    public static final void onSessionStarted2( LiveGameData gameData, long timestamp, boolean isEditorMode )
     {
-        gameData.onSessionStarted2( isEditorMode );
+        gameData.onSessionStarted2( timestamp, isEditorMode );
     }
     
-    public static final void onSessionEnded( LiveGameData gameData )
+    public static final void onSessionEnded( LiveGameData gameData, long timestamp )
     {
-        gameData.getTelemetryData().onSessionEnded();
-        gameData.getScoringInfo().onSessionEnded();
-        gameData.getSetup().onSessionEnded();
+        gameData.getTelemetryData().onSessionEnded( timestamp );
+        gameData.getScoringInfo().onSessionEnded( timestamp );
+        gameData.getSetup().onSessionEnded( timestamp );
     }
     
-    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, boolean isEditorMode )
+    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, long timestamp, boolean isEditorMode )
     {
-        gameData.setRealtimeMode( realtimeMode, isEditorMode );
+        gameData.setRealtimeMode( realtimeMode, timestamp, isEditorMode );
     }
     
     public static final void updateSessionTime( LiveGameData gameData, boolean isEditorMode, long timestamp )
@@ -190,6 +170,11 @@ public class __GDPrivilegedAccess
     {
         scoringInfo.setControlledCompareVSI( controlledCompareVSI );
         scoringInfo.setControlledViewedVSI( controlledViewedVSI );
+    }
+    
+    public static final void setVehicleClass( ScoringInfo scoringInfo, int index, String vehClass )
+    {
+        scoringInfo.getVehicleScoringInfo( index ).setVehicleClass( vehClass );
     }
     
     public static final void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )

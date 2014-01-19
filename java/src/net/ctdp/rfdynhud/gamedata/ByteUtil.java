@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -106,9 +106,37 @@ public class ByteUtil
     {
         //long l = readLong( buffer, offset );
         
-        int high = readInt( buffer, offset );
-        int low = readInt( buffer, offset + 4 );
+        /*
+        int low = readInt( buffer, offset );
+        int high = readInt( buffer, offset + 4 );
         long l = ( (long)high << 32 ) | low;
+        */
+        
+        /*
+        long l = (
+                   ( (long)buffer[offset + 0] << 56 ) +
+                   ( (long)( buffer[offset + 1] & 255 ) << 48 ) +
+                   ( (long)( buffer[offset + 2] & 255 ) << 40 ) +
+                   ( (long)( buffer[offset + 3] & 255 ) << 32 ) +
+                   ( (long)( buffer[offset + 4] & 255 ) << 24 ) +
+                   ( ( buffer[offset + 5] & 255 ) << 16 ) +
+                   ( ( buffer[offset + 6] & 255 ) <<  8 ) +
+                   ( ( buffer[offset + 7] & 255 ) <<  0 )
+                 );        
+        */
+        
+        long l = (
+                   ( (long)( buffer[offset + 7] & 0xff ) << 56 ) |
+                   ( (long)( buffer[offset + 6] & 0xff ) << 48 ) |
+                   ( (long)( buffer[offset + 5] & 0xff ) << 40 ) |
+                   ( (long)( buffer[offset + 4] & 0xff ) << 32 ) |
+                   ( (long)( buffer[offset + 3] & 0xff ) << 24 ) |
+                   ( (long)( buffer[offset + 2] & 0xff ) << 16 ) |
+                   ( (long)( buffer[offset + 1] & 0xff ) <<  8 ) |
+                   ( ( buffer[offset + 0] & 0xff ) )
+                 );
+        
+        
         
         return ( Double.longBitsToDouble( l ) );
     }

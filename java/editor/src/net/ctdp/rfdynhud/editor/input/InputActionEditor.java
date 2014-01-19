@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,14 +41,14 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     private static InputAction[] knownActions = KnownInputActions.getAll();
     
     private JTable lastTable = null;
-    private JComboBox combo = null;
+    private JComboBox<Object> combo = null;
     
     private void initCombo()
     {
         if ( combo != null )
             return;
         
-        combo = new JComboBox();
+        combo = new JComboBox<Object>();
         
         combo.addItem( NO_ACTION );
         
@@ -59,7 +59,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     }
     
     @Override
-    public JComboBox getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    public JComboBox<Object> getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         initCombo();
         
@@ -97,11 +97,11 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     }
     
     @Override
-    public JComboBox getTableCellEditorComponent( JTable table, Object value, boolean isSelected, final int row, final int column )
+    public JComboBox<Object> getTableCellEditorComponent( JTable table, Object value, boolean isSelected, final int row, final int column )
     {
         showInputActionDoc( value );
         
-        final JComboBox combo = getTableCellRendererComponent( table, value, isSelected, false, row, column );
+        final JComboBox<Object> combo = getTableCellRendererComponent( table, value, isSelected, false, row, column );
         
         combo.addItemListener( new ItemListener()
         {

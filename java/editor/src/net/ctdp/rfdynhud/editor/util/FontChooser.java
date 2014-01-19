@@ -93,11 +93,11 @@ public class FontChooser extends JPanel
     
     private JRadioButton rdoUnnamed = null;
     private JRadioButton rdoNamed = null;
-    private JComboBox combo;
+    private JComboBox<String> combo;
     private int lastNameComboSelectedIndex = -1;
     private String[] namesCache;
-    private JList fontNamesList;
-    private JList sizeList;
+    private JList<String> fontNamesList;
+    private JList<Integer> sizeList;
     private JCheckBox boldBox;
     private JCheckBox italicBox;
     private JCheckBox virtualBox;
@@ -219,7 +219,7 @@ public class FontChooser extends JPanel
         if ( fontNamesList.getSelectedIndex() < 0 )
             return ( null );
         
-        return ( (String)fontNamesList.getSelectedValue() );
+        return ( fontNamesList.getSelectedValue() );
     }
     
     public final int getSelectedFontSize()
@@ -227,7 +227,7 @@ public class FontChooser extends JPanel
         if ( sizeList.getSelectedIndex() < 0 )
             return ( -1 );
         
-        return ( (Integer)sizeList.getSelectedValue() );
+        return ( sizeList.getSelectedValue() );
     }
     
     public final boolean getSelectedFontBold()
@@ -272,7 +272,7 @@ public class FontChooser extends JPanel
     
     private boolean isRefillingNameCombo = false;
     
-    private void refillNameCombo( WidgetsConfiguration widgetsConfig, JComboBox combo, String selectedItem )
+    private void refillNameCombo( WidgetsConfiguration widgetsConfig, JComboBox<String> combo, String selectedItem )
     {
         isRefillingNameCombo = true;
         
@@ -460,7 +460,7 @@ public class FontChooser extends JPanel
         
         final JButton remove = new JButton( "remove" );
         
-        combo = new JComboBox();
+        combo = new JComboBox<String>();
         refillNameCombo( widgetsConfig, combo, currentNamedFont );
         if ( currentNamedFont == null )
             combo.setSelectedIndex( 0 );
@@ -689,7 +689,7 @@ public class FontChooser extends JPanel
         return ( panel );
     }
     
-    protected JList createFontList( String startFamily, final int gameResY )
+    protected JList<String> createFontList( String startFamily, final int gameResY )
     {
         /*
         Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
@@ -729,7 +729,7 @@ public class FontChooser extends JPanel
             }
         }
         
-        final JList list = new JList( families );
+        final JList<String> list = new JList<String>( families );
         
         if ( initialIndex != -1 )
         {
@@ -762,7 +762,7 @@ public class FontChooser extends JPanel
                 initialIndex = i;
         }
         
-        sizeList = new JList( sizes );
+        sizeList = new JList<Integer>( sizes );
         JScrollPane sizeListScrollPane = new JScrollPane( sizeList );
         
         if ( initialIndex != -1 )

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,64 +19,49 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.IOException;
-
-import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * Model of a track with waypoints and utility methods
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class Track
+public abstract class Track
 {
-    @SuppressWarnings( "unused" )
-    protected static final class Waypoint
+    protected static abstract class Waypoint
     {
-        private float posX;
-        private float posY;
-        private float posZ;
+        public abstract float getPosX();
+        public abstract float getPosY();
+        public abstract float getPosZ();
         
-        private float vecX;
-        private float vecY;
-        private float vecZ;
+        public abstract float getVecX();
+        public abstract float getVecY();
+        public abstract float getVecZ();
         
-        private float normX;
-        private float normY;
-        private float normZ;
+        public abstract float getRoadLeft();
+        public abstract float getRoadRight();
         
-        private float roadLeft;
-        private float roadRight;
-        private float farLeft;
-        private float farRight;
-        
-        private byte sector;
-        private float lapDistance;
-        private float normalizedLapDistance;
+        public abstract byte getSector();
+        public abstract float getLapDistance();
         
         public final float getRoadWidth()
         {
-            return ( Math.abs( roadLeft - roadRight ) );
+            return ( Math.abs( getRoadLeft() - getRoadRight() ) );
         }
     }
-    
-    private final Waypoint[] waypointsTrack;
-    private final Waypoint[] waypointsPitlane;
-    private final float sector1Length, sector2Length, trackLength, pitlaneLength;
-    private final float minXPos, maxXPos, minYPos, maxYPos, minZPos, maxZPos;
-    private final float maxWidth;
     
     /**
      * Gets the length of sector 1 in meters.
      * 
      * @return the length of sector 1 in meters.
      */
-    public final float getSector1Length()
-    {
-        return ( sector1Length );
-    }
+    public abstract float getSector1Length();
+    
+    /**
+     * Gets the length of sector 2 (not including sector 1) in meters.
+     * 
+     * @return the length of sector 2 in meters.
+     */
+    public abstract float getSector2Length();
     
     /**
      * Gets the length of sector 2 in meters.
@@ -88,9 +73,9 @@ public class Track
     public final float getSector2Length( boolean includingSector1 )
     {
         if ( includingSector1 )
-            return ( sector2Length );
+            return ( getSector2Length() + getSector1Length() );
         
-        return ( sector2Length - sector1Length );
+        return ( getSector2Length() );
     }
     
     /**
@@ -98,40 +83,28 @@ public class Track
      * 
      * @return the length of sector 3 in meters.
      */
-    public final float getSector3Length()
-    {
-        return ( trackLength - sector2Length );
-    }
+    public abstract float getSector3Length();
     
     /**
      * Gets the track length in meters.
      * 
      * @return the track length in meters.
      */
-    public final float getTrackLength()
-    {
-        return ( trackLength );
-    }
+    public abstract float getTrackLength();
     
-    public final float getPitlaneLength()
-    {
-        return ( pitlaneLength );
-    }
+    public abstract float getPitlaneLength();
     
-    public final float getMinXPos()
-    {
-        return ( minXPos );
-    }
+    public abstract float getMinXPos();
     
-    public final float getMinYPos()
-    {
-        return ( minYPos );
-    }
+    public abstract float getMinYPos();
     
-    public final float getMinZPos()
-    {
-        return ( minZPos );
-    }
+    public abstract float getMinZPos();
+    
+    public abstract float getMaxXPos();
+    
+    public abstract float getMaxYPos();
+    
+    public abstract float getMaxZPos();
     
     /**
      * Calculates a scale factor for all values, if the track should be drawn on the given size.
@@ -143,8 +116,8 @@ public class Track
      */
     public float getScale( int targetWidth, int targetHeight )
     {
-        float scaleX = targetWidth / Math.abs( maxXPos - minXPos );
-        float scaleZ = targetHeight / Math.abs( maxZPos - minZPos );
+        float scaleX = targetWidth / Math.abs( getMaxXPos() - getMinXPos() );
+        float scaleZ = targetHeight / Math.abs( getMaxZPos() - getMinZPos() );
         
         return ( Math.min( scaleX, scaleZ ) );
     }
@@ -158,7 +131,7 @@ public class Track
      */
     public final int getXExtend( float scale )
     {
-        return ( Math.round( Math.abs( maxXPos - minXPos ) * scale ) );
+        return ( Math.round( Math.abs( getMaxXPos() - getMinXPos()  ) * scale ) );
     }
     
     /**
@@ -170,7 +143,7 @@ public class Track
      */
     public final int getYExtend( float scale )
     {
-        return ( Math.round( Math.abs( maxYPos - minYPos ) * scale ) );
+        return ( Math.round( Math.abs( getMaxYPos() - getMinYPos()  ) * scale ) );
     }
     
     /**
@@ -182,7 +155,7 @@ public class Track
      */
     public final int getZExtend( float scale )
     {
-        return ( Math.round( Math.abs( maxZPos - minZPos ) * scale ) );
+        return ( Math.round( Math.abs( getMaxZPos() - getMinZPos()  ) * scale ) );
     }
     
     /**
@@ -192,10 +165,7 @@ public class Track
      * 
      * @return the maximum track width.
      */
-    public final int getMaxTrackWidth( float scale )
-    {
-        return ( Math.round( maxWidth * scale ) );
-    }
+    public abstract int getMaxTrackWidth( float scale );
     
     /**
      * Gets the number of waypoints of the main track or the pitlane.
@@ -204,13 +174,17 @@ public class Track
      * 
      * @return the number of waypoints of the main track or the pitlane.
      */
-    public final int getNumWaypoints( boolean pitlane )
-    {
-        if ( pitlane )
-            return ( waypointsPitlane.length );
-        
-        return ( waypointsTrack.length );
-    }
+    public abstract int getNumWaypoints( boolean pitlane );
+    
+    /**
+     * Gets the requested waypoint.
+     * 
+     * @param pitlane waypoint of main track or pitlane?
+     * @param waypointIndex the index of the waypoint
+     * 
+     * @return the requested waypoint.
+     */
+    protected abstract Waypoint getWaypoint( boolean pitlane, int waypointIndex );
     
     /**
      * Gets the sector, the requested waypoint is in.
@@ -222,9 +196,9 @@ public class Track
      */
     public final byte getWaypointSector( boolean pitlane, int waypointIndex )
     {
-        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        Waypoint wp = getWaypoint( pitlane, waypointIndex );
         
-        return ( wp.sector );
+        return ( wp.getSector() );
     }
     
     /**
@@ -236,9 +210,9 @@ public class Track
      */
     public final void getWaypointPosition( boolean pitlane, int waypointIndex, TelemVect3 position )
     {
-        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        Waypoint wp = getWaypoint( pitlane, waypointIndex );
         
-        __GDPrivilegedAccess.setTelemVect3( wp.posX, wp.posY, wp.posZ, position );
+        __GDPrivilegedAccess.setTelemVect3( wp.getPosX(), wp.getPosY(), wp.getPosZ(), position );
     }
     
     /**
@@ -249,9 +223,9 @@ public class Track
      */
     public final void getWaypointPosition( boolean pitlane, int waypointIndex, float scale, Point point )
     {
-        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        Waypoint wp = getWaypoint( pitlane, waypointIndex );
         
-        point.setLocation( Math.round( ( -minXPos + wp.posX ) * scale ), Math.round( ( -minZPos + wp.posZ ) * scale ) );
+        point.setLocation( Math.round( ( -getMinXPos() + wp.getPosX() ) * scale ), Math.round( ( -getMinZPos() + wp.getPosZ() ) * scale ) );
     }
     
     /**
@@ -262,9 +236,9 @@ public class Track
      */
     public final void getWaypointPosition( boolean pitlane, int waypointIndex, float scale, Point2D.Float point )
     {
-        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        Waypoint wp = getWaypoint( pitlane, waypointIndex );
         
-        point.setLocation( ( -minXPos + wp.posX ) * scale, ( -minZPos + wp.posZ ) * scale );
+        point.setLocation( ( -getMinXPos() + wp.getPosX() ) * scale, ( -getMinZPos() + wp.getPosZ() ) * scale );
     }
     
     /**
@@ -274,9 +248,9 @@ public class Track
      */
     public final void getWaypointVector( boolean pitlane, int waypointIndex, Point2D.Float vector )
     {
-        Waypoint wp = pitlane ? waypointsPitlane[waypointIndex] : waypointsTrack[waypointIndex];
+        Waypoint wp = getWaypoint( pitlane, waypointIndex );
         
-        vector.setLocation( wp.vecX, wp.vecZ );
+        vector.setLocation( wp.getVecX(), wp.getVecZ() );
     }
     
     /**
@@ -292,57 +266,57 @@ public class Track
             if ( trackDistance < 0 )
                 trackDistance = 0;
             
-            if ( trackDistance > pitlaneLength )
-                trackDistance = pitlaneLength;
+            if ( trackDistance > getPitlaneLength() )
+                trackDistance = getPitlaneLength();
         }
         else
         {
             while ( trackDistance < 0f )
-                trackDistance += trackLength;
+                trackDistance += getTrackLength();
             
-            trackDistance = trackDistance % trackLength;
+            trackDistance = trackDistance % getTrackLength();
         }
         
-        Waypoint[] waypoints = pitlane ? waypointsPitlane : waypointsTrack;
-        float tl = pitlane ? pitlaneLength : trackLength;
-        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / tl );
+        int numWaypoints = getNumWaypoints( pitlane );
+        float tl = pitlane ? getPitlaneLength() : getTrackLength();
+        int waypointIndex = (int)( ( numWaypoints - 1 ) * trackDistance / tl );
         
-        Waypoint wp0 = waypoints[waypointIndex];
-        while ( ( waypointIndex > 0 ) && ( wp0.lapDistance > trackDistance ) )
+        Waypoint wp0 = getWaypoint( pitlane, waypointIndex );
+        while ( ( waypointIndex > 0 ) && ( wp0.getLapDistance() > trackDistance ) )
         {
-            wp0 = waypoints[--waypointIndex];
+            wp0 = getWaypoint( pitlane, --waypointIndex );
         }
-        while ( ( waypointIndex < waypoints.length - 1 ) && ( waypoints[waypointIndex + 1].lapDistance < trackDistance ) )
+        while ( ( waypointIndex < numWaypoints - 1 ) && ( getWaypoint( pitlane, waypointIndex + 1 ).getLapDistance() < trackDistance ) )
         {
-            wp0 = waypoints[++waypointIndex];
+            wp0 = getWaypoint( pitlane, ++waypointIndex );
         }
         
         Waypoint wp1;
         float alpha;
-        if ( wp0.lapDistance > trackDistance )
+        if ( wp0.getLapDistance() > trackDistance )
         {
-            wp1 = waypoints[waypointIndex];
-            wp0 = waypoints[waypoints.length - 1];
-            float delta = wp0.lapDistance + ( tl - wp1.lapDistance );
-            alpha = ( ( tl - wp1.lapDistance ) + trackDistance ) / delta;
+            wp1 = getWaypoint( pitlane, waypointIndex );
+            wp0 = getWaypoint( pitlane, numWaypoints - 1 );
+            float delta = wp0.getLapDistance() + ( tl - wp1.getLapDistance() );
+            alpha = ( ( tl - wp1.getLapDistance() ) + trackDistance ) / delta;
         }
-        else if ( waypointIndex == waypoints.length - 1 )
+        else if ( waypointIndex == numWaypoints - 1 )
         {
-            wp1 = waypoints[0];
-            float delta = ( tl - wp0.lapDistance ) + wp1.lapDistance;
-            alpha = ( trackDistance - wp0.lapDistance ) / delta;
+            wp1 = getWaypoint( pitlane, 0 );
+            float delta = ( tl - wp0.getLapDistance() ) + wp1.getLapDistance();
+            alpha = ( trackDistance - wp0.getLapDistance() ) / delta;
         }
         else
         {
-            wp1 = waypoints[waypointIndex + 1];
-            float delta = wp1.lapDistance - wp0.lapDistance;
-            alpha = ( trackDistance - wp0.lapDistance ) / delta;
+            wp1 = getWaypoint( pitlane, waypointIndex + 1 );
+            float delta = wp1.getLapDistance() - wp0.getLapDistance();
+            alpha = ( trackDistance - wp0.getLapDistance() ) / delta;
         }
         
-        float vecX = wp1.posX - wp0.posX;
-        float vecZ = wp1.posZ - wp0.posZ;
+        float vecX = wp1.getPosX() - wp0.getPosX();
+        float vecZ = wp1.getPosZ() - wp0.getPosZ();
         
-        point.setLocation( ( -minXPos + wp0.posX + ( vecX * alpha ) ) * scale, ( -minZPos + wp0.posZ + ( vecZ * alpha ) ) * scale );
+        point.setLocation( ( -getMinXPos() + wp0.getPosX() + ( vecX * alpha ) ) * scale, ( -getMinZPos() + wp0.getPosZ() + ( vecZ * alpha ) ) * scale );
     }
     
     /**
@@ -363,58 +337,58 @@ public class Track
             if ( trackDistance < 0 )
                 trackDistance = 0;
             
-            if ( trackDistance > pitlaneLength )
-                trackDistance = pitlaneLength;
+            if ( trackDistance > getPitlaneLength() )
+                trackDistance = getPitlaneLength();
         }
         else
         {
             while ( trackDistance < 0f )
-                trackDistance += trackLength;
+                trackDistance += getTrackLength();
             
-            trackDistance = trackDistance % trackLength;
+            trackDistance = trackDistance % getTrackLength();
         }
         
-        Waypoint[] waypoints = pitlane ? waypointsPitlane : waypointsTrack;
-        float tl = pitlane ? pitlaneLength : trackLength;
-        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / tl );
+        int numWaypoints = getNumWaypoints( pitlane );
+        float tl = pitlane ? getPitlaneLength() : getTrackLength();
+        int waypointIndex = (int)( ( numWaypoints - 1 ) * trackDistance / tl );
         
-        Waypoint wp0 = waypoints[waypointIndex];
-        while ( ( waypointIndex > 0 ) && ( wp0.lapDistance > trackDistance ) )
+        Waypoint wp0 = getWaypoint( pitlane, waypointIndex );
+        while ( ( waypointIndex > 0 ) && ( wp0.getLapDistance() > trackDistance ) )
         {
-            wp0 = waypoints[--waypointIndex];
+            wp0 = getWaypoint( pitlane, --waypointIndex );
         }
-        while ( ( waypointIndex < waypoints.length - 1 ) && ( waypoints[waypointIndex + 1].lapDistance < trackDistance ) )
+        while ( ( waypointIndex < numWaypoints - 1 ) && ( getWaypoint( pitlane, waypointIndex + 1 ).getLapDistance() < trackDistance ) )
         {
-            wp0 = waypoints[++waypointIndex];
+            wp0 = getWaypoint( pitlane, ++waypointIndex );
         }
         
         Waypoint wp1;
         float alpha;
-        if ( wp0.lapDistance > trackDistance )
+        if ( wp0.getLapDistance() > trackDistance )
         {
-            wp1 = waypoints[waypointIndex];
-            wp0 = waypoints[waypoints.length - 1];
-            float delta = wp0.lapDistance + ( trackLength - wp1.lapDistance );
-            alpha = ( ( trackLength - wp1.lapDistance ) + trackDistance ) / delta;
+            wp1 = getWaypoint( pitlane, waypointIndex );
+            wp0 = getWaypoint( pitlane, numWaypoints - 1 );
+            float delta = wp0.getLapDistance() + ( getTrackLength() - wp1.getLapDistance() );
+            alpha = ( ( getTrackLength() - wp1.getLapDistance() ) + trackDistance ) / delta;
         }
-        else if ( waypointIndex == waypoints.length - 1 )
+        else if ( waypointIndex == numWaypoints - 1 )
         {
-            wp1 = waypoints[0];
-            float delta = ( trackLength - wp0.lapDistance ) + wp1.lapDistance;
-            alpha = ( trackDistance - wp0.lapDistance ) / delta;
+            wp1 = getWaypoint( pitlane, 0 );
+            float delta = ( getTrackLength() - wp0.getLapDistance() ) + wp1.getLapDistance();
+            alpha = ( trackDistance - wp0.getLapDistance() ) / delta;
         }
         else
         {
-            wp1 = waypoints[waypointIndex + 1];
-            float delta = wp1.lapDistance - wp0.lapDistance;
-            alpha = ( trackDistance - wp0.lapDistance ) / delta;
+            wp1 = getWaypoint( pitlane, waypointIndex + 1 );
+            float delta = wp1.getLapDistance() - wp0.getLapDistance();
+            alpha = ( trackDistance - wp0.getLapDistance() ) / delta;
         }
         
         float beta = 1f - alpha;
         
-        float vecX = ( wp0.vecX * beta ) + ( wp1.vecX * alpha );
-        float vecY = ( wp0.vecY * beta ) + ( wp1.vecY * alpha );
-        float vecZ = ( wp0.vecZ * beta ) + ( wp1.vecZ * alpha );
+        float vecX = ( wp0.getVecX() * beta ) + ( wp1.getVecX() * alpha );
+        float vecY = ( wp0.getVecY() * beta ) + ( wp1.getVecY() * alpha );
+        float vecZ = ( wp0.getVecZ() * beta ) + ( wp1.getVecZ() * alpha );
         
         __GDPrivilegedAccess.setTelemVect3( vecX, vecY, vecZ, vector );
         
@@ -452,341 +426,5 @@ public class Track
             return ( angle );
         
         return ( -angle );
-    }
-    
-    private static final class ParseContainer
-    {
-        private Waypoint[][] waypoints = null;
-        private int[] numWaypoints = null;
-        private float trackLength = 1f;
-        private float sector1Length = 1f;
-        private float sector2Length = 1f;
-        private float minXPos = Float.MAX_VALUE, maxXPos = -Float.MAX_VALUE, minYPos = Float.MAX_VALUE, maxYPos = -Float.MAX_VALUE, minZPos = Float.MAX_VALUE, maxZPos = -Float.MAX_VALUE;
-        private float maxWidth = -Float.MAX_VALUE;
-        private int[] firstOfFirstSector = null;
-    }
-    
-    protected static ParseContainer parseAIW( File aiw ) throws IOException
-    {
-        final ParseContainer pc = new ParseContainer();
-        
-        new AbstractIniParser()
-        {
-            private boolean inWaypointsGroup = false;
-            
-            private Waypoint currentWP = null;
-            private int branchID = -1;
-            
-            private void storeWaypoint()
-            {
-                if ( currentWP != null )
-                {
-                    if ( pc.numWaypoints.length <= branchID )
-                    {
-                        int[] tmp = new int[ branchID + 1 ];
-                        System.arraycopy( pc.numWaypoints, 0, tmp, 0, pc.numWaypoints.length );
-                        
-                        for ( int i = pc.numWaypoints.length; i <= branchID; i++ )
-                        {
-                            tmp[i] = 0;
-                        }
-                        
-                        pc.numWaypoints = tmp;
-                    }
-                    
-                    if ( pc.waypoints.length <= branchID )
-                    {
-                        Waypoint[][] tmp = new Waypoint[ branchID + 1 ][];
-                        System.arraycopy( pc.waypoints, 0, tmp, 0, pc.waypoints.length );
-                        
-                        for ( int i = pc.waypoints.length; i <= branchID; i++ )
-                        {
-                            tmp[i] = new Waypoint[ pc.waypoints[0].length ];
-                        }
-                        
-                        pc.waypoints = tmp;
-                    }
-                    
-                    if ( pc.firstOfFirstSector.length <= branchID )
-                    {
-                        int[] tmp = new int[ branchID + 1 ];
-                        System.arraycopy( pc.firstOfFirstSector, 0, tmp, 0, pc.firstOfFirstSector.length );
-                        
-                        for ( int i = pc.firstOfFirstSector.length; i <= branchID; i++ )
-                        {
-                            tmp[i] = -1;
-                        }
-                        
-                        pc.firstOfFirstSector = tmp;
-                    }
-                    
-                    if ( ( currentWP.sector == 1 ) && ( ( pc.firstOfFirstSector[branchID] == -1 ) || ( currentWP.lapDistance < pc.waypoints[branchID][pc.firstOfFirstSector[branchID]].lapDistance ) ) )
-                        pc.firstOfFirstSector[branchID] = pc.numWaypoints[branchID];
-                    
-                    pc.waypoints[branchID][pc.numWaypoints[branchID]++] = currentWP;
-                    
-                    currentWP = null;
-                }
-                
-                branchID = -1;
-            }
-            
-            @Override
-            protected boolean onGroupParsed( int lineNr, String group ) throws ParsingException
-            {
-                inWaypointsGroup = group.equalsIgnoreCase( "Waypoint" );
-                
-                return ( true );
-            }
-            
-            private void parsePosition( String value, Waypoint wp )
-            {
-                int p0 = 1;
-                int p1 = value.indexOf( ',', p0 );
-                wp.posX = Float.parseFloat( value.substring( p0, p1 ) );
-                p0 = p1 + 1;
-                p1 = value.indexOf( ',', p0 );
-                wp.posY = Float.parseFloat( value.substring( p0, p1 ) );
-                wp.posZ = Float.parseFloat( value.substring( p1 + 1, value.length() - 1 ) );
-                
-                if ( wp.posX < pc.minXPos )
-                    pc.minXPos = wp.posX;
-                if ( wp.posX > pc.maxXPos )
-                    pc.maxXPos = wp.posX;
-                if ( wp.posY < pc.minYPos )
-                    pc.minYPos = wp.posY;
-                if ( wp.posY > pc.maxYPos )
-                    pc.maxYPos = wp.posY;
-                if ( wp.posZ < pc.minZPos )
-                    pc.minZPos = wp.posZ;
-                if ( wp.posZ > pc.maxZPos )
-                    pc.maxZPos = wp.posZ;
-            }
-            
-            private void parseNormal( String value, Waypoint wp )
-            {
-                int p0 = 1;
-                int p1 = value.indexOf( ',', p0 );
-                wp.normX = Float.parseFloat( value.substring( p0, p1 ) );
-                p0 = p1 + 1;
-                p1 = value.indexOf( ',', p0 );
-                wp.normY = Float.parseFloat( value.substring( p0, p1 ) );
-                wp.normZ = Float.parseFloat( value.substring( p1 + 1, value.length() - 1 ) );
-            }
-            
-            private void parseVector( String value, Waypoint wp )
-            {
-                int p0 = 1;
-                int p1 = value.indexOf( ',', p0 );
-                wp.vecX = Float.parseFloat( value.substring( p0, p1 ) );
-                p0 = p1 + 1;
-                p1 = value.indexOf( ',', p0 );
-                wp.vecY = Float.parseFloat( value.substring( p0, p1 ) );
-                wp.vecZ = Float.parseFloat( value.substring( p1 + 1, value.length() - 1 ) );
-            }
-            
-            private void parseWidth( String value, Waypoint wp )
-            {
-                int p0 = 1;
-                int p1 = value.indexOf( ',', p0 );
-                wp.roadLeft = Float.parseFloat( value.substring( p0, p1 ) );
-                p0 = p1 + 1;
-                p1 = value.indexOf( ',', p0 );
-                wp.roadRight = Float.parseFloat( value.substring( p0, p1 ) );
-                p0 = p1 + 1;
-                p1 = value.indexOf( ',', p0 );
-                wp.farLeft = Float.parseFloat( value.substring( p0, p1 ) );
-                wp.farRight = Float.parseFloat( value.substring( p1 + 1, value.length() - 1 ) );
-                
-                float width = wp.getRoadWidth();
-                if ( width > pc.maxWidth )
-                    pc.maxWidth = width;
-            }
-            
-            private void parseScore( String value, Waypoint wp )
-            {
-                int p0 = 1;
-                int p1 = value.indexOf( ',', p0 );
-                wp.sector = (byte)( Byte.parseByte( value.substring( p0, p1 ) ) + 1 );
-                wp.lapDistance = Float.parseFloat( value.substring( p1 + 1, value.length() - 1 ) );
-                wp.normalizedLapDistance = wp.lapDistance / pc.trackLength;
-            }
-            
-            @Override
-            protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
-            {
-                if ( !inWaypointsGroup )
-                    return ( true );
-                
-                if ( key.equals( "wp_pos" ) )
-                {
-                    storeWaypoint();
-                    
-                    currentWP = new Waypoint();
-                    parsePosition( value, currentWP );
-                }
-                else if ( key.equals( "wp_normal" ) )
-                {
-                    parseNormal( value, currentWP );
-                }
-                else if ( key.equals( "wp_vect" ) )
-                {
-                    parseVector( value, currentWP );
-                }
-                else if ( key.equals( "wp_width" ) )
-                {
-                    parseWidth( value, currentWP );
-                }
-                else if ( key.equals( "wp_score" ) )
-                {
-                    parseScore( value, currentWP );
-                }
-                else if ( key.equals( "wp_branchID" ) )
-                {
-                    branchID = Integer.parseInt( value.substring( 1, value.length() - 1 ) );
-                }
-                else if ( ( pc.numWaypoints == null ) || ( pc.numWaypoints[0] == 0 ) )
-                {
-                    if ( key.equals( "number_waypoints" ) )
-                    {
-                        pc.waypoints = new Waypoint[ 1 ][ Integer.parseInt( value ) ];
-                        pc.numWaypoints = new int[ 1 ];
-                        pc.numWaypoints[0] = 0;
-                        pc.firstOfFirstSector = new int[ 1 ];
-                        pc.firstOfFirstSector[0] = -1;
-                    }
-                    else if ( key.equals( "lap_length" ) )
-                        pc.trackLength = Float.parseFloat( value );
-                    else if ( key.equals( "sector_1_length" ) )
-                        pc.sector1Length = Float.parseFloat( value );
-                    else if ( key.equals( "sector_2_length" ) )
-                        pc.sector2Length = Float.parseFloat( value );
-                }
-                
-                return ( true );
-            }
-            
-            @Override
-            protected void onParsingFinished() throws ParsingException
-            {
-                if ( pc.waypoints == null )
-                    return;
-                
-                storeWaypoint();
-                
-                for ( int i = 0; i < pc.firstOfFirstSector.length; i++ )
-                {
-                    if ( pc.firstOfFirstSector[i] == -1 )
-                        pc.firstOfFirstSector[i] = 0;
-                }
-            }
-        }.parse( aiw );
-        
-        return ( pc );
-    }
-    
-    protected Track( Waypoint[] waypointsTrack, Waypoint[] waypointsPitlane, float sector1Length, float sector2Length, float trackLength, float pitlaneLength, float minXPos, float maxXPos, float minYPos, float maxYPos, float minZPos, float maxZPos, float maxWidth )
-    {
-        this.waypointsTrack = waypointsTrack;
-        this.waypointsPitlane = waypointsPitlane;
-        this.sector1Length = sector1Length;
-        this.sector2Length = sector2Length;
-        this.trackLength = trackLength;
-        this.pitlaneLength = pitlaneLength;
-        this.minXPos = minXPos;
-        this.maxXPos = maxXPos;
-        this.minYPos = minYPos;
-        this.maxYPos = maxYPos;
-        this.minZPos = minZPos;
-        this.maxZPos = maxZPos;
-        this.maxWidth = maxWidth;
-    }
-    
-    private static void fixWaypoints( Waypoint[] waypoints, ParseContainer pc )
-    {
-        for ( int i = 0; i < waypoints.length; i++ )
-        {
-            Waypoint wp = waypoints[i];
-            
-            // mirror the x-coordinates
-            wp.posX *= -1f;
-            wp.vecX *= -1f;
-            wp.normX *= -1f;
-            //wp.posZ *= -1f;
-            
-            /*
-            //wp.normX *= -1f;
-            
-            // rotate clockwisely by 90°
-            float tmp = wp.posX;
-            wp.posX = wp.posZ;
-            wp.posZ = -tmp;
-            tmp = wp.vecX;
-            wp.vecX = wp.vecZ;
-            wp.vecZ = -tmp;
-            tmp = wp.normX;
-            wp.normX = wp.normZ;
-            wp.normZ = -tmp;
-            
-            // Fix vector to face into the direction of the road (but not backwards)
-            wp.vecX *= -1f;
-            wp.vecZ *= -1f;
-            */
-            
-            if ( wp.posX < pc.minXPos )
-                pc.minXPos = wp.posX;
-            if ( wp.posX > pc.maxXPos )
-                pc.maxXPos = wp.posX;
-            if ( wp.posZ < pc.minZPos )
-                pc.minZPos = wp.posZ;
-            if ( wp.posZ > pc.maxZPos )
-                pc.maxZPos = wp.posZ;
-        }
-    }
-    
-    private static Waypoint[] fixOrder( Waypoint[] waypoints, int numWaypoints, int firstOfFirstSector )
-    {
-        Waypoint[] result = new Waypoint[ numWaypoints ];
-        
-        System.arraycopy( waypoints, firstOfFirstSector, result, 0, numWaypoints - firstOfFirstSector );
-        System.arraycopy( waypoints, 0, result, numWaypoints - firstOfFirstSector, firstOfFirstSector );
-        
-        return ( result );
-    }
-    
-    /**
-     * Parses an AIW file and returns a {@link Track} instance.
-     * 
-     * @param aiw the AIW file to parse
-     * 
-     * @return a {@link Track} instance for the parsed AIW file.
-     * 
-     * @throws IOException if there's something wrong with the file (missing, not readable, etc.).
-     */
-    public static Track parseTrackFromAIW( File aiw ) throws IOException
-    {
-        ParseContainer pc = parseAIW( aiw );
-        
-        Waypoint[] waypointsTrack = fixOrder( pc.waypoints[0], pc.numWaypoints[0], pc.firstOfFirstSector[0] );
-        Waypoint[] waypointsPitlane = fixOrder( pc.waypoints[1], pc.numWaypoints[1], pc.firstOfFirstSector[1] );
-        
-        pc.minXPos = Float.MAX_VALUE;
-        pc.maxXPos = -Float.MAX_VALUE;
-        pc.minZPos = Float.MAX_VALUE;
-        pc.maxZPos = -Float.MAX_VALUE;
-        
-        fixWaypoints( waypointsTrack, pc );
-        fixWaypoints( waypointsPitlane, pc );
-        
-        float maxWPLDPit = -Float.MIN_VALUE;
-        for ( int i = 0; i < waypointsPitlane.length; i++ )
-        {
-            if ( waypointsPitlane[i].lapDistance > maxWPLDPit )
-            {
-                maxWPLDPit = waypointsPitlane[i].lapDistance;
-            }
-        }
-        
-        return ( new Track( waypointsTrack, waypointsPitlane, pc.sector1Length, pc.sector2Length, pc.trackLength, maxWPLDPit, pc.minXPos, pc.maxXPos, pc.minYPos, pc.maxYPos, pc.minZPos, pc.maxZPos, pc.maxWidth ) );
     }
 }

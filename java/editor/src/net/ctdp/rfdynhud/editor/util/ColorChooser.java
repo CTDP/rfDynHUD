@@ -207,7 +207,7 @@ public class ColorChooser extends JPanel
         }
     };
     
-    private JComboBox combo;
+    private JComboBox<String> combo;
     private int lastNameComboSelectedIndex = -1;
     private String[] namesCache;
     private JPanel colorTriangle;
@@ -339,7 +339,7 @@ public class ColorChooser extends JPanel
     
     private boolean isRefillingNameCombo = false;
     
-    private void refillNameCombo( WidgetsConfiguration widgetsConfig, JComboBox combo, String selectedItem )
+    private void refillNameCombo( WidgetsConfiguration widgetsConfig, JComboBox<String> combo, String selectedItem )
     {
         isRefillingNameCombo = true;
         
@@ -541,7 +541,7 @@ public class ColorChooser extends JPanel
         
         final JButton remove = new JButton( "remove" );
         
-        combo = new JComboBox();
+        combo = new JComboBox<String>();
         refillNameCombo( widgetsConfig, combo, currentNamedColor );
         if ( currentNamedColor == null )
             combo.setSelectedIndex( 0 );

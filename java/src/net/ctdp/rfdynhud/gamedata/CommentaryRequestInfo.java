@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,19 +17,16 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class CommentaryRequestInfo
+public abstract class CommentaryRequestInfo
 {
-    final _CommentaryRequestInfoCapsule data;
+    private long updateTimestamp = -1L;
+    private long updateId = 0L;
     
-    private final LiveGameData gameData;
+    protected final LiveGameData gameData;
     
     public static interface CommentaryInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
@@ -95,19 +92,14 @@ public class CommentaryRequestInfo
         gameData.unregisterDataUpdateListener( l );
     }
     
-    void prepareDataUpdate()
+    /**
+     * Gets the system nano time for the last data update.
+     * 
+     * @return the system nano time for the last data update.
+     */
+    public final long getUpdateTimestamp()
     {
-    }
-    
-    void onDataUpdated( boolean isEditorMode )
-    {
-        data.onDataUpdated();
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onCommentaryInfoUpdated( gameData, isEditorMode );
-        }
+        return ( updateTimestamp );
     }
     
     /**
@@ -117,26 +109,54 @@ public class CommentaryRequestInfo
      */
     public final long getUpdateId()
     {
-        return ( data.getUpdateId() );
+        return ( updateId );
     }
     
-    void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException
+    /**
+     * Increments the update ID.
+     * 
+     * @param timestamp
+     */
+    protected void onDataUpdated( long timestamp )
     {
-        prepareDataUpdate();
+        this.updateTimestamp = timestamp;
+        this.updateId++;
+    }
+    
+    /**
+     * 
+     * @param userObject
+     * @param timestamp
+     */
+    protected void prepareDataUpdate( Object userObject, long timestamp )
+    {
+    }
+    
+    /**
+     * @param userObject
+     * @param timestamp
+     * @param isEditorMode
+     */
+    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        onDataUpdated( timestamp );
         
-        data.loadFromStream( in );
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onCommentaryInfoUpdated( gameData, isEditorMode );
+        }
+    }
+    
+    protected abstract void updateDataImpl( Object userObject, long timestamp );
+    
+    protected void updateData( Object userObject, long timestamp )
+    {
+        prepareDataUpdate( userObject, timestamp );
         
-        onDataUpdated( isEditorMode );
-    }
-    
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        loadFromStream( in, false );
-    }
-    
-    public void writeToStream( OutputStream out ) throws IOException
-    {
-        data.writeToStream( out );
+        updateDataImpl( userObject, timestamp );
+        
+        onDataUpdated( userObject, timestamp, false );
     }
     
     /**
@@ -144,52 +164,36 @@ public class CommentaryRequestInfo
      * 
      * @return one of the event names in the commentary INI file
      */
-    public final String getName()
-    {
-        return ( data.getName() );
-    }
+    public abstract String getName();
     
     /**
      * Gets first value to pass in (if any)
      * 
      * @return first value to pass in (if any)
      */
-    public final double getInput1()
-    {
-        return ( data.getInput1() );
-    }
+    public abstract double getInput1();
     
     /**
      * Gets second value to pass in (if any)
      * 
      * @return second value to pass in (if any)
      */
-    public final double getInput2()
-    {
-        return ( data.getInput2() );
-    }
+    public abstract double getInput2();
     
     /**
      * Gets third value to pass in (if any)
      * 
      * @return third value to pass in (if any)
      */
-    public final double getInput3()
-    {
-        return ( data.getInput3() );
-    }
+    public abstract double getInput3();
     
     /**
      * @return ignores commentary detail and random probability of event
      */
-    public final boolean getSkipChecks()
-    {
-        return ( data.getSkipChecks() );
-    }
+    public abstract boolean getSkipChecks();
     
-    CommentaryRequestInfo( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory )
+    protected CommentaryRequestInfo( LiveGameData gameData )
     {
         this.gameData = gameData;
-        this.data = gdFactory.newCommentaryRequestInfoCapsule( gameData );
     }
 }

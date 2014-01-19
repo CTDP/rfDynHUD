@@ -1,0 +1,29 @@
+﻿Build started 19.01.2014 18:11:09.
+     1>Project "C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\rfdynhud4rf2\rfdynhud4rf2.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\rfdynhud4rf2.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\\common\Include" /I"C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\rfdynhud4rf2\\Include" /I"c:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include" /I"c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include" /I"c:\Program Files (x86)\Java\jdk1.7.0_45\include\win32" /I"c:\Program Files (x86)\Java\jdk1.7.0_45\include" /Zi /nologo /W1 /WX- /O2 /Ob1 /Ot /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D INTERNALSPLUGIN_EXPORTS /D _CRT_SECURE_NO_DEPRECATE /D _WINDLL /GF /Gm- /EHsc /MT /Zp4 /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Source\rfdynhud4rf2.cpp
+         rfdynhud4rf2.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\Release\rfdynhud4rf2.dll" /NOLOGO /LIBPATH:"c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib" /LIBPATH:"c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x86" /LIBPATH:"c:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86" d3dx9.lib Ws2_32.lib "c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\Advapi32.lib" User32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST:NO /PDB:"C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\Release\rfdynhud4rf2.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\Release\rfdynhud4rf2.lib" /MACHINE:X86 /DLL Release\common.obj
+         Release\D3dManager.obj
+         Release\direct_input.obj
+         Release\filesystem.obj
+         Release\image_util.obj
+         Release\jvm_connection.obj
+         Release\logging.obj
+         Release\overlay_texture.obj
+         Release\rfdynhud4rf2.obj
+         Release\timing.obj
+         Release\util.obj
+            Creating library C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\Release\rfdynhud4rf2.lib and object C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\Release\rfdynhud4rf2.exp
+         rfdynhud4rf2.vcxproj -> C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\Release\rfdynhud4rf2.dll
+       FinalizeBuildStatus:
+         Deleting file "Release\rfdynhud4rf2.unsuccessfulbuild".
+         Touching "Release\rfdynhud4rf2.lastbuildstate".
+     1>Done Building Project "C:\Users\Marvin Fröhlich\Documents\Visual Studio 2010\Projects\rfdynhud4rf2\rfdynhud4rf2\rfdynhud4rf2.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.88

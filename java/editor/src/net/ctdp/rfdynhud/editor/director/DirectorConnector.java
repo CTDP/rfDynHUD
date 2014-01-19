@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ public class DirectorConnector extends JDialog
 {
     private static final long serialVersionUID = -9168788967185981419L;
     
-    private final JComboBox combo;
+    private final JComboBox<String> combo;
     
     private boolean isCancelled = true;
     
@@ -101,9 +101,9 @@ public class DirectorConnector extends JDialog
         p2.add( caption, BorderLayout.WEST );
         
         if ( connectionStrings == null )
-            this.combo = new JComboBox();
+            this.combo = new JComboBox<String>();
         else
-            this.combo = new JComboBox( connectionStrings.split( ";" ) );
+            this.combo = new JComboBox<String>( connectionStrings.split( ";" ) );
         combo.setEditable( true );
         p2.add( combo, BorderLayout.CENTER );
         

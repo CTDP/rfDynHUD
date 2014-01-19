@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +29,29 @@ import org.jagatoo.util.ini.AbstractIniParser;
 
 class _rf1_GameFileSystem extends GameFileSystem
 {
+    private final File locationsFolder;
+    private final String locationsPath;
+    
+    /**
+     * Gets the game's &quot;Locations&quot; folder.
+     * 
+     * @return the game's &quot;Locations&quot; folder.
+     */
+    public final File getLocationsFolder()
+    {
+        return ( locationsFolder );
+    }
+    
+    /**
+     * Gets the game's &quot;Locations&quot; folder.
+     * 
+     * @return the game's &quot;Locations&quot; folder.
+     */
+    public final String getLocationsPath()
+    {
+        return ( locationsPath );
+    }
+    
     private static boolean isRoot( File folder )
     {
         return ( folder.getParent() == null );
@@ -38,7 +61,7 @@ class _rf1_GameFileSystem extends GameFileSystem
      * {@inheritDoc}
      */
     @Override
-    protected File findGameFolder( PluginINI pluginINI, File pluginFolder )
+    protected File findGameFolderImpl( PluginINI pluginINI, File pluginFolder )
     {
         File f = pluginFolder.getParentFile();
         String exeFilename = pluginINI.getGeneralExeFilename();
@@ -162,5 +185,10 @@ class _rf1_GameFileSystem extends GameFileSystem
     public _rf1_GameFileSystem( PluginINI pluginINI )
     {
         super( pluginINI );
+        
+        File gameFolder = findGameFolder( pluginINI );
+        
+        this.locationsFolder = findLocationsFolder( pluginINI, gameFolder );
+        this.locationsPath = locationsFolder.getAbsolutePath();
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,8 +19,8 @@ package net.ctdp.rfdynhud.test.physics;
 
 import java.io.File;
 
-import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
-import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_VehiclePhysics;
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_VehiclePhysicsParser;
 
 /**
  * Class I (Marcel) use for local testing.
@@ -52,12 +52,12 @@ public class VehicleParserTester
     
 	public static void main( String[] args ) throws Throwable
 	{
-	    VehiclePhysics physics = new VehiclePhysics();
+	    _rf1_VehiclePhysics physics = new _rf1_VehiclePhysics();
 	    
-		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\McLaren\\KR06.veh" ), "Silverstone", physics );
-		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\MS06.veh" ), "Silverstone", physics );
-        //VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\4r2009\\2008\\Equipos\\SToroRosso\\STR_15.veh" ), "Silverstone", physics );
-        __GDPrivilegedAccess.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\F248_MS05.veh" ), "Silverstone", physics );
+		//_rf1_VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\McLaren\\KR06.veh" ), "Silverstone", physics );
+		//_rf1_VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\MS06.veh" ), "Silverstone", physics );
+        //_rf1_VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\4r2009\\2008\\Equipos\\SToroRosso\\STR_15.veh" ), "Silverstone", physics );
+	    _rf1_VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\F248_MS05.veh" ), "Silverstone", physics );
         
         //testGripLoss( physics );
 	}

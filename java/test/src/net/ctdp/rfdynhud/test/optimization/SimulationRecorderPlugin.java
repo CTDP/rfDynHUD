@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo.ScoringInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.TelemetryData.TelemetryDataUpdateListener;
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
@@ -372,7 +373,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         {
             os.write( ON_DATA_UPDATED );
             os.write( ON_DATA_UPDATED_TELEMETRY );
-            gameData.getTelemetryData().writeToStream( os );
+            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_TelemetryData)gameData.getTelemetryData() ).writeToStream( os );
         }
         catch ( IOException e )
         {
@@ -400,7 +401,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         {
             os.write( ON_DATA_UPDATED );
             os.write( ON_DATA_SCORING );
-            gameData.getScoringInfo().writeToStream( os );
+            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_ScoringInfo)gameData.getScoringInfo() ).writeToStream( os );
         }
         catch ( IOException e )
         {
@@ -436,18 +437,22 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     
     public static void main( String[] args ) throws Throwable
     {
+        final long now = System.nanoTime();
+        
         DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( "D:\\rfdynhud_data2" ) ) );
         
-        RFDynHUD rfDynHUD = new RFDynHUD( "rFactor1", 1920, 1200 );
+        RFDynHUD rfDynHUD = RFDynHUD.createInstance( new _rf1_LiveGameDataObjectsFactory(), 1920, 1200 );
         LiveGameData gameData = rfDynHUD.getGameData();
         //_LiveGameData_CPP_Adapter gdcpp = rfDynHUD.getGameData_CPP_Adapter();
         GameEventsManager eventsManager = rfDynHUD.getEventsManager();
         GameEventsManager.simulationMode = true;
         
-        eventsManager.onStartup();
-        eventsManager.onSessionStarted();
-        eventsManager.onRealtimeEntered();
-        eventsManager.onGraphicsInfoUpdated( (short)0, (short)0, (short)1920, (short)1200 );
+        eventsManager.onStartup( now );
+        eventsManager.onSessionStarted( now );
+        eventsManager.onRealtimeEntered( now );
+        eventsManager.onCommentaryRequestInfoUpdated( null );
+        eventsManager.onGraphicsInfoUpdated( null );
+        eventsManager.beforeRender( (short)0, (short)0, (short)1920, (short)1080 );
         
         boolean isReady1 = false;
         boolean isReady2 = false;
@@ -508,14 +513,14 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
                         {
                             case ON_DATA_UPDATED_TELEMETRY:
                                 //System.out.println( "telemetry" );
-                                gameData.getTelemetryData().readFromStream( in );
-                                eventsManager.onTelemetryDataUpdated();
+                                ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_TelemetryData)gameData.getTelemetryData() ).readFromStream( in );
+                                eventsManager.onTelemetryDataUpdated( null );
                                 isReady1 = true;
                                 break;
                             case ON_DATA_SCORING:
                                 //System.out.println( "scoring" );
-                                gameData.getScoringInfo().readFromStream( in );
-                                eventsManager.onScoringInfoUpdated();
+                                ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_ScoringInfo)gameData.getScoringInfo() ).readFromStream( in );
+                                eventsManager.onScoringInfoUpdated( 22, null );
                                 isReady2 = true;
                                 break;
                         }
@@ -542,6 +547,6 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
             in.close();
         }
         
-        eventsManager.onShutdown();
+        eventsManager.onShutdown( now );
     }
 }

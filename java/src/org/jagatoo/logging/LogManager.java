@@ -269,7 +269,19 @@ public class LogManager
         return ( callerPackage );
     }
     
-    private final synchronized void internalPrint( LogChannel channel, int logLevel, Object[] message, boolean commaSeparated, boolean appendNL )
+    private final void printThrowable( LogChannel channel, int level, Throwable t, LogHandler log )
+    {
+        log.println( channel, level, t.getClass().getName() + ": " + t.getMessage() );
+        
+        StackTraceElement[] st = t.getStackTrace();
+        
+        for ( StackTraceElement ste : st )
+        {
+            log.println( channel, level, "  at " + ste.toString() );
+        }
+    }
+    
+    private synchronized final void internalPrint( LogChannel channel, int logLevel, Object[] message, boolean commaSeparated, boolean appendNL )
     {
         if ( ( message == null ) || ( message.length == 0 ) )
             return;
@@ -333,7 +345,7 @@ public class LogManager
                                 {
                                     int logLevel2 = ( message[j] instanceof Error ) ? LogLevel.ERROR.level : LogLevel.EXCEPTION.level;
                                     if ( logLevel2 <= log.getLogLevelLevel() )
-                                        log.print( channel, logLevel2, (Throwable)message[j] );
+                                        printThrowable( channel, logLevel2, (Throwable)message[j], log );
                                     
                                     lastNewLine = true;
                                 }
@@ -342,7 +354,7 @@ public class LogManager
                             {
                                 int logLevel2 = ( message[j] instanceof Error ) ? LogLevel.ERROR.level : LogLevel.EXCEPTION.level;
                                 if ( logLevel2 <= log.getLogLevelLevel() )
-                                    log.print( channel, logLevel2, (Throwable)message[j] );
+                                    printThrowable( channel, logLevel2, (Throwable)message[j], log );
                                 
                                 lastNewLine = true;
                             }

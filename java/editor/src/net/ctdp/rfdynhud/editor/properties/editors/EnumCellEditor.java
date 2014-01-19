@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,13 +35,13 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
+public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox<Object>>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
     private final JPanel panel = new JPanel( new BorderLayout() );
-    private final JComboBox combobox = new JComboBox();
-    private final DefaultComboBoxModel model = (DefaultComboBoxModel)combobox.getModel();
+    private final JComboBox<Object> combobox = new JComboBox<Object>();
+    private final DefaultComboBoxModel<Object> model = (DefaultComboBoxModel<Object>)combobox.getModel();
     private final JButton button = new JButton();
     
     @Override

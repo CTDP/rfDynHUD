@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +45,40 @@ public class _rf1_ModInfo extends ModInfo
     private final GameFileSystem fileSystem;
     
     private final _rf1_VehicleRegistry vehicleRegistry;
+    
+    private File rfmFile = null;
+    private File vehiclesDir = null;
+    private String[] vehicleFilter = null;
+    
+    /**
+     * Gets the mod's RFM file.
+     * 
+     * @return the mod's RFM file.
+     */
+    public final File getRFMFile()
+    {
+        return ( rfmFile );
+    }
+    
+    /**
+     * Gets the vehicle filter.
+     * 
+     * @return the vehicle filter.
+     */
+    public final String[] getVehicleFilter()
+    {
+        return ( vehicleFilter );
+    }
+    
+    /**
+     * Gets the folder, where to search for .VEH files.
+     * 
+     * @return the folder, where to search for .VEH files.
+     */
+    public final File getVehiclesFolder()
+    {
+        return ( vehiclesDir );
+    }
     
     /**
      * 
@@ -194,7 +228,7 @@ public class _rf1_ModInfo extends ModInfo
     
     private void parseRFM( File rfmFile )
     {
-        maxOpponents = Integer.MAX_VALUE;
+        maxOpponents = 256;
         raceDuration = -1f;
         
         BufferedReader br = null;
@@ -297,28 +331,10 @@ public class _rf1_ModInfo extends ModInfo
     }
     
     /**
-     * Creates a new ModInfo instance.
-     * 
-     * @param fileSystem
-     * @param profileInfo
+     * {@inheritDoc}
      */
-    public _rf1_ModInfo( GameFileSystem fileSystem, ProfileInfo profileInfo )
-    {
-        super( profileInfo );
-        
-        this.fileSystem = fileSystem;
-        
-        this.vehicleRegistry = new _rf1_VehicleRegistry();
-    }
-    
-    /**
-     * Gets the RFM filenames of all installed mods.
-     * 
-     * @param fileSystem
-     * 
-     * @return the RFM filenames of all installed mods.
-     */
-    public static String[] getInstalledModNames( GameFileSystem fileSystem )
+    @Override
+    public String[] getInstalledModNames()
     {
         File[] rfms = new File( fileSystem.getGameFolder(), "rfm" ).listFiles();
         
@@ -340,5 +356,20 @@ public class _rf1_ModInfo extends ModInfo
         }
         
         return ( names.toArray( new String[ names.size() ] ) );
+    }
+    
+    /**
+     * Creates a new ModInfo instance.
+     * 
+     * @param fileSystem
+     * @param profileInfo
+     */
+    public _rf1_ModInfo( GameFileSystem fileSystem, ProfileInfo profileInfo )
+    {
+        super( profileInfo );
+        
+        this.fileSystem = fileSystem;
+        
+        this.vehicleRegistry = new _rf1_VehicleRegistry();
     }
 }

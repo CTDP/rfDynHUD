@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -189,7 +189,7 @@ public class BorderSelector extends DefaultTableModel
     
     private final HashMap<String, ImageIcon> cache = new HashMap<String, ImageIcon>();
     
-    private class BorderEntryCellRenderer extends JPanel implements ListCellRenderer
+    private class BorderEntryCellRenderer extends JPanel implements ListCellRenderer<String>
     {
         private static final long serialVersionUID = -1550354624601303118L;
         
@@ -197,7 +197,7 @@ public class BorderSelector extends DefaultTableModel
         private JLabel filenameLabel;
         
         @Override
-        public Component getListCellRendererComponent( JList list, Object value, int index, boolean isSelected, boolean cellHasFocus )
+        public Component getListCellRendererComponent( JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus )
         {
             if ( isSelected )
             {
@@ -208,7 +208,7 @@ public class BorderSelector extends DefaultTableModel
                 this.setBackground( list.getBackground() );
             }
             
-            String filename = (String)value;
+            String filename = value;
             
             BorderWrapper bw = BorderCache.getBorder( RFDynHUDEditor.FILESYSTEM.getBordersFolder(), filename, null, null, null, null );
             BorderRenderer br = bw.getRenderer();
@@ -342,8 +342,8 @@ public class BorderSelector extends DefaultTableModel
     {
         private static final long serialVersionUID = 1948400434095024898L;
         
-        private final JComboBox renderCombo = new JComboBox();
-        private final JComboBox editCombo = new JComboBox();
+        private final JComboBox<String> renderCombo = new JComboBox<String>();
+        private final JComboBox<String> editCombo = new JComboBox<String>();
         private boolean selEventSuppressed = false;
         private int lastRow = -1;
         
@@ -353,8 +353,8 @@ public class BorderSelector extends DefaultTableModel
             readFilenames( folder, null, files );
             Collections.sort( files, String.CASE_INSENSITIVE_ORDER );
             
-            renderCombo.setModel( new DefaultComboBoxModel( files ) );
-            editCombo.setModel( new DefaultComboBoxModel( files ) );
+            renderCombo.setModel( new DefaultComboBoxModel<String>( files ) );
+            editCombo.setModel( new DefaultComboBoxModel<String>( files ) );
             
             return ( files.size() );
         }
@@ -403,7 +403,7 @@ public class BorderSelector extends DefaultTableModel
                 @Override
                 public void popupMenuWillBecomeVisible( PopupMenuEvent e )
                 {
-                    oldValue = ( (JComboBox)e.getSource() ).getSelectedItem();
+                    oldValue = ( (JComboBox<?>)e.getSource() ).getSelectedItem();
                 }
                 
                 @Override
@@ -411,7 +411,7 @@ public class BorderSelector extends DefaultTableModel
                 {
                     if ( oldValue != null )
                     {
-                        Object newValue = ( (JComboBox)e.getSource() ).getSelectedItem();
+                        Object newValue = ( (JComboBox<?>)e.getSource() ).getSelectedItem();
                         
                         //if ( !oldValue.equals( newValue ) )
                         {
@@ -683,7 +683,7 @@ public class BorderSelector extends DefaultTableModel
                     
                     ( (JButton)e.getSource() ).setActionCommand( "" );
                     
-                    BorderSelector.this.widgetsConfig.addBorderAlias( aliasName, (String)borderRenderer.renderCombo.getModel().getElementAt( 0 ) );
+                    BorderSelector.this.widgetsConfig.addBorderAlias( aliasName, borderRenderer.renderCombo.getModel().getElementAt( 0 ) );
                     aliases = null;
                     fireTableDataChanged();
                     somethingChanged = true;
@@ -813,7 +813,7 @@ public class BorderSelector extends DefaultTableModel
         if ( borderRenderer.updateFiles() == 0 )
             this.noAliasSelection = "";
         else
-            this.noAliasSelection = (String)borderRenderer.renderCombo.getModel().getElementAt( 0 );
+            this.noAliasSelection = borderRenderer.renderCombo.getModel().getElementAt( 0 );
     }
     
     public BorderSelector( String folder )

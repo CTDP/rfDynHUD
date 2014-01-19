@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,8 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import java.io.File;
+
+import net.ctdp.rfdynhud.input.InputMappings;
 
 /**
  * Model of the current player's profile information
@@ -137,41 +139,89 @@ public abstract class ProfileInfo
      */
     public static enum SpeedUnits
     {
-        MPH,
-        KPH,
+        MIH,
+        KMH,
         ;
+        
+        /**
+         * @deprecated replaced by {@link #MIH};
+         */
+        @Deprecated
+        public static final SpeedUnits MPH = MIH;
+        
+        /**
+         * @deprecated replaced by {@link #KMH};
+         */
+        @Deprecated
+        public static final SpeedUnits KPH = KMH;
         
         public static final class Convert
         {
             /**
              * meters per second (m/s) to miles per hour (mi/h)
              */
-            public static final float MPS_TO_MPH = 2.237f;
+            public static final float MS_TO_MIH = 2.237f;
+            
+            /**
+             * @deprecated replaced by {@link #MS_TO_MIH};
+             */
+            @Deprecated
+            public static final float MPS_TO_MPH = MS_TO_MIH;
             
             /**
              * meters per second (m/s) to kilometers per hour (km/h)
              */
-            public static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
+            public static final float MS_TO_KMH = 3.6f; // 3600f / 1000f
+            
+            /**
+             * @deprecated replaced by {@link #MS_TO_KMH};
+             */
+            @Deprecated
+            public static final float MPS_TO_KPH = MS_TO_KMH;
             
             /**
              * miles per hour (mi/h) to meters per second (m/s)
              */
-            public static final float MPH_TO_MPS = 0.44704f;
+            public static final float MIH_TO_MS = 0.44704f;
+            
+            /**
+             * @deprecated replaced by {@link #MIH_TO_MS};
+             */
+            @Deprecated
+            public static final float MPH_TO_MPS = MIH_TO_MS;
             
             /**
              * kilometers per hour (km/h) miles per hour (mi/h)
              */
-            public static final float KPH_TO_MPS = 0.278f; // 3600f / 1000f
+            public static final float KMH_TO_MS = 0.278f; // 3600f / 1000f
+            
+            /**
+             * @deprecated replaced by {@link #KMH_TO_MS};
+             */
+            @Deprecated
+            public static final float KPH_TO_MPS = KMH_TO_MS;
             
             /**
              * kilometers per hour (km/h) to miles per hour (mi/h)
              */
-            public static final float KPH_TO_MPH = 0.62f;
+            public static final float KMH_TO_MIH = 0.62f;
+            
+            /**
+             * @deprecated replaced by {@link #KMH_TO_MIH};
+             */
+            @Deprecated
+            public static final float KPH_TO_MPH = KMH_TO_MIH;
             
             /**
              * miles per hour (mi/h) to kilometers per hour (km/h)
              */
-            public static final float MPH_TO_KPH = 1.6099344f;
+            public static final float MIH_TO_KMH = 1.6099344f;
+            
+            /**
+             * @deprecated replaced by {@link #MIH_TO_KMH};
+             */
+            @Deprecated
+            public static final float MPH_TO_KPH = MIH_TO_KMH;
             
             private Convert()
             {
@@ -183,7 +233,6 @@ public abstract class ProfileInfo
     
     protected String raceCastEmail = null; // The email you are registered with on racecast.rfactor.net
     protected String raceCastPassword = null; // Your password on racecast.rfactor.net
-    protected File vehFile = null;
     protected String teamName = null;
     protected String nationality = null;
     protected String birthDate = null;
@@ -213,7 +262,6 @@ public abstract class ProfileInfo
     {
         raceCastEmail = null;
         raceCastPassword = null;
-        vehFile = null;
         teamName = "N/A";
         nationality = null;
         birthDate = null;
@@ -276,7 +324,16 @@ public abstract class ProfileInfo
      * 
      * @return the used PLR file.
      */
-    public abstract File getPLRFile();
+    public abstract File getProfileFile();
+    
+    /**
+     * Validates the current input mappings and returns an array of warning messages, if any, <code>null</code> otherwise.
+     * 
+     * @param mappings
+     * 
+     * @return an array of warning messages, if any, <code>null</code> otherwise.
+     */
+    public abstract String[] validateInputBindings( InputMappings mappings );
     
     /**
      * Gets the email you are registered with on racecast.rfactor.net
@@ -296,16 +353,6 @@ public abstract class ProfileInfo
     public final String getRaceCastPassword()
     {
         return ( raceCastPassword );
-    }
-    
-    /**
-     * Gets the currently used vehicle file.
-     * 
-     * @return the currently used vehicle file.
-     */
-    public final File getVehicleFile()
-    {
-        return ( vehFile );
     }
     
     /**
@@ -368,15 +415,17 @@ public abstract class ProfileInfo
         return ( helmet );
     }
     
-    /**
+    /*
      * Helps to uniquely identify in multiplayer (along with name) if leaving and coming back
      * 
      * @return the player's unique ID.
      */
+    /*
     public final Integer getUniqueID()
     {
         return ( uniqueID );
     }
+    */
     
     /**
      * Zero-based index of starting driver (0=driver1, 1=driver2, 2=driver3, etc.)
@@ -407,13 +456,6 @@ public abstract class ProfileInfo
     {
         return ( driverHotswapDelay );
     }
-    
-    /**
-     * Gets the last used scene file.
-     * 
-     * @return the last used scene file.
-     */
-    protected abstract File getLastUsedSceneFile();
     
     /**
      * Gets the current race length fraction.
@@ -474,25 +516,6 @@ public abstract class ProfileInfo
     public final SpeedUnits getSpeedUnits()
     {
         return ( speedUnits );
-    }
-    
-    /**
-     * Gets the currently used CCH file.
-     * 
-     * @param modName
-     * 
-     * @return the currently used CCH file.
-     */
-    protected abstract File getCCHFileImpl( String modName );
-    
-    /**
-     * Gets the currently used CCH file.
-     * 
-     * @return the currently used CCH file.
-     */
-    public final File getCCHFile()
-    {
-        return ( getCCHFileImpl( modName ) );
     }
     
     /**

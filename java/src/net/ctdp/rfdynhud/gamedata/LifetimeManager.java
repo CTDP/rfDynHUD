@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
             // Read relevant data for engine wear
             lastOilTemperatureC = telemData.getEngineOilTemperatureC();
             lastEngineRPM = telemData.getEngineRPM();
-            lastVelocityMPS = telemData.getScalarVelocityMPS();
+            lastVelocityMPS = telemData.getScalarVelocityMS();
             
             // Read current (unfiltered) brake application [0..1]
             lastBrakeApplication = telemData.getUnfilteredBrake();
@@ -136,7 +136,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         double factorBoost = 1.0 + ( telemData.getEffectiveEngineBoostMapping() - engine.getBoostRange().getMinValue() ) * engine.getWearIncreasePerBoostLevel();
         
-        float velocityMPS = ( lastVelocityMPS + telemData.getScalarVelocityMPS() ) / 2.0f; // average velocity over the last telem-data update period (ca. 11ms) in m/s
+        float velocityMPS = ( lastVelocityMPS + telemData.getScalarVelocityMS() ) / 2.0f; // average velocity over the last telem-data update period (ca. 11ms) in m/s
         double factorVelocity = 1.0 + velocityMPS * engine.getWearIncreasePerVelocity();
         
         double engineWear = ( ( factorOilTemp + factorRPM ) / 2.0 ) * factorBoost * factorVelocity;

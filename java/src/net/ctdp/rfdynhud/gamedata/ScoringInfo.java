@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,13 +17,11 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
@@ -39,12 +37,10 @@ import net.ctdp.rfdynhud.util.TimingUtil;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ScoringInfo
+public abstract class ScoringInfo
 {
-    private final LiveGameData gameData;
-    private final _LiveGameDataObjectsFactory gdFactory;
-    
-    final _ScoringInfoCapsule data;
+    protected final LiveGameData gameData;
+    protected final _LiveGameDataObjectsFactory gdFactory;
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
@@ -139,13 +135,9 @@ public class ScoringInfo
         gameData.unregisterDataUpdateListener( l );
     }
     
-    private final GameEventsManager eventsManager;
-    
+    private VehicleScoringInfo[] vehicleScoringInfoCache = null;
     private VehicleScoringInfo[] vehicleScoringInfo = null;
-    private VehicleScoringInfo[] vehicleScoringInfo2 = null;
-    _VehicleScoringInfoCapsule[] vehicleScoringInfoCapsules = null;
     private int numVehicles = -1;
-    private int oldNumVehicles = -1;
     private boolean fixedViewedVSI = false;
     private VehicleScoringInfo playerVSI = null;
     private VehicleScoringInfo viewedVSI = null;
@@ -163,143 +155,113 @@ public class ScoringInfo
     
     private ThreeLetterCodeGenerator tlcGenerator;
     
-    private final HashMap<Integer, _VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, _VehicleScoringInfoCapsule>();
-    private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
-    private final HashMap<Integer, Integer> nameDuplicatesMap = new HashMap<Integer, Integer>();
+    private final Map<Integer, VehicleScoringInfo> oldIdVSIMap = new HashMap<Integer, VehicleScoringInfo>();
     
-    private final ArrayList<Object[]> changedVSIs = new ArrayList<Object[]>();
+    /**
+     * Gets the first (unsorted) {@link VehicleScoringInfo} instance in this {@link ScoringInfo}.
+     * 
+     * @return the first (unsorted) {@link VehicleScoringInfo} instance in this {@link ScoringInfo}.
+     */
+    protected VehicleScoringInfo getFirstVehicleScoringInfo()
+    {
+        if ( ( vehicleScoringInfoCache == null ) || ( vehicleScoringInfoCache.length == 0 ) )
+            return ( null );
+        
+        return ( vehicleScoringInfoCache[0] );
+    }
     
-    void initVehicleScoringInfo()
+    private void initVehicleScoringInfo( int numVehicles )
     {
         if ( sessionJustStarted == 1 )
             this.sessionJustStarted = 2;
         
-        oldNumVehicles = numVehicles;
-        numVehicles = -1;
-        numVehicles = getNumVehicles();
+        this.numVehicles = numVehicles;
         
-        if ( ( vehicleScoringInfoCapsules == null ) || ( vehicleScoringInfoCapsules.length < numVehicles ) )
+        if ( ( vehicleScoringInfoCache == null ) || ( vehicleScoringInfoCache.length < numVehicles ) )
         {
-            _VehicleScoringInfoCapsule[] tmp = new _VehicleScoringInfoCapsule[ numVehicles ];
-            
-            int oldCount;
-            if ( vehicleScoringInfoCapsules == null )
-            {
-                oldCount = 0;
-            }
-            else
-            {
-                oldCount = vehicleScoringInfoCapsules.length;
-                System.arraycopy( vehicleScoringInfoCapsules, 0, tmp, 0, oldCount );
-            }
-            
-            for ( int i = oldCount; i < numVehicles; i++ )
-            {
-                tmp[i] = gdFactory.newVehicleScoringInfoCapsule( gameData );
-            }
-            
-            vehicleScoringInfoCapsules = tmp;
+            vehicleScoringInfoCache = gdFactory.newVehicleScoringInfos( gameData, (int)( numVehicles * 1.5 ) + 1, vehicleScoringInfoCache );
         }
         
-        if ( ( vehicleScoringInfo == null ) || ( vehicleScoringInfo.length < numVehicles ) )
+        if ( ( vehicleScoringInfo == null ) || ( vehicleScoringInfo.length != numVehicles ) )
         {
-            VehicleScoringInfo[] tmp = new VehicleScoringInfo[ numVehicles ];
+            vehicleScoringInfo = new VehicleScoringInfo[ numVehicles ];
             
-            int oldCount;
-            if ( vehicleScoringInfo == null )
-            {
-                oldCount = 0;
-            }
-            else
-            {
-                oldCount = vehicleScoringInfo.length;
-                System.arraycopy( vehicleScoringInfo, 0, tmp, 0, oldCount );
-            }
-            
-            for ( int i = oldCount; i < numVehicles; i++ )
-            {
-                tmp[i] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
-            }
-            
-            vehicleScoringInfo = tmp;
-        }
-        
-        if ( ( vehicleScoringInfo2 == null ) || ( vehicleScoringInfo2.length != numVehicles ) )
-        {
-            vehicleScoringInfo2 = new VehicleScoringInfo[ numVehicles ];
+            System.arraycopy( vehicleScoringInfoCache, 0, vehicleScoringInfo, 0, numVehicles );
         }
     }
     
-    void assignVSICapsules()
+    /**
+     * 
+     * @param numVehicles
+     * @param userObject
+     */
+    private void checkVSIs( int numVehicles, Object userObject )
     {
+        final int n = numVehicles;
+        
         try
         {
-            //Logger.log( "################ numVehicles = " + getNumVehicles() + ", oldNumVehicles = " + oldNumVehicles );
-            
-            idCapsuleMap.clear();
-            nameDuplicatesMap.clear();
-            
-            int n = getNumVehicles();
             for ( int i = 0; i < n; i++ )
             {
-                //idCapsuleMap.put( vehicleScoringInfoCapsules[i].refreshID(), vehicleScoringInfoCapsules[i] );
+                VehicleScoringInfo vsi = vehicleScoringInfo[i];
+                Integer id = vsi.refreshID( i );
                 
-                Integer id = vehicleScoringInfoCapsules[i].refreshID( true );
+                //Logger.log( "Found data for " + vsi.getDriverName() + ", assigned id " + id + "." );
                 
-                if ( idCapsuleMap.containsKey( id ) )
+                // Detect joined drivers...
+                
+                if ( oldIdVSIMap.remove( id ) == null )
                 {
-                    Integer pf = nameDuplicatesMap.get( id );
-                    if ( pf == null )
-                        pf = 2;
-                    vehicleScoringInfoCapsules[i].postfixDriverName( String.valueOf( pf ), -1 );
-                    //Logger.log( vehicleScoringInfoCapsules[i].getDriverName() );
-                    nameDuplicatesMap.put( id, pf.intValue() + 1 );
-                    id = vehicleScoringInfoCapsules[i].refreshID( false );
-                }
-                
-                //Logger.log( "Found data for " + vehicleScoringInfoCapsules[i].getDriverName() + ", assigned id " + id + "." );
-                idCapsuleMap.put( id, vehicleScoringInfoCapsules[i] );
-            }
-            
-            int firstFree = 0;
-            
-            if ( oldNumVehicles > 0 )
-            {
-                int j = oldNumVehicles - 1;
-                int n2 = Math.max( n, oldNumVehicles );
-                for ( int i = 0; i < n2; i++ )
-                {
-                    VehicleScoringInfo vsi = vehicleScoringInfo[i];
-                    if ( vsi.getDriverId() > 0 )
+                    RFDHLog.debug( "[DEBUG]: Player joined: ", vsi.getDriverName(), ", id = ", id, ", index = ", i, ", fastest lap: " + TimingUtil.getTimeAsLaptimeString( vsi.getBestLapTime() ) );
+                    
+                    //if ( vsi.getBestLapTime() > 0f )
                     {
-                        vsi.data = idCapsuleMap.remove( vsi.getDriverID() );
+                        Laptime lt = new Laptime( vsi.getDriverId(), 0, -1f, -1f, -1f, false, false, true );
+                        lt.laptime = vsi.getBestLapTime();
+                        vsi.setFastestLaptime( lt );
                         
-                        if ( vsi.data == null )
+                        // TODO: Only for rejoins actually.
+                        for ( int j = 0; j < vsi.laptimes.size(); j++ )
                         {
-                            // player left
-                            
-                            changedVSIs.add( new Object[] { -1, vsi.getDriverID() } );
-                            
-                            RFDHLog.debug( "[DEBUG]: ", vsi.getDriverName(), " left the game." );
-                            
-                            leftVSICache.put( vsi.getDriverID(), vsi );
-                            if ( j > 0 ) // Shouldn't be possible, but...
+                            lt = vsi.laptimes.get( j );
+                            if ( lt != null )
                             {
-                                vehicleScoringInfo[i] = vehicleScoringInfo[j];
-                                vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
-                                i--;
-                                j--;
+                                lt.sector1 = -1f;
+                                lt.sector2 = -1f;
+                                lt.sector3 = -1f;
+                                lt.laptime = -1f;
                             }
                         }
-                        else
-                        {
-                            //Logger.log( "Assigned data for " + vsi.data.getDriverName() + " to index " + i + "." );
-                        }
+                    }
+                    
+                    //changedVSIs.add( new Object[] { +1, vsi } );
+                }
+            }
+            
+            // Detect left drivers...
+            
+            for ( Map.Entry<Integer, VehicleScoringInfo> leftVSI : oldIdVSIMap.entrySet() )
+            {
+                RFDHLog.debug( "[DEBUG]: ", leftVSI.getValue().getOldDriverName(), " left the game." );
+                
+                for ( int i = 0; i < updateListeners.length; i++ )
+                {
+                    try
+                    {
+                        updateListeners[i].onPlayerLeft( gameData, leftVSI.getKey() );
+                    }
+                    catch ( Throwable t )
+                    {
+                        RFDHLog.exception( t );
                     }
                 }
                 
-                firstFree = j + 1;
+                //changedVSIs.add( new Object[] { -1, leftVSI.getValue().getDriverID() } );
             }
+            
+            
+            /*
+            int firstFree = 0;
             
             if ( idCapsuleMap.size() > 0 )
             {
@@ -313,7 +275,7 @@ public class ScoringInfo
                     
                     if ( vsi == null )
                     {
-                        vsi = vehicleScoringInfo[firstFree++];
+                        vsi = vehicleScoringInfoCache[firstFree++];
                         vsi.data = data;
                         vsi.setDriverName( data.getOriginalName(), data.getDriverName(), joinedID );
                         
@@ -330,7 +292,7 @@ public class ScoringInfo
                     }
                     else
                     {
-                        vehicleScoringInfo[firstFree++] = vsi;
+                        vehicleScoringInfoCache[firstFree++] = vsi;
                         vsi.data = data;
                         
                         RFDHLog.debug( "[DEBUG]: Player rejoined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ), ", fastest lap: " + TimingUtil.getTimeAsLaptimeString( vsi.getBestLapTime() ) );
@@ -363,23 +325,25 @@ public class ScoringInfo
                     }
                 }
             }
+            */
             
+            /*
             idCapsuleMap.clear();
             
             // Check for errors and do a workaround...
             int somethingWrong = 0;
             for ( int i = 0; i < n; i++ )
             {
-                if ( vehicleScoringInfo[i] == null )
+                if ( vehicleScoringInfoCache[i] == null )
                 {
                     somethingWrong++;
-                    vehicleScoringInfo[i] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
-                    vehicleScoringInfo[i].data = gdFactory.newVehicleScoringInfoCapsule( gameData );
+                    vehicleScoringInfoCache[i] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
+                    vehicleScoringInfoCache[i].data = gdFactory.newVehicleScoringInfoCapsule( gameData );
                 }
-                else if ( vehicleScoringInfo[i].data == null )
+                else if ( vehicleScoringInfoCache[i].data == null )
                 {
                     somethingWrong++;
-                    vehicleScoringInfo[i].data = gdFactory.newVehicleScoringInfoCapsule( gameData );
+                    vehicleScoringInfoCache[i].data = gdFactory.newVehicleScoringInfoCapsule( gameData );
                 }
             }
             
@@ -387,12 +351,15 @@ public class ScoringInfo
             {
                 RFDHLog.printlnEx( "WARNING: Something went wrong when initializing VehicleScoringInfos. Had to add " + somethingWrong + " instances. numVehicles = " + n + ", old = " + oldNumVehicles );
             }
+            */
             
-            System.arraycopy( vehicleScoringInfo, 0, vehicleScoringInfo2, 0, n );
+            /*
+            System.arraycopy( vehicleScoringInfoCache, 0, vehicleScoringInfo, 0, n );
             
             //for ( int i = n; i < vehicleScoringInfo.length; i++ )
             for ( int i = n; i < oldNumVehicles; i++ )
-                vehicleScoringInfo[i].data = null;
+                vehicleScoringInfoCache[i].data = null;
+            */
             
             /*
             int nn = 0;
@@ -413,6 +380,7 @@ public class ScoringInfo
             RFDHLog.exception( t );
         }
         
+        /*
         if ( ( changedVSIs.size() > 0 ) && ( updateListeners != null ) )
         {
             for ( int j = 0; j < changedVSIs.size(); j++ )
@@ -441,9 +409,10 @@ public class ScoringInfo
         }
         
         changedVSIs.clear();
+        */
     }
     
-    private void resetDerivateData()
+    protected void resetDerivateData()
     {
         playerName = null;
         playerFilename = null;
@@ -463,56 +432,41 @@ public class ScoringInfo
         
         classScoringCalculated = false;
         
-        if ( vehicleScoringInfo != null )
+        if ( vehicleScoringInfoCache != null )
         {
-            for ( int i = 0; i < vehicleScoringInfo.length; i++ )
+            for ( int i = 0; i < vehicleScoringInfoCache.length; i++ )
             {
-                if ( vehicleScoringInfo[i] != null )
+                if ( vehicleScoringInfoCache[i] != null )
                 {
-                    vehicleScoringInfo[i].classLeaderVSI = null;
-                    vehicleScoringInfo[i].classNextInFrontVSI = null;
-                    vehicleScoringInfo[i].classNextBehindVSI = null;
+                    vehicleScoringInfoCache[i].resetDerivateData();
                 }
             }
         }
     }
     
-    void prepareDataUpdate()
-    {
-        lastUpdateTimestamp = System.nanoTime();
-    }
-    
     /**
-     * Sets the generator to use to generate three-letter-codes and short forms from driver names.
      * 
-     * @param tlcGenerator
+     * @param numVehicles
+     * @param userObject
+     * @param timestamp
      */
-    public void setThreeLetterCodeGenerator( ThreeLetterCodeGenerator tlcGenerator )
+    protected void prepareDataUpdate( int numVehicles, Object userObject, long timestamp )
     {
-        if ( tlcGenerator == null )
-            throw new IllegalArgumentException( "tlcGenerator must not be null." );
+        lastUpdateTimestamp = timestamp;
         
-        this.tlcGenerator = tlcGenerator;
-        ThreeLetterCodeManager.resetMaps();
+        initVehicleScoringInfo( numVehicles );
     }
     
-    /**
-     * Gets the generator to use to generate three-letter-codes and short forms from driver names.
-     * 
-     * @return the generator to use to generate three-letter-codes and short forms from driver names.
-     */
-    public final ThreeLetterCodeGenerator getThreeLetterCodeGenerator()
-    {
-        return ( tlcGenerator );
-    }
+    protected abstract void updateDataImpl( int numVehicles, Object userObject, long timestamp );
     
-    void applyEditorPresets( EditorPresets editorPresets )
+    protected void applyEditorPresets( EditorPresets editorPresets )
     {
         if ( editorPresets == null )
             return;
         
-        for ( int i = 0; i < getNumVehicles(); i++ )
-            getVehicleScoringInfo( i ).applyEditorPresets( editorPresets );
+        final int n = getNumVehicles();
+        for ( int i = 0; i < n; i++ )
+            getVehicleScoringInfo( i ).applyEditorPresets( i, editorPresets );
         
         FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.applyEditorPresets( gameData, editorPresets );
     }
@@ -576,29 +530,50 @@ public class ScoringInfo
         }
     }
     
+    /**
+     * Increments the update ID.
+     */
+    protected void onDataUpdated()
+    {
+        this.updateId++;
+    }
+    
     private GamePhase lastGamePhase = null;
     
-    void onDataUpdated( EditorPresets editorPresets )
+    protected void executeOnVSIDataUpdated( long timestamp )
+    {
+        for ( int i = 0; i < numVehicles; i++ )
+            vehicleScoringInfo[i].onDataUpdated( timestamp );
+    }
+    
+    /**
+     * @param numVehicles
+     * @param userObject
+     * @param timestamp
+     * @param editorPresets
+     */
+    protected void onDataUpdated( int numVehicles, Object userObject, long timestamp, EditorPresets editorPresets )
     {
         try
         {
-            this.updatedInTimeScope = true;
-            this.updateId++;
-            this.updateTimestamp = System.nanoTime();
-            this.gamePausedCache = gameData.isGamePaused();
-            
-            this.sessionBaseNanos = Math.round( data.getSessionTime() * 1000000000.0 );
-            updateSessionTime( updateTimestamp );
-            
-            Arrays.sort( vehicleScoringInfo2, VehicleScoringInfo.VSIPlaceComparator.INSTANCE );
-            
             resetDerivateData();
             
-            int n = getNumVehicles();
-            for ( int i = 0; i < n; i++ )
-            {
-                getVehicleScoringInfo( i ).updateSomeData();
-            }
+            executeOnVSIDataUpdated( timestamp );
+            
+            checkVSIs( numVehicles, userObject );
+            
+            Arrays.sort( vehicleScoringInfo, VehicleScoringInfo.VSIPlaceComparator.INSTANCE );
+            
+            this.updatedInTimeScope = true;
+            this.updateId++;
+            this.updateTimestamp = timestamp;
+            this.gamePausedCache = gameData.isGamePaused();
+            
+            this.sessionBaseNanos = Math.round( getSessionTimeImpl() * 1000000000.0 );
+            updateSessionTime( updateTimestamp );
+            
+            for ( int i = 0; i < numVehicles; i++ )
+                vehicleScoringInfo[i].updateSomeData();
             
             applyEditorPresets( editorPresets );
             
@@ -609,16 +584,14 @@ public class ScoringInfo
                 updateRaceLengthPercentage( editorPresets != null );
                 rlpUpdated = true;
                 
-                for ( int i = 0; i < n; i++ )
-                {
-                    getVehicleScoringInfo( i ).onSessionStarted();
-                }
+                for ( int i = 0; i < numVehicles; i++ )
+                    vehicleScoringInfo[i].onSessionStarted();
                 
                 this.sessionJustStarted = 0;
                 lastGamePhase = null;
             }
             
-            if ( ( getNumVehicles() > 0 ) && getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
+            if ( ( numVehicles > 0 ) && getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
             {
                 updateRaceLengthPercentage( editorPresets != null );
                 rlpUpdated = true;
@@ -646,12 +619,6 @@ public class ScoringInfo
                     }
                 }
             }
-            
-            if ( eventsManager != null )
-            {
-                eventsManager.checkRaceRestart( updateTimestamp );
-                eventsManager.checkAndFireOnLapStarted( editorPresets != null );
-            }
         }
         catch ( Throwable t )
         {
@@ -659,14 +626,50 @@ public class ScoringInfo
         }
     }
     
+    protected void updateData( int numVehicles, Object userObject, long timestamp )
+    {
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            prepareDataUpdate( numVehicles, userObject, timestamp );
+            
+            updateDataImpl( numVehicles, userObject, timestamp );
+            
+            onDataUpdated( numVehicles, userObject, timestamp, null );
+        }
+    }
+    
+    /**
+     * Sets the generator to use to generate three-letter-codes and short forms from driver names.
+     * 
+     * @param tlcGenerator
+     */
+    public void setThreeLetterCodeGenerator( ThreeLetterCodeGenerator tlcGenerator )
+    {
+        if ( tlcGenerator == null )
+            throw new IllegalArgumentException( "tlcGenerator must not be null." );
+        
+        this.tlcGenerator = tlcGenerator;
+        ThreeLetterCodeManager.resetMaps();
+    }
+    
+    /**
+     * Gets the generator to use to generate three-letter-codes and short forms from driver names.
+     * 
+     * @return the generator to use to generate three-letter-codes and short forms from driver names.
+     */
+    public final ThreeLetterCodeGenerator getThreeLetterCodeGenerator()
+    {
+        return ( tlcGenerator );
+    }
+    
     /**
      * 
      * @param isEditorMode
      */
-    final void onSessionStarted( boolean isEditorMode )
+    final void onSessionStarted( long timestamp, boolean isEditorMode )
     {
         this.sessionId++;
-        this.sessionStartTimestamp = System.nanoTime();
+        this.sessionStartTimestamp = timestamp;
         this.sessionBaseNanos = 0L;
         this.sessionRunning = true;
         this.sessionJustStarted = 1;
@@ -675,16 +678,20 @@ public class ScoringInfo
         this.raceLengthPercentage = 1.0; // We don't know it better now!
     }
     
-    final void onSessionEnded()
+    /**
+     * 
+     * @param timestamp
+     */
+    final void onSessionEnded( long timestamp )
     {
         this.sessionRunning = false;
         this.updatedInTimeScope = false;
         
-        if ( vehicleScoringInfo != null )
+        if ( vehicleScoringInfoCache != null )
         {
-            for ( int i = 0; i < vehicleScoringInfo.length; i++ )
+            for ( int i = 0; i < vehicleScoringInfoCache.length; i++ )
             {
-                vehicleScoringInfo[i].onSessionEnded();
+                vehicleScoringInfoCache[i].onSessionEnded();
             }
         }
     }
@@ -709,14 +716,18 @@ public class ScoringInfo
         return ( sessionStartTimestamp );
     }
     
-    final void onRealtimeEntered()
+    final void onRealtimeEntered( long timestamp )
     {
-        this.realtimeEnteredTimestamp = System.nanoTime();
+        this.realtimeEnteredTimestamp = timestamp;
         this.realtimeEnteredId++;
         this.updatedInTimeScope = true;
     }
     
-    final void onRealtimeExited()
+    /**
+     * 
+     * @param timestamp
+     */
+    final void onRealtimeExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
@@ -771,6 +782,16 @@ public class ScoringInfo
     }
     
     /**
+     * Gets the system nano time for the last data update.
+     * 
+     * @return the system nano time for the last data update.
+     */
+    public final long getUpdateTimestamp()
+    {
+        return ( updateTimestamp );
+    }
+    
+    /**
      * This Session ID is incremented every time, a new session is started.
      * 
      * @return a session ID unique for each started session.
@@ -778,90 +799,6 @@ public class ScoringInfo
     public final int getSessionId()
     {
         return ( sessionId );
-    }
-    
-    void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
-    {
-        prepareDataUpdate();
-        
-        data.loadFromStream( in );
-        
-        initVehicleScoringInfo();
-        
-        for ( int i = 0; i < numVehicles; i++ )
-        {
-            vehicleScoringInfoCapsules[i].loadFromStream( in );
-        }
-        
-        assignVSICapsules();
-        
-        applyEditorPresets( editorPresets );
-        
-        for ( int i = 0; i < numVehicles; i++ )
-        {
-            vehicleScoringInfo2[i].onDataUpdated();
-        }
-        
-        onDataUpdated( editorPresets );
-        
-        // Add postfixes to some vehicles' classes to get valid class-scoring in the editor.
-        String classA = "F1 2006";
-        String classB = "F1 2006B";
-        vehicleScoringInfo2[0].setVehClass( classA );
-        vehicleScoringInfo2[1].setVehClass( classB );
-        vehicleScoringInfo2[2].setVehClass( classA );
-        vehicleScoringInfo2[3].setVehClass( classB );
-        vehicleScoringInfo2[4].setVehClass( classA );
-        vehicleScoringInfo2[5].setVehClass( classA );
-        vehicleScoringInfo2[6].setVehClass( classB );
-        vehicleScoringInfo2[7].setVehClass( classB );
-        vehicleScoringInfo2[8].setVehClass( classA );
-        vehicleScoringInfo2[9].setVehClass( classA );
-        vehicleScoringInfo2[10].setVehClass( classA );
-        vehicleScoringInfo2[11].setVehClass( classA );
-        vehicleScoringInfo2[12].setVehClass( classA );
-        vehicleScoringInfo2[13].setVehClass( classB );
-        vehicleScoringInfo2[14].setVehClass( classA );
-        vehicleScoringInfo2[15].setVehClass( classA );
-        vehicleScoringInfo2[16].setVehClass( classA );
-        vehicleScoringInfo2[17].setVehClass( classA );
-        vehicleScoringInfo2[18].setVehClass( classB );
-        vehicleScoringInfo2[19].setVehClass( classA );
-        vehicleScoringInfo2[20].setVehClass( classA );
-        vehicleScoringInfo2[21].setVehClass( classA );
-    }
-    
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        prepareDataUpdate();
-        
-        data.loadFromStream( in );
-        
-        initVehicleScoringInfo();
-        
-        for ( int i = 0; i < numVehicles; i++ )
-        {
-            vehicleScoringInfoCapsules[i].loadFromStream( in );
-        }
-        
-        assignVSICapsules();
-        
-        for ( int i = 0; i < numVehicles; i++ )
-        {
-            vehicleScoringInfo2[i].onDataUpdated();
-        }
-        
-        onDataUpdated( null );
-    }
-    
-    public void writeToStream( OutputStream out ) throws IOException
-    {
-        data.writeToStream( out );
-        
-        for ( int i = 0; i < numVehicles; i++ )
-        {
-            vehicleScoringInfoCapsules[i].writeToStream( out );
-        }
     }
     
     /**
@@ -874,7 +811,7 @@ public class ScoringInfo
         return ( raceLengthPercentage );
     }
     
-    private final HashSet<Integer> handledClassIDs = new HashSet<Integer>();
+    private final Set<Integer> handledClassIDs = new HashSet<Integer>();
     
     final void updateClassScoring()
     {
@@ -954,11 +891,18 @@ public class ScoringInfo
      * 
      * @return the current track name.
      */
+    protected abstract String getTrackNameImpl();
+    
+    /**
+     * Gets the current track name.
+     * 
+     * @return the current track name.
+     */
     public final String getTrackName()
     {
         if ( trackName == null )
         {
-            trackName = data.getTrackName();
+            trackName = getTrackNameImpl();
         }
         
         return ( trackName );
@@ -969,10 +913,7 @@ public class ScoringInfo
      * 
      * @return current session type.
      */
-    public final SessionType getSessionType()
-    {
-        return ( data.getSessionType() );
-    }
+    public abstract SessionType getSessionType();
     
     final void updateSessionTime( long timestamp )
     {
@@ -1028,9 +969,16 @@ public class ScoringInfo
     }
     
     /**
-     * Gets current session time.
+     * Gets current session time in seconds.
      * 
-     * @return current session time.
+     * @return current session time in seconds.
+     */
+    protected abstract float getSessionTimeImpl();
+    
+    /**
+     * Gets current session time in seconds.
+     * 
+     * @return current session time in seconds.
      */
     public final float getSessionTime()
     {
@@ -1045,20 +993,14 @@ public class ScoringInfo
      * 
      * @return session ending time.
      */
-    public final float getEndTime()
-    {
-        return ( data.getEndTime() );
-    }
+    public abstract float getEndTime();
     
     /**
      * Gets maximum laps.
      * 
      * @return maximum laps.
      */
-    public final int getMaxLaps()
-    {
-        return ( data.getMaxLaps() );
-    }
+    public abstract int getMaxLaps();
     
     /**
      * Gets the estimated max laps based on the session end time and average lap time.
@@ -1082,15 +1024,29 @@ public class ScoringInfo
      * 
      * @return the distance around track.
      */
+    protected abstract float getTrackLengthImpl();
+    
+    /**
+     * Gets the distance around track.
+     * 
+     * @return the distance around track.
+     */
     public final float getTrackLength()
     {
         if ( trackLength < 0f )
         {
-            trackLength = data.getTrackLength();
+            trackLength = getTrackLengthImpl();
         }
         
         return ( trackLength );
     }
+    
+    /**
+     * Gets the current number of vehicles.
+     * 
+     * @return the current number of vehicles.
+     */
+    protected abstract int getNumVehiclesImpl();
     
     /**
      * Gets the current number of vehicles.
@@ -1102,8 +1058,8 @@ public class ScoringInfo
         if ( sessionJustStarted == 1 )
             return ( 0 );
         
-        if ( numVehicles == -1 )
-            numVehicles = data.getNumVehicles();
+        //if ( numVehicles == -1 )
+        //    numVehicles = getNumVehiclesImpl();
         
         return ( numVehicles );
     }
@@ -1117,15 +1073,16 @@ public class ScoringInfo
      */
     public final int getNumVehiclesInSameClass( VehicleScoringInfo vsi )
     {
-        int n = 0;
+        int nc = 0;
         
-        for ( int i = 0; i < getNumVehicles(); i++ )
+        final int n = getNumVehicles();
+        for ( int i = 0; i < n; i++ )
         {
             if ( getVehicleScoringInfo( i ).getVehicleClassId() == vsi.getVehicleClassId() )
-                n++;
+                nc++;
         }
         
-        return ( n );
+        return ( nc );
     }
     
     /**
@@ -1133,20 +1090,14 @@ public class ScoringInfo
      * 
      * @return the current game phase.
      */
-    public final GamePhase getGamePhase()
-    {
-        return ( data.getGamePhase() );
-    }
+    public abstract GamePhase getGamePhase();
     
     /**
      * Gets the current yellow flag state (applies to full-course only).
      * 
      * @return the current yellow flag state.
      */
-    public final YellowFlagState getYellowFlagState()
-    {
-        return ( data.getYellowFlagState() );
-    }
+    public abstract YellowFlagState getYellowFlagState();
     
     /**
      * Gets whether there are any local yellows at the moment in the sector.
@@ -1155,40 +1106,65 @@ public class ScoringInfo
      * 
      * @return whether there are any local yellows at the moment in the sector
      */
-    public final boolean getSectorYellowFlag( int sector )
-    {
-        return ( data.getSectorYellowFlag( sector ) );
-    }
+    public abstract boolean getSectorYellowFlag( int sector );
     
     /**
      * Gets the current start light frame (number depends on track).
      * 
+     * @see #getNumStartingLights()
+     * 
      * @return the current start light frame.
      */
-    public final int getStartLightFrame()
-    {
-        return ( data.getStartLightFrame() );
-    }
+    public abstract int getStartLightFrame();
+    
+    /**
+     * Gets the number of lights in start sequence.
+     * 
+     * @see #getStartLightFrame()
+     * 
+     * @return the number of lights in start sequence.
+     */
+    public abstract int getNumStartingLights();
     
     /**
      * Gets the number of red lights in start sequence.
      * 
+     * @deprecated replaced by {@link #getNumStartingLights()}
+     * 
      * @return the number of red lights in start sequence.
      */
+    @Deprecated
     public final int getNumRedLights()
     {
-        return ( data.getNumRedLights() );
+        return ( getNumStartingLights() );
     }
+    
+    /**
+     * Gets whether we're in the cockpit as opposed to at the monitor.
+     * 
+     * @return whether we're in the cockpit as opposed to at the monitor.
+     */
+    public abstract boolean isInCockpit();
     
     /**
      * Gets whether we're in realtime as opposed to at the monitor.
      * 
      * @return whether we're in realtime as opposed to at the monitor.
+     * 
+     * @deprecated replaced by {@link #isInCockpit()}
      */
+    @Deprecated
     public final boolean isInRealtimeMode()
     {
-        return ( data.isInRealtimeMode() );
+        return ( isInCockpit() );
     }
+    
+    /**
+     * Gets the player name (including possible multiplayer override).
+     * 
+     * @return the player name.
+     */
+    protected abstract String getPlayerNameImpl();
     
     /**
      * Gets the player name (including possible multiplayer override).
@@ -1199,7 +1175,7 @@ public class ScoringInfo
     {
         if ( playerName == null )
         {
-            playerName = data.getPlayerName();
+            playerName = getPlayerNameImpl();
         }
         
         return ( playerName );
@@ -1210,11 +1186,18 @@ public class ScoringInfo
      * 
      * @return the player's filename.
      */
+    protected abstract String getPlayerFilenameImpl();
+    
+    /**
+     * Gets the player's filename (PLR) (may be encoded to be a legal filename).
+     * 
+     * @return the player's filename.
+     */
     public final String getPlayerFilename()
     {
         if ( playerFilename == null )
         {
-            playerFilename = data.getPlayerFilename();
+            playerFilename = getPlayerFilenameImpl();
         }
         
         return ( playerFilename );
@@ -1225,30 +1208,22 @@ public class ScoringInfo
      * 
      * @return cloud darkness? 0.0-1.0
      */
-    public final float getCloudDarkness()
-    {
-        return ( data.getCloudDarkness() );
-    }
+    public abstract float getCloudDarkness();
     
     /**
      * Gets raining severity 0.0-1.0
      * 
      * @return raining severity 0.0-1.0
      */
-    public final float getRainingSeverity()
-    {
-        return ( data.getRainingSeverity() );
-    }
+    public abstract float getRainingSeverity();
     
     /**
-     * Gets ambient temperature (Celsius)
+     * Gets ambient temperature (Kelvin)
      * 
-     * @return ambient temperature (Celsius)
+     * @return ambient temperature (Kelvin)
      */
-    public final float getAmbientTemperatureK()
-    {
-        return ( data.getAmbientTemperature() + Convert.ZERO_KELVIN );
-    }
+    public abstract float getAmbientTemperatureK();
+//        return ( data.getAmbientTemperature() - Convert.ZERO_KELVIN );
     
     /**
      * Gets ambient temperature (Celsius)
@@ -1257,7 +1232,7 @@ public class ScoringInfo
      */
     public final float getAmbientTemperatureC()
     {
-        return ( data.getAmbientTemperature() );
+        return ( getAmbientTemperatureK() + Convert.ZERO_KELVIN );
     }
     
     /**
@@ -1267,7 +1242,7 @@ public class ScoringInfo
      */
     public final float getAmbientTemperatureF()
     {
-        return ( Convert.celsius2Fahrehheit( data.getAmbientTemperature() ) );
+        return ( Convert.celsius2Fahrehheit( getAmbientTemperatureC() ) );
     }
     
     /**
@@ -1284,14 +1259,12 @@ public class ScoringInfo
     }
     
     /**
-     * Gets track temperature (Celsius)
+     * Gets track temperature (Kelvin)
      * 
-     * @return track temperature (Celsius)
+     * @return track temperature (Kelvin)
      */
-    public final float getTrackTemperatureK()
-    {
-        return ( data.getTrackTemperature() + Convert.ZERO_KELVIN );
-    }
+    public abstract float getTrackTemperatureK();
+//        return ( data.getTrackTemperature() - Convert.ZERO_KELVIN );
     
     /**
      * Gets track temperature (Celsius)
@@ -1300,7 +1273,7 @@ public class ScoringInfo
      */
     public final float getTrackTemperatureC()
     {
-        return ( data.getTrackTemperature() );
+        return ( getTrackTemperature() + Convert.ZERO_KELVIN );
     }
     
     /**
@@ -1310,7 +1283,7 @@ public class ScoringInfo
      */
     public final float getTrackTemperatureF()
     {
-        return ( Convert.celsius2Fahrehheit( data.getTrackTemperature() ) );
+        return ( Convert.celsius2Fahrehheit( getTrackTemperatureC() ) );
     }
     
     /**
@@ -1331,23 +1304,33 @@ public class ScoringInfo
      * 
      * @param speed output buffer
      */
-    public final void getWindSpeedMS( TelemVect3 speed )
-    {
-        data.getWindSpeed( speed );
-    }
+    public abstract void getWindSpeedMS( TelemVect3 speed );
     
     /**
      * Gets wind speed in km/h.
      * 
      * @param speed output buffer
      */
+    public final void getWindSpeedKmh( TelemVect3 speed )
+    {
+        getWindSpeedMS( speed );
+        
+        speed.x *= SpeedUnits.Convert.MS_TO_KMH;
+        speed.y *= SpeedUnits.Convert.MS_TO_KMH;
+        speed.z *= SpeedUnits.Convert.MS_TO_KMH;
+    }
+    
+    /**
+     * Gets wind speed in km/h.
+     * 
+     * @param speed output buffer
+     * 
+     * @deprecated replaced by {@link #getWindSpeedKmh(TelemVect3)}
+     */
+    @Deprecated
     public final void getWindSpeedKph( TelemVect3 speed )
     {
-        data.getWindSpeed( speed );
-        
-        speed.x *= SpeedUnits.Convert.MPS_TO_KPH;
-        speed.y *= SpeedUnits.Convert.MPS_TO_KPH;
-        speed.z *= SpeedUnits.Convert.MPS_TO_KPH;
+        getWindSpeedKmh( speed );
     }
     
     /**
@@ -1355,13 +1338,26 @@ public class ScoringInfo
      * 
      * @param speed output buffer
      */
+    public final void getWindSpeedMih( TelemVect3 speed )
+    {
+        getWindSpeedMS( speed );
+        
+        speed.x *= SpeedUnits.Convert.MS_TO_MIH;
+        speed.y *= SpeedUnits.Convert.MS_TO_MIH;
+        speed.z *= SpeedUnits.Convert.MS_TO_MIH;
+    }
+    
+    /**
+     * Gets wind speed in mi/h.
+     * 
+     * @param speed output buffer
+     * 
+     * @deprecated replaced by {@link #getWindSpeedMih(TelemVect3)}
+     */
+    @Deprecated
     public final void getWindSpeedMph( TelemVect3 speed )
     {
-        data.getWindSpeed( speed );
-        
-        speed.x *= SpeedUnits.Convert.MPS_TO_MPH;
-        speed.y *= SpeedUnits.Convert.MPS_TO_MPH;
-        speed.z *= SpeedUnits.Convert.MPS_TO_MPH;
+        getWindSpeedMih( speed );
     }
     
     /**
@@ -1371,10 +1367,10 @@ public class ScoringInfo
      */
     public final void getWindSpeed( TelemVect3 speed )
     {
-        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
-            getWindSpeedMph( speed );
+        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MIH )
+            getWindSpeedMih( speed );
         else
-            getWindSpeedKph( speed );
+            getWindSpeedKmh( speed );
     }
     
     /**
@@ -1382,20 +1378,14 @@ public class ScoringInfo
      * 
      * @return wetness on main path 0.0-1.0
      */
-    public final float getOnPathWetness()
-    {
-        return ( data.getOnPathWetness() );
-    }
+    public abstract float getOnPathWetness();
     
     /**
      * Gets wetness off main path 0.0-1.0
      * 
      * @return wetness off main path 0.0-1.0
      */
-    public final float getOffPathWetness()
-    {
-        return ( data.getOffPathWetness() );
-    }
+    public abstract float getOffPathWetness();
     
     /**
      * Gets the i-th vehicle scoring info.
@@ -1413,7 +1403,7 @@ public class ScoringInfo
         if ( i >= getNumVehicles() )
             throw new IllegalArgumentException( "There is no vehicle with the index " + i + ". There are only " + getNumVehicles() + " vehicles." );
         
-        return ( vehicleScoringInfo2[i] );
+        return ( vehicleScoringInfo[i] );
     }
     
     /**
@@ -1433,7 +1423,7 @@ public class ScoringInfo
         if ( vsis.length < n )
             throw new ArrayIndexOutOfBoundsException( "vsis array too small (" + vsis.length + " < " + n + ")." );
         
-        System.arraycopy( vehicleScoringInfo2, 0, vsis, 0, n );
+        System.arraycopy( vehicleScoringInfo, 0, vsis, 0, n );
         
         return ( n );
     }
@@ -1463,9 +1453,9 @@ public class ScoringInfo
             int n = getNumVehicles();
             for ( short i = 0; i < n; i++ )
             {
-                if ( vehicleScoringInfo2[i].isPlayer() )
+                if ( vehicleScoringInfo[i].isPlayer() )
                 {
-                    playerVSI = vehicleScoringInfo2[i];
+                    playerVSI = vehicleScoringInfo[i];
                     break;
                 }
             }
@@ -1484,6 +1474,8 @@ public class ScoringInfo
     {
         this.controlledViewedVSI = controlledViewedVSI;
     }
+    
+    protected abstract VehicleScoringInfo getViewedVehicleScoringInfoImpl();
     
     /**
      * Gets the viewed's VehicleScroingInfo (this is just a guess, but should be correct).
@@ -1506,9 +1498,9 @@ public class ScoringInfo
             {
                 for ( short i = 0; i < n; i++ )
                 {
-                    if ( vehicleScoringInfo2[i].getDriverId() == controlledId )
+                    if ( vehicleScoringInfo[i].getDriverId() == controlledId )
                     {
-                        viewedVSI = vehicleScoringInfo2[i];
+                        viewedVSI = vehicleScoringInfo[i];
                         return ( viewedVSI );
                     }
                 }
@@ -1520,17 +1512,7 @@ public class ScoringInfo
         if ( fixedViewedVSI )
             return ( getPlayersVehicleScoringInfo() );
         
-        GraphicsInfo gi = gameData.getGraphicsInfo();
-        
-        //if ( !gi.isUpdatedInRealtimeMode() )
-        //    return ( getPlayersVehicleScoringInfo() );
-        
-        if ( viewedVSI == null )
-        {
-            viewedVSI = gi.getViewedVehicleScoringInfo();
-        }
-        
-        return ( viewedVSI );
+        return ( getViewedVehicleScoringInfoImpl() );
     }
     
     /**
@@ -1554,15 +1536,15 @@ public class ScoringInfo
     {
         if ( fastestSector1VSI == null )
         {
-            fastestSector1VSI = vehicleScoringInfo2[0];
+            fastestSector1VSI = vehicleScoringInfo[0];
             float fs = fastestSector1VSI.getBestSector1();
             
-            for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
+            for ( int i = 1; i < vehicleScoringInfo.length; i++ )
             {
-                float fs_ = vehicleScoringInfo2[i].getBestLapTime();
+                float fs_ = vehicleScoringInfo[i].getBestLapTime();
                 if ( ( fs_ > 0f ) && ( fs_ < fs ) )
                 {
-                    fastestSector1VSI = vehicleScoringInfo2[i];
+                    fastestSector1VSI = vehicleScoringInfo[i];
                     fs = fs_;
                 }
             }
@@ -1580,15 +1562,15 @@ public class ScoringInfo
     {
         if ( fastestSector2VSI == null )
         {
-            fastestSector2VSI = vehicleScoringInfo2[0];
+            fastestSector2VSI = vehicleScoringInfo[0];
             float fs = fastestSector2VSI.getBestSector2( false );
             
-            for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
+            for ( int i = 1; i < vehicleScoringInfo.length; i++ )
             {
-                float fs_ = vehicleScoringInfo2[i].getBestSector2( false );
+                float fs_ = vehicleScoringInfo[i].getBestSector2( false );
                 if ( ( fs_ > 0f ) && ( fs_ < fs ) )
                 {
-                    fastestSector2VSI = vehicleScoringInfo2[i];
+                    fastestSector2VSI = vehicleScoringInfo[i];
                     fs = fs_;
                 }
             }
@@ -1606,15 +1588,15 @@ public class ScoringInfo
     {
         if ( fastestSector3VSI == null )
         {
-            fastestSector3VSI = vehicleScoringInfo2[0];
+            fastestSector3VSI = vehicleScoringInfo[0];
             float fs = fastestSector3VSI.getBestSector3();
             
-            for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
+            for ( int i = 1; i < vehicleScoringInfo.length; i++ )
             {
-                float fs_ = vehicleScoringInfo2[i].getBestSector3();
+                float fs_ = vehicleScoringInfo[i].getBestSector3();
                 if ( ( fs_ > 0f ) && ( fs_ < fs ) )
                 {
-                    fastestSector3VSI = vehicleScoringInfo2[i];
+                    fastestSector3VSI = vehicleScoringInfo[i];
                     fs = fs_;
                 }
             }
@@ -1659,12 +1641,12 @@ public class ScoringInfo
             {
                 // VehicleScoringInfos are sorted by place, which is the same as by laptime in non-race sessions.
                 
-                fastestLapVSI = vehicleScoringInfo2[0];
+                fastestLapVSI = vehicleScoringInfo[0];
                 
                 //if ( ( vehicleScoringInfo2.length > 1 ) && ( vehicleScoringInfo2[1].getBestLapTime() > 0f ) )
-                if ( ( vehicleScoringInfo2.length > 1 ) && ( vehicleScoringInfo2[1].getFastestLaptime() != null ) )
+                if ( ( vehicleScoringInfo.length > 1 ) && ( vehicleScoringInfo[1].getFastestLaptime() != null ) )
                 {
-                    secondFastestLapVSI = vehicleScoringInfo2[1];
+                    secondFastestLapVSI = vehicleScoringInfo[1];
                 }
                 
                 //RFDHLog.debug( TimingUtil.getTimeAsLaptimeString( getSessionTime() ) + ", " + fastestLapVSI.getLapsCompleted() + ": " + fastestLapVSI + ", " + fastestLapVSI.getFastestLaptime() );
@@ -1672,53 +1654,53 @@ public class ScoringInfo
             }
             
             int i0;
-            for ( i0 = 0; i0 < vehicleScoringInfo2.length; i0++ )
+            for ( i0 = 0; i0 < vehicleScoringInfo.length; i0++ )
             {
-                Laptime lt_ = vehicleScoringInfo2[i0].getFastestLaptime();
+                Laptime lt_ = vehicleScoringInfo[i0].getFastestLaptime();
                 if ( ( lt_ != null ) && ( lt_.getLapTime() > 0f ) && lt_.isFinished() )
                     break;
             }
             
-            if ( i0 == vehicleScoringInfo2.length )
+            if ( i0 == vehicleScoringInfo.length )
             {
-                fastestLapVSI = vehicleScoringInfo2[0];
+                fastestLapVSI = vehicleScoringInfo[0];
                 
-                if ( vehicleScoringInfo2.length > 1 )
-                    secondFastestLapVSI = vehicleScoringInfo2[1];
+                if ( vehicleScoringInfo.length > 1 )
+                    secondFastestLapVSI = vehicleScoringInfo[1];
             }
             else
             {
-                fastestLapVSI = vehicleScoringInfo2[i0];
+                fastestLapVSI = vehicleScoringInfo[i0];
                 Laptime lt = fastestLapVSI.getFastestLaptime();
                 
-                for ( int i = i0 + 1; i < vehicleScoringInfo2.length; i++ )
+                for ( int i = i0 + 1; i < vehicleScoringInfo.length; i++ )
                 {
-                    Laptime lt_ = vehicleScoringInfo2[i].getFastestLaptime();
+                    Laptime lt_ = vehicleScoringInfo[i].getFastestLaptime();
                     if ( ( lt_ != null ) && ( lt_.getLapTime() < lt .getLapTime() ) )
                     {
                         secondFastestLapVSI = fastestLapVSI;
-                        fastestLapVSI = vehicleScoringInfo2[i];
+                        fastestLapVSI = vehicleScoringInfo[i];
                         lt = lt_;
                     }
                 }
                 
-                if ( ( secondFastestLapVSI == null ) && ( vehicleScoringInfo2.length > i0 ) )
+                if ( ( secondFastestLapVSI == null ) && ( vehicleScoringInfo.length > i0 ) )
                 {
                     Laptime lt2 = null;
                     
-                    for ( int i = i0 + 1; i < vehicleScoringInfo2.length; i++ )
+                    for ( int i = i0 + 1; i < vehicleScoringInfo.length; i++ )
                     {
-                        Laptime lt_ = vehicleScoringInfo2[i].getFastestLaptime();
+                        Laptime lt_ = vehicleScoringInfo[i].getFastestLaptime();
                         if ( lt_ != null )
                         {
                             if ( secondFastestLapVSI == null )
                             {
-                                secondFastestLapVSI = vehicleScoringInfo2[i];
+                                secondFastestLapVSI = vehicleScoringInfo[i];
                                 lt2 = secondFastestLapVSI.getFastestLaptime();
                             }
                             else if ( ( lt2 == null ) || ( lt_.getLapTime() < lt2.getLapTime() ) )
                             {
-                                secondFastestLapVSI = vehicleScoringInfo2[i];
+                                secondFastestLapVSI = vehicleScoringInfo[i];
                                 lt2 = lt_;
                             }
                         }
@@ -1773,12 +1755,11 @@ public class ScoringInfo
         return ( controlledCompareVSI );
     }
     
-    ScoringInfo( LiveGameData gameData, _LiveGameDataObjectsFactory gdFactory, GameEventsManager eventsManager )
+    protected ScoringInfo( LiveGameData gameData )
     {
         this.gameData = gameData;
-        this.gdFactory = gdFactory;
-        this.data = gdFactory.newScoringInfoCapsule( gameData );
-        this.eventsManager = eventsManager;
+        this.gdFactory = gameData.getGameDataObjectsFactory();
+//gdFactory.newVehicleScoringInfo( gameData ); // We need to call this to initialize the capsule class early to trick the invoked JVM.
         
         this.tlcGenerator = AbstractThreeLetterCodeGenerator.initThreeLetterCodeGenerator( gameData.getFileSystem().getPluginINI().getGeneralThreeLetterCodeGeneratorClass() );
         

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,30 +17,50 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
-import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.Track;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
-import net.ctdp.rfdynhud.util.RFDHLog;
-
-import org.jagatoo.util.strings.StringUtils;
 
 /**
  * Model of the currently used track
  * 
  * @author Marvin Froehlich
  */
-public class _rf2_TrackInfo extends TrackInfo
+class _rf2_TrackInfo extends TrackInfo
 {
+    @SuppressWarnings( "unused" )
+    private final _rf2_ProfileInfo profileInfo;
+    
     private String trackName = null;
     private int raceLaps = -1;
     private File aiwFile = null;
     private Track lastTrack = null;
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isValid()
+    {
+        // TODO
+        /*
+        if ( getTrackFolder() == null )
+            return ( false );
+        
+        if ( getSceneFile() == null )
+            return ( false );
+        
+        if ( !getSceneFile().exists() )
+            return ( false );
+        
+        return ( true );
+        */
+        
+        return ( false );
+    }
+    
+    /*
     private static Object[] checkGDB( File gdb, String trackname )
     {
         Object[] result = new Object[] { "N/A", -1 };
@@ -109,6 +129,7 @@ public class _rf2_TrackInfo extends TrackInfo
         
         return ( result );
     }
+    */
     
     /*
     private static Object[] searchTrackFolder( File parentDir, String trackname )
@@ -133,6 +154,7 @@ public class _rf2_TrackInfo extends TrackInfo
     }
     */
     
+    /*
     private void readTrackHeader( File trackFolder, String trackname )
     {
         if ( ( trackFolder == null ) || !trackFolder.exists() )
@@ -159,6 +181,7 @@ public class _rf2_TrackInfo extends TrackInfo
             }
         }
     }
+    */
     
     /**
      * {@inheritDoc}
@@ -178,8 +201,11 @@ public class _rf2_TrackInfo extends TrackInfo
      * {@inheritDoc}
      */
     @Override
-    protected void updateImpl( File sceneFile )
+    protected void updateImpl()
     {
+        /*
+        File sceneFile = profileInfo.getLastUsedSceneFile();
+        
         if ( sceneFile == null )
         {
             reset();
@@ -192,6 +218,7 @@ public class _rf2_TrackInfo extends TrackInfo
             return;
         
         this.trackFolder = trackFolder;
+        */
         
         this.trackName = null;
         this.raceLaps = -1;
@@ -208,7 +235,8 @@ public class _rf2_TrackInfo extends TrackInfo
     {
         if ( trackName == null )
         {
-            readTrackHeader( trackFolder, null );
+            // TODO
+            //readTrackHeader( getTrackFolder(), null );
         }
         
         return ( trackName );
@@ -222,50 +250,19 @@ public class _rf2_TrackInfo extends TrackInfo
     {
         if ( raceLaps < 0 )
         {
-            readTrackHeader( trackFolder, null );
+            // TODO
+            //readTrackHeader( getTrackFolder(), null );
         }
         
         return ( raceLaps );
     }
     
-    /**
-     * <p>
-     * Finds the AIW file for the given track.
-     * </p>
-     * WARNING:<br>
-     * This operation may take a long time.
-     * 
-     * @param trackFolder
-     * 
-     * @return the AIW file for the given track.
-     */
-    private static File findAIWFile( File trackFolder )
-    {
-        if ( trackFolder == null )
-            return ( null );
-        
-        File aiw = null;
-        for ( File f : trackFolder.listFiles() )
-        {
-            if ( !f.isDirectory() && f.getName().toUpperCase().endsWith( ".AIW" ) )
-            {
-                aiw = f;
-                break;
-            }
-        }
-        
-        return ( aiw );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public File getAIWFile()
     {
         if ( aiwFile == null )
         {
-            aiwFile = findAIWFile( trackFolder );
+            // TODO
+            //aiwFile = findAIWFile( getTrackFolder() );
         }
         
         return ( aiwFile );
@@ -277,6 +274,7 @@ public class _rf2_TrackInfo extends TrackInfo
     @Override
     public final Track getTrack()
     {
+        /*
         if ( lastTrack == null )
         {
             File aiw = getAIWFile();
@@ -286,7 +284,7 @@ public class _rf2_TrackInfo extends TrackInfo
                 this.aiwFile = aiw;
                 try
                 {
-                    this.lastTrack = Track.parseTrackFromAIW( aiw );
+                    this.lastTrack = _rf2_AIWParser.parseTrackFromAIW( aiw );
                 }
                 catch ( IOException e )
                 {
@@ -295,6 +293,7 @@ public class _rf2_TrackInfo extends TrackInfo
                 }
             }
         }
+        */
         
         return ( lastTrack );
     }
@@ -304,8 +303,10 @@ public class _rf2_TrackInfo extends TrackInfo
      * 
      * @param profileInfo
      */
-    public _rf2_TrackInfo( ProfileInfo profileInfo )
+    public _rf2_TrackInfo( _rf2_ProfileInfo profileInfo )
     {
         super( profileInfo );
+        
+        this.profileInfo = profileInfo;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -254,7 +254,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     
     private static final String getSpeedUnits( SpeedUnits speedUnits )
     {
-        if ( speedUnits == SpeedUnits.MPH )
+        if ( speedUnits == SpeedUnits.MIH )
             return ( Loc.velocity_units_IMPERIAL );
         
         return ( Loc.velocity_units_METRIC );

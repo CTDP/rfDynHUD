@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,8 +39,8 @@ public class LiveGameData
     private boolean gamePaused = false;
     private boolean realtimeMode = false;
     
-    private final VehiclePhysics physics = new VehiclePhysics();
-    private final VehicleSetup setup = new VehicleSetup();
+    private final VehiclePhysics physics;
+    private final VehicleSetup setup;
     
     private final TelemetryData telemetryData;
     private final ScoringInfo scoringInfo;
@@ -281,7 +281,12 @@ public class LiveGameData
         return ( gamePaused );
     }
     
-    void onSessionStarted2( boolean isEditorMode )
+    /**
+     * 
+     * @param timestamp
+     * @param isEditorMode
+     */
+    void onSessionStarted2( long timestamp, boolean isEditorMode )
     {
         if ( updateListeners != null )
         {
@@ -299,7 +304,7 @@ public class LiveGameData
         }
     }
     
-    void setRealtimeMode( boolean realtimeMode, boolean isEditorMode )
+    void setRealtimeMode( boolean realtimeMode, long timestamp, boolean isEditorMode )
     {
         boolean was = this.realtimeMode;
         
@@ -322,9 +327,9 @@ public class LiveGameData
                 }
             }
             
-            getTelemetryData().onRealtimeEntered();
-            getScoringInfo().onRealtimeEntered();
-            getSetup().onRealtimeEntered();
+            getTelemetryData().onRealtimeEntered( timestamp );
+            getScoringInfo().onRealtimeEntered( timestamp );
+            getSetup().onRealtimeEntered( timestamp );
         }
         else if ( was && !realtimeMode )
         {
@@ -343,9 +348,9 @@ public class LiveGameData
                 }
             }
             
-            getTelemetryData().onRealtimeExited();
-            getScoringInfo().onRealtimeExited();
-            getSetup().onRealtimeExited();
+            getTelemetryData().onRealtimeExited( timestamp );
+            getScoringInfo().onRealtimeExited( timestamp );
+            getSetup().onRealtimeExited( timestamp );
         }
     }
     
@@ -469,31 +474,32 @@ public class LiveGameData
     /**
      * Creates an instance of LiveGameData.
      * 
-     * @param gameId
-     * @param gameResolution
      * @param eventsManager
+     * @param gdFactory
      */
-    public LiveGameData( String gameId, GameResolution gameResolution, GameEventsManager eventsManager )
+    public LiveGameData( GameEventsManager eventsManager, _LiveGameDataObjectsFactory gdFactory )
     {
         registerDataUpdateListener( DataCache.INSTANCE );
         
-        this.gameId = gameId;
+        this.gameId = gdFactory.getGameId();
         
-        this.gdFactory = _LiveGameDataObjectsFactory.get( gameId );
+        this.gdFactory = gdFactory;
         
         this.fileSystem = gdFactory.newGameFileSystem( __UtilHelper.PLUGIN_INI );
         
-        this.gameResolution = gameResolution;
-        this.telemetryData = new TelemetryData( this, gdFactory );
-        this.scoringInfo = new ScoringInfo( this, gdFactory, eventsManager );
-        this.graphicsInfo = new GraphicsInfo( this, gdFactory );
-        this.commentaryInfo = new CommentaryRequestInfo( this, gdFactory );
+        this.gameResolution = ( eventsManager == null ) ? null : eventsManager.getWidgetsManager().getWidgetsConfiguration().getGameResolution();
+        this.physics = gdFactory.newVehiclePhysics();
+        this.setup = gdFactory.newVehicleSetup();
+        this.telemetryData = gdFactory.newTelemetryData( this );
+        this.scoringInfo = gdFactory.newScoringInfo( this );
+        this.graphicsInfo = gdFactory.newGraphicsInfo( this );
+        this.commentaryInfo = gdFactory.newCommentaryRequestInfo( this );
         
         this.profileInfo = gdFactory.newProfileInfo( this );
         this.modInfo = gdFactory.newModInfo( this );
         this.vehicleInfo = gdFactory.newVehicleInfo();
         this.trackInfo = gdFactory.newTrackInfo( this );
         
-        VehicleSetupParser.loadDefaultSetup( physics, setup );
+        gdFactory.loadVehicleSetupDefaults( this );
     }
 }

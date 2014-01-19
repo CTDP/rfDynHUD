@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -571,22 +571,22 @@ public class InputMappingsManager
                                 }
                                 else if ( action == KnownInputActions.ToggleFixedViewedVehicle )
                                 {
-                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                    if ( gameData.getScoringInfo().isInCockpit() )
                                         __GDPrivilegedAccess.toggleFixedViewedVSI( gameData.getScoringInfo() );
                                 }
                                 else if ( action == KnownInputActions.IncBoost )
                                 {
-                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                    if ( gameData.getScoringInfo().isInCockpit() )
                                         __GDPrivilegedAccess.incEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
                                 }
                                 else if ( action == KnownInputActions.DecBoost )
                                 {
-                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                    if ( gameData.getScoringInfo().isInCockpit() )
                                         __GDPrivilegedAccess.decEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
                                 }
                                 else if ( action == KnownInputActions.TempBoost )
                                 {
-                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                    if ( gameData.getScoringInfo().isInCockpit() )
                                         __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
                                 }
                                 else if ( isPluginEnabled && action.isWidgetAction() )

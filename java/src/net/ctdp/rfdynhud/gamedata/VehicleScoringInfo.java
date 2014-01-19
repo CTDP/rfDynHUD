@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
@@ -32,14 +31,13 @@ import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class VehicleScoringInfo
+public abstract class VehicleScoringInfo
 {
-    private final ScoringInfo scoringInfo;
-    private final ProfileInfo profileInfo;
-    private final LiveGameData gameData;
-       
-    _VehicleScoringInfoCapsule data = null;
+    protected final ScoringInfo scoringInfo;
+    protected final ProfileInfo profileInfo;
+    protected final LiveGameData gameData;
     
+    private String oldDriverName = null;
     private String originalName = null;
     private String name = null;
     private String nameUC = null;
@@ -79,7 +77,7 @@ public class VehicleScoringInfo
     private float stintLength = 0f;
     private int pitState = -1;
     
-    final ArrayList<Laptime> laptimes = new ArrayList<Laptime>();
+    final List<Laptime> laptimes = new ArrayList<Laptime>();
     Laptime cachedFastestNormalLaptime = null;
     Laptime cachedFastestHotLaptime = null;
     private Laptime fastestLaptime = null;
@@ -98,16 +96,49 @@ public class VehicleScoringInfo
     int engineBoostMapping = -1;
     int gear = -1000;
     
-    private static final HashMap<String, Integer> classToIDMap = new HashMap<String, Integer>();
+    private static final Map<String, Integer> classToIDMap = new HashMap<String, Integer>();
     
     public final ScoringInfo getScoringInfo()
     {
         return ( scoringInfo );
     }
     
-    public final boolean isValid()
+    public boolean isValid()
     {
-        return ( data != null );
+        return ( scoringInfo.isValid() );
+    }
+    
+    protected void resetDerivateData()
+    {
+        this.oldDriverName = name;
+        this.originalName = getDriverNameImpl();
+        this.name = originalName;
+        this.nameUC = null;
+        this.nameShort = null;
+        this.nameShortUC = null;
+        this.nameTLC = null;
+        this.nameTLCUC = null;
+        
+        this.classLeaderVSI = null;
+        this.classNextInFrontVSI = null;
+        this.classNextBehindVSI = null;
+    }
+    
+    /**
+     * Generates a <b>unique</b> ID for this vehicle.
+     * 
+     * @param index the current index into the list of {@link VehicleScoringInfo}s in {@link ScoringInfo}. This index may not stay valid after initialization.
+     * 
+     * @return a <b>unique</b> ID for this vehicle.
+     */
+    protected abstract Integer refreshIDImpl( int index );
+    
+    protected final Integer refreshID( int index )
+    {
+        this.nameID = refreshIDImpl( index );
+        this.nameId = nameID.intValue();
+        
+        return ( nameID );
     }
     
     private void updateClassID()
@@ -125,22 +156,23 @@ public class VehicleScoringInfo
         this.classID = id;
     }
     
-    void applyEditorPresets( EditorPresets editorPresets )
+    void applyEditorPresets( int index, EditorPresets editorPresets )
     {
         if ( editorPresets == null )
             return;
         
         if ( isPlayer() )
         {
+            oldDriverName = name;
             name = editorPresets.getDriverName();
             originalName = name;
-            data.setDriverName( name );
+            //setDriverName( name );
             nameUC = null;
             nameShort = null;
             nameShortUC = null;
             nameTLC = null;
             nameTLCUC = null;
-            nameID = data.refreshID( true );
+            nameID = refreshID( index );
             nameId = nameID.intValue();
         }
         
@@ -151,9 +183,9 @@ public class VehicleScoringInfo
             secondFastestLaptime = null;
             java.util.Random rnd = new java.util.Random( System.nanoTime() );
             
-            float ls1 = isPlayer() ? editorPresets.getLastSector1Time() : data.getLastSector1();
-            float ls2 = isPlayer() ? editorPresets.getLastSector2Time( false ) : data.getLastSector2() - data.getLastSector1();
-            float ls3 = isPlayer() ? editorPresets.getLastSector3Time() : data.getLastLapTime() - data.getLastSector2();
+            float ls1 = isPlayer() ? editorPresets.getLastSector1Time() : getLastSector1Impl();
+            float ls2 = isPlayer() ? editorPresets.getLastSector2Time( false ) : getLastSector2Impl() - getLastSector1Impl();
+            float ls3 = isPlayer() ? editorPresets.getLastSector3Time() : getLastLapTimeImpl() - getLastSector2Impl();
             
             for ( int l = 1; l <= lc; l++ )
             {
@@ -192,8 +224,8 @@ public class VehicleScoringInfo
             oldAverageLaptime = averageLaptime;
         }
         
-        float cs1 = isPlayer() ? editorPresets.getCurrentSector1Time() : data.getCurrentSector1();
-        float cs2 = isPlayer() ? editorPresets.getCurrentSector2Time( false ) : data.getCurrentSector2() - data.getCurrentSector1();
+        float cs1 = isPlayer() ? editorPresets.getCurrentSector1Time() : getCurrentSector1Impl();
+        float cs2 = isPlayer() ? editorPresets.getCurrentSector2Time( false ) : getCurrentSector2Impl() - getCurrentSector1Impl();
         
         if ( laptimes.size() < lc + 1 )
         {
@@ -216,8 +248,14 @@ public class VehicleScoringInfo
         topspeed = editorPresets.getTopSpeed( getPlace( false ) - 1 );
     }
     
-    void onDataUpdated()
+    /**
+     * 
+     * @param timestamp
+     */
+    protected void onDataUpdated( long timestamp )
     {
+        this.originalName = getDriverNameImpl();
+        
         place = -1;
         lapDistance = -1f;
         
@@ -245,18 +283,6 @@ public class VehicleScoringInfo
             engineBoostMapping = -1;
             gear = -1000;
         }
-    }
-    
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        data.loadFromStream( in );
-        
-        onDataUpdated();
-    }
-    
-    public void writeToStream( OutputStream out ) throws IOException
-    {
-        data.writeToStream( out );
     }
     
     private void updateStintLength()
@@ -317,7 +343,7 @@ public class VehicleScoringInfo
         lapDistance = -1f;
     }
     
-    void resetDerivateData()
+    private void resetSessionDerivateData()
     {
         stintStartLap = -1;
         oldLap = -1;
@@ -333,7 +359,7 @@ public class VehicleScoringInfo
     
     void onSessionStarted()
     {
-        resetDerivateData();
+        resetSessionDerivateData();
         
         fastestLaptime = null;
         secondFastestLaptime = null;
@@ -341,23 +367,22 @@ public class VehicleScoringInfo
     
     void onSessionEnded()
     {
-        resetDerivateData();
+        resetSessionDerivateData();
         
         fastestLaptime = null;
         secondFastestLaptime = null;
     }
     
-    void setDriverName( String originalName, String name, Integer id )
+    protected final String getOldDriverName()
     {
-        this.originalName = originalName;
-        this.name = name;
-        this.nameUC = null;
-        this.nameShort = null;
-        this.nameShortUC = null;
-        this.nameTLC = null;
-        this.nameTLCUC = null;
-        this.nameID = id;
-        this.nameId = id.intValue();
+        return ( oldDriverName );
+    }
+    
+    protected abstract String getDriverNameImpl();
+    
+    protected final String getOriginalName()
+    {
+        return ( originalName );
     }
     
     /**
@@ -372,7 +397,7 @@ public class VehicleScoringInfo
         /*
         if ( name == null )
         {
-            name = data.getDriverName();
+            name = getDriverNameImpl();
         }
         */
         
@@ -519,11 +544,18 @@ public class VehicleScoringInfo
      * 
      * @return the vehicle's name.
      */
+    protected abstract String getVehicleNameImpl();
+    
+    /**
+     * Gets the vehicle's name.
+     * 
+     * @return the vehicle's name.
+     */
     public final String getVehicleName()
     {   
         if ( vehicleName == null )
         {
-            vehicleName = data.getVehicleName();
+            vehicleName = getVehicleNameImpl();
         }
         
         return ( vehicleName );
@@ -544,10 +576,7 @@ public class VehicleScoringInfo
      * 
      * @return the number of laps completed.
      */
-    public final short getLapsCompleted()
-    {
-        return ( data.getLapsCompleted() );
-    }
+    public abstract short getLapsCompleted();
     
     /**
      * Gets the current lap index (one based).
@@ -698,20 +727,21 @@ public class VehicleScoringInfo
      * 
      * @return the current sector.
      */
-    public final byte getSector()
-    {
-        return ( data.getSector() );
-    }
+    public abstract byte getSector();
     
     /**
      * Gets the current finish status.
      * 
      * @return the current finish status.
      */
-    public final FinishStatus getFinishStatus()
-    {
-        return ( data.getFinishStatus() );
-    }
+    public abstract FinishStatus getFinishStatus();
+    
+    /**
+     * Gets the current distance around track in meters at the time of the last data update.
+     * 
+     * @return the current distance around track in meters.
+     */
+    protected abstract float getLastKnownLapDistance();
     
     /**
      * Gets the current distance around track in meters.
@@ -724,7 +754,7 @@ public class VehicleScoringInfo
         {
             //lapDistance = ( data.getLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength();
             
-            lapDistance = data.getLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime();
+            lapDistance = getLastKnownLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime();
             
             while ( lapDistance < 0f )
                 lapDistance += scoringInfo.getTrackLength();
@@ -850,20 +880,21 @@ public class VehicleScoringInfo
      * 
      * @return lateral position with respect to *very approximate* "center" path.
      */
-    public final float getPathLateral()
-    {
-        return ( data.getPathLateral() );
-    }
+    public abstract float getPathLateral();
     
     /**
      * Gets track edge (w.r.t. "center" path) on same side of track as vehicle.
      * 
      * @return track edge (w.r.t. "center" path) on same side of track as vehicle.
      */
-    public final float getTrackEdge()
-    {
-        return ( data.getTrackEdge() );
-    }
+    public abstract float getTrackEdge();
+    
+    /**
+     * Gets the best sector 1 time. This is not necessarily the sector time of the best lap.
+     * 
+     * @return the best sector 1 time.
+     */
+    protected abstract float getBestSector1Impl();
     
     /**
      * Gets the best sector 1 time. This is not necessarily the sector time of the best lap.
@@ -875,8 +906,15 @@ public class VehicleScoringInfo
         if ( editor_fastestLaptime != null )
             return ( editor_fastestLaptime.getSector1() );
         
-        return ( data.getBestSector1() );
+        return ( getBestSector1Impl() );
     }
+    
+    /**
+     * Gets the best sector 2 time including sector1. This is not necessarily the sector time of the best lap.
+     * 
+     * @return the best sector 2 time.
+     */
+    protected abstract float getBestSector2Impl();
     
     /**
      * Gets the best sector 2 time. This is not necessarily the sector time of the best lap.
@@ -890,7 +928,7 @@ public class VehicleScoringInfo
         if ( editor_fastestLaptime != null )
             return ( editor_fastestLaptime.getSector2( includingSector1 ) );
         
-        float sec2 = data.getBestSector2();
+        float sec2 = getBestSector2Impl();
         
         if ( !includingSector1 && ( sec2 > 0f ) )
             sec2 -= getBestSector1();
@@ -903,20 +941,27 @@ public class VehicleScoringInfo
      * 
      * @return the best lap time best lap time.
      */
+    protected abstract float getBestLapTimeImpl();
+    
+    /**
+     * Gets the best lap time best lap time.
+     * 
+     * @return the best lap time best lap time.
+     */
     public final float getBestLapTime()
     {
         if ( editor_fastestLaptime != null )
             return ( editor_fastestLaptime.getLapTime() );
         
-        return ( data.getBestLapTime() );
+        return ( getBestLapTimeImpl() );
     }
     
     /**
-     * Gets the best sector 3 time. This is not necessarily the sector time of the best lap.
+     * Gets the best sector 3 time excluding sector 1 and 2. This is not necessarily the sector time of the best lap.
      * 
      * @return the best sector 3 time.
      */
-    public final float getBestSector3()
+    public float getBestSector3()
     {
         if ( editor_fastestLaptime != null )
             return ( editor_fastestLaptime.getSector3() );
@@ -933,13 +978,27 @@ public class VehicleScoringInfo
      * 
      * @return the last sector 1 time.
      */
+    protected abstract float getLastSector1Impl();
+    
+    /**
+     * Gets the last sector 1 time.
+     * 
+     * @return the last sector 1 time.
+     */
     public final float getLastSector1()
     {
         if ( editor_lastLaptime != null )
             return ( editor_lastLaptime.getSector1() );
         
-        return ( data.getLastSector1() );
+        return ( getLastSector1Impl() );
     }
+    
+    /**
+     * Gets the last sector 2 time including sector 1.
+     * 
+     * @return the last sector 2 time.
+     */
+    protected abstract float getLastSector2Impl();
     
     /**
      * Gets the last sector 2 time.
@@ -953,7 +1012,7 @@ public class VehicleScoringInfo
         if ( editor_lastLaptime != null )
             return ( editor_lastLaptime.getSector2( includingSector1 ) );
         
-        float sec2 = data.getLastSector2();
+        float sec2 = getLastSector2Impl();
         
         if ( !includingSector1 )
             sec2 -= getLastSector1();
@@ -966,12 +1025,19 @@ public class VehicleScoringInfo
      * 
      * @return the last lap time.
      */
+    protected abstract float getLastLapTimeImpl();
+    
+    /**
+     * Gets the last lap time.
+     * 
+     * @return the last lap time.
+     */
     public final float getLastLapTime()
     {
         if ( editor_lastLaptime != null )
             return ( editor_lastLaptime.getLapTime() );
         
-        return ( data.getLastLapTime() );
+        return ( getLastLapTimeImpl() );
     }
     
     /**
@@ -1005,13 +1071,27 @@ public class VehicleScoringInfo
      * 
      * @return the current sector 1 (if valid)
      */
+    protected abstract float getCurrentSector1Impl();
+    
+    /**
+     * Gets the current sector 1 (if valid).
+     * 
+     * @return the current sector 1 (if valid)
+     */
     public final float getCurrentSector1()
     {
         if ( editor_currLaptime != null )
             return ( editor_currLaptime.getSector1() );
         
-        return ( data.getCurrentSector1() );
+        return ( getCurrentSector1Impl() );
     }
+    
+    /**
+     * Gets current sector 2 time including sector 1.
+     * 
+     * @return current sector 2 time.
+     */
+    protected abstract float getCurrentSector2Impl();
     
     /**
      * Gets current sector 2 time.
@@ -1025,7 +1105,7 @@ public class VehicleScoringInfo
         if ( editor_currLaptime != null )
             return ( editor_currLaptime.getSector2( includingSector1 ) );
         
-        float sec2 = data.getCurrentSector2();
+        float sec2 = getCurrentSector2Impl();
         
         if ( !includingSector1 && ( sec2 > 0f ) )
             sec2 -= getCurrentSector1();
@@ -1056,10 +1136,7 @@ public class VehicleScoringInfo
      * 
      * @return the number of pitstops made.
      */
-    public final short getNumPitstopsMade()
-    {
-        return ( data.getNumPitstopsMade() );
-    }
+    public abstract short getNumPitstopsMade();
     
     /**
      * Gets the number of scheduled pitstops (only valid for the player).
@@ -1071,7 +1148,7 @@ public class VehicleScoringInfo
         if ( !isPlayer() )
             return ( -1 );
         
-        return ( gameData.getTelemetryData().data.getNumberOfScheduledPitstops() );
+        return ( gameData.getTelemetryData().getNumberOfScheduledPitstops() );
     }
     
     /**
@@ -1079,36 +1156,24 @@ public class VehicleScoringInfo
      * 
      * @return the number of outstanding penalties.
      */
-    public final short getNumOutstandingPenalties()
-    {
-        return ( data.getNumOutstandingPenalties() );
-    }
+    public abstract short getNumOutstandingPenalties();
     
     /**
      * @return is this the player's vehicle?
      */
-    public final boolean isPlayer()
-    {
-        return ( data.isPlayer() );
-    }
+    public abstract boolean isPlayer();
     
     /**
      * @return who's in control?
      */
-    public final VehicleControl getVehicleControl()
-    {
-        return ( data.getVehicleControl() );
-    }
+    public abstract VehicleControl getVehicleControl();
     
     /**
      * between pit entrance and pit exit (not always accurate for remote vehicles)
      * 
      * @return is this vehicle in the pit lane?
      */
-    public final boolean isInPits()
-    {
-        return ( data.isInPits() );
-    }
+    public abstract boolean isInPits();
     
     /**
      * Gets the number of vehicles in the same vehicle class.
@@ -1121,6 +1186,13 @@ public class VehicleScoringInfo
         
         return ( numVehiclesInClass );
     }
+    
+    /**
+     * 1-based position
+     * 
+     * @return 1-based position
+     */
+    protected abstract short getPlaceImpl();
     
     /**
      * 1-based position
@@ -1140,7 +1212,7 @@ public class VehicleScoringInfo
         
         if ( place < 0 )
         {
-            place = data.getPlace();
+            place = getPlaceImpl();
         }
         
         return ( place );
@@ -1211,19 +1283,25 @@ public class VehicleScoringInfo
      * 
      * @return the vehicle class.
      */
+    protected abstract String getVehicleClassImpl();
+    
+    /**
+     * Gets the vehicle class.
+     * 
+     * @return the vehicle class.
+     */
     public final String getVehicleClass()
     {
         if ( vehClass == null )
         {
-            vehClass = data.getVehicleClass();
+            vehClass = getVehicleClassImpl();
         }
         
         return ( vehClass );
     }
     
-    void setVehClass( String vehClass )
+    void setVehicleClass( String vehClass )
     {
-        //getVehicleClass();
         this.vehClass = vehClass;
     }
     
@@ -1260,6 +1338,13 @@ public class VehicleScoringInfo
     /**
      * Gets the time behind vehicle in next higher place.
      * 
+     * @return the time behind vehicle in next higher place.
+     */
+    protected abstract float getTimeBehindNextInFrontImpl();
+    
+    /**
+     * Gets the time behind vehicle in next higher place.
+     * 
      * @param byClass only consider vehicles in the same class
      * 
      * @return the time behind vehicle in next higher place.
@@ -1273,8 +1358,15 @@ public class VehicleScoringInfo
             return ( timeBehindNextByClass );
         }
         
-        return ( data.getTimeBehindNextInFront() );
+        return ( getTimeBehindNextInFrontImpl() );
     }
+    
+    /**
+     * Gets the laps behind vehicle in next higher place.
+     * 
+     * @return the laps behind vehicle in next higher place.
+     */
+    protected abstract int getLapsBehindNextInFrontImpl();
     
     /**
      * Gets the laps behind vehicle in next higher place.
@@ -1292,8 +1384,15 @@ public class VehicleScoringInfo
             return ( lapsBehindNextByClass );
         }
         
-        return ( data.getLapsBehindNextInFront() );
+        return ( getLapsBehindNextInFrontImpl() );
     }
+    
+    /**
+     * Gets the time behind leader.
+     * 
+     * @return the time behind leader.
+     */
+    protected abstract float getTimeBehindLeaderImpl();
     
     /**
      * Gets the time behind leader.
@@ -1311,8 +1410,15 @@ public class VehicleScoringInfo
             return ( timeBehindLeaderByClass );
         }
         
-        return ( data.getTimeBehindLeader() );
+        return ( getTimeBehindLeaderImpl() );
     }
+    
+    /**
+     * Gets the laps behind leader.
+     * 
+     * @return the laps behind leader.
+     */
+    protected abstract int getLapsBehindLeaderImpl();
     
     /**
      * Gets the laps behind leader.
@@ -1330,7 +1436,7 @@ public class VehicleScoringInfo
             return ( lapsBehindLeaderByClass );
         }
         
-        return ( data.getLapsBehindNextInFront() );
+        return ( getLapsBehindNextInFrontImpl() );
     }
     
     /**
@@ -1338,50 +1444,35 @@ public class VehicleScoringInfo
      * 
      * @return the time this lap was started at.
      */
-    public final float getLapStartTime()
-    {
-        return ( data.getLapStartTime() );
-    }
+    public abstract float getLapStartTime();
     
     /**
      * Gets world position in meters.
      * 
      * @param position output buffer
      */
-    public final void getWorldPosition( TelemVect3 position )
-    {
-        data.getWorldPosition( position );
-    }
+    public abstract void getWorldPosition( TelemVect3 position );
     
     /**
      * Gets world position in meters.
      * 
      * @return world position in meters.
      */
-    public final float getWorldPositionX()
-    {
-        return ( data.getWorldPositionX() );
-    }
+    public abstract float getWorldPositionX();
     
     /**
      * Gets world position in meters.
      * 
      * @return world position in meters.
      */
-    public final float getWorldPositionY()
-    {
-        return ( data.getWorldPositionY() );
-    }
+    public abstract float getWorldPositionY();
     
     /**
      * Gets world position in meters.
      * 
      * @return world position in meters.
      */
-    public final float getWorldPositionZ()
-    {
-        return ( data.getWorldPositionZ() );
-    }
+    public abstract float getWorldPositionZ();
     
     /**
      * Gets the current engine RPM.<br />
@@ -1422,7 +1513,7 @@ public class VehicleScoringInfo
      * 
      * @return the current gear or -1000, if unknown.
      */
-    public final int getCurrentGear()
+    public int getCurrentGear()
     {
         return ( gear );
     }
@@ -1432,31 +1523,47 @@ public class VehicleScoringInfo
      * 
      * @param localVel output buffer
      */
-    public final void getLocalVelocity( TelemVect3 localVel )
-    {
-        data.getLocalVelocity( localVel );
-    }
+    public abstract void getLocalVelocity( TelemVect3 localVel );
     
     /**
      * Gets velocity (meters/sec) in local vehicle coordinates.
      * 
      * @return velocity (meters/sec) in local vehicle coordinates.
      */
+    public abstract float getScalarVelocityMS();
+    
+    /**
+     * @deprecated replaced by {@link #getScalarVelocityMS()}.
+     * 
+     * @return velocity (meters/sec) in local vehicle coordinates.
+     */
+    @Deprecated
     public final float getScalarVelocityMPS()
     {
-        return ( data.getScalarVelocity() );
+        return ( getScalarVelocityMS() );
     }
     
     /**
-     * Gets velocity (mph).
+     * Gets velocity (mi/h).
      * 
-     * @return velocity (mph).
+     * @return velocity (mi/h).
      */
+    public final float getScalarVelocityMih()
+    {
+        float mps = getScalarVelocityMS();
+        
+        return ( mps * SpeedUnits.Convert.MS_TO_MIH );
+    }
+    
+    /**
+     * @deprecated replaced by {@link #getScalarVelocityMih()}.
+     * 
+     * @return velocity (mi/h).
+     */
+    @Deprecated
     public final float getScalarVelocityMPH()
     {
-        float mps = getScalarVelocityMPS();
-        
-        return ( mps * SpeedUnits.Convert.MPS_TO_MPH );
+        return ( getScalarVelocityMih() );
     }
     
     /**
@@ -1464,11 +1571,22 @@ public class VehicleScoringInfo
      * 
      * @return velocity (km/h).
      */
+    public final float getScalarVelocityKmh()
+    {
+        float mps = getScalarVelocityMS();
+        
+        return ( mps * SpeedUnits.Convert.MS_TO_KMH );
+    }
+    
+    /**
+     * @deprecated replaced by {@link #getScalarVelocityKmh()}.
+     * 
+     * @return velocity (km/h).
+     */
+    @Deprecated
     public final float getScalarVelocityKPH()
     {
-        float mps = getScalarVelocityMPS();
-        
-        return ( mps * SpeedUnits.Convert.MPS_TO_KPH );
+        return ( getScalarVelocityKmh() );
     }
     
     /**
@@ -1478,10 +1596,10 @@ public class VehicleScoringInfo
      */
     public final float getScalarVelocity()
     {
-        if ( profileInfo.getSpeedUnits() == SpeedUnits.MPH )
-            return ( getScalarVelocityMPH() );
+        if ( profileInfo.getSpeedUnits() == SpeedUnits.MIH )
+            return ( getScalarVelocityMih() );
         
-        return ( getScalarVelocityKPH() );
+        return ( getScalarVelocityKmh() );
     }
     
     /**
@@ -1499,60 +1617,63 @@ public class VehicleScoringInfo
      * 
      * @param localAccel output buffer
      */
-    public final void getLocalAcceleration( TelemVect3 localAccel )
-    {
-        data.getLocalAcceleration( localAccel );
-    }
+    public abstract void getLocalAcceleration( TelemVect3 localAccel );
     
     /**
      * top row of orientation matrix (also converts local vehicle vectors into world X using dot product)
      * 
      * @param oriX output buffer
      */
-    public final void getOrientationX( TelemVect3 oriX )
-    {
-        data.getOrientationX( oriX );
-    }
+    public abstract void getOrientationX( TelemVect3 oriX );
     
     /**
      * mid row of orientation matrix (also converts local vehicle vectors into world Y using dot product)
      * 
      * @param oriY output buffer
      */
-    public final void getOrientationY( TelemVect3 oriY )
-    {
-        data.getOrientationY( oriY );
-    }
+    public abstract void getOrientationY( TelemVect3 oriY );
     
     /**
      * bot row of orientation matrix (also converts local vehicle vectors into world Z using dot product)
      * 
      * @param oriZ output buffer
      */
-    public final void getOrientationZ( TelemVect3 oriZ )
-    {
-        data.getOrientationZ( oriZ );
-    }
+    public abstract void getOrientationZ( TelemVect3 oriZ );
     
     /**
      * rotation (radians/sec) in local vehicle coordinates
      * 
      * @param localRot output buffer
      */
-    public final void getLocalRotation( TelemVect3 localRot )
-    {
-        data.getLocalRotation( localRot );
-    }
+    public abstract void getLocalRotation( TelemVect3 localRot );
     
     /**
      * rotational acceleration (radians/sec^2) in local vehicle coordinates
      * 
      * @param localRotAccel output buffer
      */
-    public final void getLocalRotationalAcceleration( TelemVect3 localRotAccel )
-    {
-        data.getLocalRotationalAcceleration( localRotAccel );
-    }
+    public abstract void getLocalRotationalAcceleration( TelemVect3 localRotAccel );
+    
+    /**
+     * Gets the current vehicle's pit state.
+     * 
+     * @return the current vehicle's pit state or <code>null</code>, if unknown.
+     */
+    public abstract PitState getPitState();
+    
+    /**
+     * Gets the status flag, currently shown to this vehicle.
+     * 
+     * @return the status flag, currently shown to this vehicle or <code>null</code>, if unknown.
+     */
+    public abstract StatusFlag getStatusFlag();
+    
+    /**
+     * Gets a description of the currently installed vehicle upgrade pack.
+     * 
+     * @return a description of the currently installed vehicle upgrade pack or <code>null</code>, if unknown.
+     */
+    public abstract VehicleUpgradePack getUpgradePack();
     
     /**
      * {@inheritDoc}
@@ -1560,16 +1681,13 @@ public class VehicleScoringInfo
     @Override
     public String toString()
     {
-        if ( data == null )
+        if ( !isValid() )
             return ( this.getClass().getSimpleName() + " (invalid)" );
         
         return ( this.getClass().getSimpleName() + " (\"" + getDriverName() + "\", " + getDriverId() + ")" );
     }
     
-    // Future use
-    //unsigned char mExpansion[128];
-    
-    VehicleScoringInfo( ScoringInfo scoringInfo, ProfileInfo profileInfo, LiveGameData gameData )
+    protected VehicleScoringInfo( ScoringInfo scoringInfo, ProfileInfo profileInfo, LiveGameData gameData )
     {
         this.scoringInfo = scoringInfo;
         this.profileInfo = profileInfo;

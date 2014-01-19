@@ -5,6 +5,7 @@
 
 void deleteLogFile( const char* PLUGIN_FOLDER );
 
+void logg( const char* message, const bool newLine );
 void logg( const char* message );
 
 bool launchEditor( const char* PLUGIN_PATH );

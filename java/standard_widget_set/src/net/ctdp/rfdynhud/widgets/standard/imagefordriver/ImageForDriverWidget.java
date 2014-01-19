@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,7 +99,7 @@ public class ImageForDriverWidget extends ImageWidget
         {
             currentViewedDriverId = viewedVSI.getDriverId();
             
-            String mapping = mappings.get( viewedVSI.getDriverName( true ) );
+            String mapping = mappings.get( viewedVSI.getDriverName( true ).trim() );
             if ( ( mapping == null ) && ( viewedVSI.getVehicleInfo() != null ) )
                 mapping = mappings.get( viewedVSI.getVehicleInfo().getDriverName().toUpperCase() );
             

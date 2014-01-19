@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * Copyright (C) 2009-2014 Cars and Tracks Development Project (CTDP).
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,12 +21,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import org.jagatoo.util.io.FileUtils;
-
 import net.ctdp.rfdynhud.util.PluginINI;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ResourceManager;
 import net.ctdp.rfdynhud.util.__UtilHelper;
+
+import org.jagatoo.util.io.FileUtils;
 
 /**
  * Model of the game's (e.g. rFactor) filesystem
@@ -40,13 +40,13 @@ public abstract class GameFileSystem
     public static final String BORDERS_FOLDER_NAME = "data/borders";
     public static final String IMAGES_FOLDER_NAME = "data/images";
     
+   // TODO: Eliminate some rFactor specific folders from here!
+    
     private final File pluginFolder = __UtilHelper.PLUGIN_FOLDER;
     private final String pluginPath = pluginFolder.getAbsolutePath();
     private final PluginINI pluginINI;
     private final File gameFolder;
     private final String gamePath;
-    private final File locationsFolder;
-    private final String locationsPath;
     private final File configFolder;
     private final String configPath;
     private final File widgetSetsFolder;
@@ -89,7 +89,22 @@ public abstract class GameFileSystem
      * 
      * @return the game's root folder.
      */
-    protected abstract File findGameFolder( PluginINI ini, File pluginFolder );
+    protected abstract File findGameFolderImpl( PluginINI ini, File pluginFolder );
+    
+    /**
+     * Called once at instantiation time to initialize the game's root folder.
+     * 
+     * @param ini the plugin's main config file
+     * 
+     * @return the game's root folder.
+     */
+    protected final File findGameFolder( PluginINI ini )
+    {
+        if ( ResourceManager.isCompleteIDEMode() )
+            return ( readDevGameFolder() );
+        
+        return ( findGameFolderImpl( ini, __UtilHelper.PLUGIN_FOLDER ) );
+    }
     
     /**
      * Called once at instantiation time to initialize the game's &quot;Locations&quot; folder.
@@ -269,26 +284,6 @@ public abstract class GameFileSystem
     }
     
     /**
-     * Gets the game's &quot;Locations&quot; folder.
-     * 
-     * @return the game's &quot;Locations&quot; folder.
-     */
-    public final File getLocationsFolder()
-    {
-        return ( locationsFolder );
-    }
-    
-    /**
-     * Gets the game's &quot;Locations&quot; folder.
-     * 
-     * @return the game's &quot;Locations&quot; folder.
-     */
-    public final String getLocationsPath()
-    {
-        return ( locationsPath );
-    }
-    
-    /**
      * Locates the current vehicle setup file.
      * 
      * @param gameData the live game data
@@ -451,15 +446,9 @@ public abstract class GameFileSystem
     {
         this.pluginINI = pluginINI;
         
-        if ( ResourceManager.isCompleteIDEMode() )
-            this.gameFolder = readDevGameFolder();
-        else
-            this.gameFolder = findGameFolder( pluginINI, pluginFolder );
+        this.gameFolder = findGameFolder( pluginINI );
         
         this.gamePath = gameFolder.getAbsolutePath();
-        
-        this.locationsFolder = findLocationsFolder( pluginINI, gameFolder );
-        this.locationsPath = locationsFolder.getAbsolutePath();
         
         this.configFolder = findConfigFolder( pluginINI, pluginFolder );
         this.configPath = configFolder.getAbsolutePath();
