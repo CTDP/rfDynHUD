@@ -16,7 +16,7 @@ RFDynHUDPluginInfo g_PluginInfo;
 
 // interface to plugin information
 extern "C" __declspec( dllexport ) const char* __cdecl GetPluginName() { return ( g_szPluginName ); }
-//extern "C" __declspec( dllexport ) unsigned __cdecl GetPluginVersion() { return ( g_uPluginVersion ); }
+extern "C" __declspec( dllexport ) unsigned __cdecl GetPluginVersion() { return ( g_uPluginVersion ); }
 extern "C" __declspec( dllexport ) unsigned __cdecl GetPluginObjectCount() { return ( g_uPluginObjectCount ); }
 
 // get the plugin-info object used to create the plugin.

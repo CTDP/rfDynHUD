@@ -1,5 +1,5 @@
-#ifndef _RF1_TELEMETRY_H
-#define _RF1_TELEMETRY_H
+#ifndef _TELEMETRY_H
+#define _TELEMETRY_H
 
 #include "InternalsPlugin.hpp"
 
@@ -80,13 +80,6 @@ class RFDynHUDPlugin : public InternalsPluginV3
     void EnableHardware() { /*mEnabled = true;*/ }             // message from game to enable hardware
     void DisableHardware() { /*mEnabled = false;*/ }           // message from game to disable hardware
     
-    // See if the plugin wants to take over a hardware control.  If the plugin takes over the
-    // control, this method returns true and sets the value of the float pointed to by the
-    // second arg.  Otherwise, it returns false and leaves the float unmodified.
-    bool CheckHWControl( const char* const controlName, float &fRetVal ) { return ( false ); }
-    
-    bool ForceFeedback( float &forceValue ) { return ( false ); }  // SEE FUNCTION BODY TO ENABLE FORCE EXAMPLE
-    
     // SCORING OUTPUT
     bool WantsScoringUpdates() { return ( true ); } // CHANGE TO TRUE TO ENABLE SCORING EXAMPLE!
     void UpdateScoring( const ScoringInfoV2 &info );
@@ -95,4 +88,4 @@ class RFDynHUDPlugin : public InternalsPluginV3
     bool RequestCommentary( CommentaryRequestInfo &info );  // SEE FUNCTION BODY TO ENABLE COMMENTARY EXAMPLE
 };
 
-#endif _RF1_TELEMETRY_H
+#endif _TELEMETRY_H

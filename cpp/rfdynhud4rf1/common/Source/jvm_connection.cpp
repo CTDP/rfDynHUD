@@ -786,7 +786,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    jclass DataAddressKeeper = env->FindClass( "net/ctdp/rfdynhud/gamedata/rfactor2/_rf1_DataAddressKeeper" );
+    jclass DataAddressKeeper = env->FindClass( "net/ctdp/rfdynhud/gamedata/rfactor1/_rf1_DataAddressKeeper" );
     
     if ( DataAddressKeeper == 0 )
     {
@@ -802,7 +802,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    jclass DataAddressKeeper2 = env->FindClass( "net/ctdp/rfdynhud/gamedata/rfactor2/_rf1_DataAddressKeeper2" );
+    jclass DataAddressKeeper2 = env->FindClass( "net/ctdp/rfdynhud/gamedata/rfactor1/_rf1_DataAddressKeeper2" );
     
     if ( DataAddressKeeper2 == 0 )
     {
