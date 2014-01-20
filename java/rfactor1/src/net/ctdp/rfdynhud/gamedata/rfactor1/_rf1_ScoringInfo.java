@@ -40,7 +40,7 @@ import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class _rf1_ScoringInfo extends ScoringInfo
+class _rf1_ScoringInfo extends ScoringInfo
 {
     private static final int OFFSET_TRACK_NAME = 0;
     private static final int MAX_TRACK_NAME_LENGTH = 64;
@@ -115,6 +115,7 @@ public class _rf1_ScoringInfo extends ScoringInfo
         }
     }
     
+    @Override
     public void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         final long now = System.nanoTime();
@@ -164,19 +165,10 @@ public class _rf1_ScoringInfo extends ScoringInfo
         }
     }
     
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        readFromStream( in, null );
-    }
-    
-    private void writeToStreamImpl( OutputStream out ) throws IOException
-    {
-        out.write( buffer, 0, BUFFER_SIZE );
-    }
-    
+    @Override
     public void writeToStream( OutputStream out ) throws IOException
     {
-        writeToStreamImpl( out );
+        out.write( buffer, 0, BUFFER_SIZE );
         
         int numVehicles = getNumVehiclesImpl();
         

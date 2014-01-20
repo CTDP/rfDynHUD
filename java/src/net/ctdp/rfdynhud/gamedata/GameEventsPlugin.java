@@ -174,9 +174,9 @@ public abstract class GameEventsPlugin
         }
     }
     
-    public abstract void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
+    public abstract void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
     
-    public abstract void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
+    public abstract void onPluginShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
     
     protected GameEventsPlugin( String name, File baseFolder )
     {

@@ -17,6 +17,10 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
@@ -91,6 +95,10 @@ public abstract class CommentaryRequestInfo
         
         gameData.unregisterDataUpdateListener( l );
     }
+    
+    public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    
+    public abstract void writeToStream( OutputStream out ) throws IOException;
     
     /**
      * Gets the system nano time for the last data update.

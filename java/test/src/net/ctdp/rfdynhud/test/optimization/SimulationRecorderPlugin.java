@@ -81,7 +81,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     }
     
     @Override
-    public void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    public void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         if ( isEditorMode )
             return;
@@ -105,7 +105,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     }
     
     @Override
-    public void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    public void onPluginShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         if ( isEditorMode )
             return;
@@ -373,7 +373,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         {
             os.write( ON_DATA_UPDATED );
             os.write( ON_DATA_UPDATED_TELEMETRY );
-            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_TelemetryData)gameData.getTelemetryData() ).writeToStream( os );
+            gameData.getTelemetryData().writeToStream( os );
         }
         catch ( IOException e )
         {
@@ -401,7 +401,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         {
             os.write( ON_DATA_UPDATED );
             os.write( ON_DATA_SCORING );
-            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_ScoringInfo)gameData.getScoringInfo() ).writeToStream( os );
+            gameData.getScoringInfo().writeToStream( os );
         }
         catch ( IOException e )
         {
@@ -513,13 +513,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
                         {
                             case ON_DATA_UPDATED_TELEMETRY:
                                 //System.out.println( "telemetry" );
-                                ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_TelemetryData)gameData.getTelemetryData() ).readFromStream( in );
+                                gameData.getTelemetryData().readFromStream( in, false );
                                 eventsManager.onTelemetryDataUpdated( null );
                                 isReady1 = true;
                                 break;
                             case ON_DATA_SCORING:
                                 //System.out.println( "scoring" );
-                                ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_ScoringInfo)gameData.getScoringInfo() ).readFromStream( in );
+                                gameData.getScoringInfo().readFromStream( in, null );
                                 eventsManager.onScoringInfoUpdated( 22, null );
                                 isReady2 = true;
                                 break;

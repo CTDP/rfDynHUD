@@ -43,7 +43,7 @@ import net.ctdp.rfdynhud.gamedata.WheelPart;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class _rf1_TelemetryData extends TelemetryData
+class _rf1_TelemetryData extends TelemetryData
 {
     private static final int OFFSET_DELTA_TIME = 0;
     private static final int OFFSET_LAP_NUMBER = OFFSET_DELTA_TIME + ByteUtil.SIZE_FLOAT;
@@ -142,13 +142,7 @@ public class _rf1_TelemetryData extends TelemetryData
         }
     }
     
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        readFromStreamImpl( in );
-        
-        onDataUpdated( null, System.nanoTime(), false );
-    }
-    
+    @Override
     public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
     {
         final long now = System.nanoTime();
@@ -160,14 +154,10 @@ public class _rf1_TelemetryData extends TelemetryData
         onDataUpdated( null, now, isEditorMode );
     }
     
-    private void writeToStreamImpl( OutputStream out ) throws IOException
-    {
-        out.write( buffer, 0, BUFFER_SIZE );
-    }
-    
+    @Override
     public void writeToStream( OutputStream out ) throws IOException
     {
-        writeToStreamImpl( out );
+        out.write( buffer, 0, BUFFER_SIZE );
     }
     
     /**

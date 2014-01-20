@@ -17,14 +17,21 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
+import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
 /**
  * 
@@ -86,6 +93,86 @@ class _rf2_ScoringInfo extends ScoringInfo
         _rf2_VehicleScoringInfo firstVSI = (_rf2_VehicleScoringInfo)getFirstVehicleScoringInfo();
         
         fetchData( numVehicles, ak.getBufferAddress(), ak.getBufferSize(), buffer, ak.getBufferAddress2(), ak.getBufferSize2(), ( firstVSI == null ) ? null : firstVSI.buffer );
+    }
+    
+    private void readFromStreamImpl( InputStream in ) throws IOException
+    {
+        int offset = 0; //bufferOffset;
+        int bytesToRead = BUFFER_SIZE;
+        
+        while ( bytesToRead > 0 )
+        {
+            int n = in.read( buffer, offset, bytesToRead );
+            
+            if ( n < 0 )
+                throw new IOException();
+            
+            offset += n;
+            bytesToRead -= n;
+        }
+    }
+    
+    @Override
+    public void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
+    {
+        final long now = System.nanoTime();
+        
+        readFromStreamImpl( in );
+        
+        int numVehicles = getNumVehiclesImpl();
+        
+        prepareDataUpdate( numVehicles, null, now );
+        
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            ( (_rf1_VehicleScoringInfo)getVehicleScoringInfo( i ) ).readFromStream( in );
+        }
+        
+        onDataUpdated( numVehicles, null, now, editorPresets );
+        
+        applyEditorPresets( editorPresets );
+        
+        if ( editorPresets != null )
+        {
+            // Add postfixes to some vehicles' classes to get valid class-scoring in the editor.
+            String classA = "F1 2006";
+            String classB = "F1 2006B";
+            __GDPrivilegedAccess.setVehicleClass( this, 0, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 1, classB );
+            __GDPrivilegedAccess.setVehicleClass( this, 2, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 3, classB );
+            __GDPrivilegedAccess.setVehicleClass( this, 4, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 5, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 6, classB );
+            __GDPrivilegedAccess.setVehicleClass( this, 7, classB );
+            __GDPrivilegedAccess.setVehicleClass( this, 8, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 9, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 10, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 11, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 12, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 13, classB );
+            __GDPrivilegedAccess.setVehicleClass( this, 14, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 15, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 16, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 17, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 18, classB );
+            __GDPrivilegedAccess.setVehicleClass( this, 19, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 20, classA );
+            __GDPrivilegedAccess.setVehicleClass( this, 21, classA );
+        }
+    }
+    
+    @Override
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        out.write( buffer, 0, BUFFER_SIZE );
+        
+        int numVehicles = getNumVehiclesImpl();
+        
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            ( (_rf1_VehicleScoringInfo)getVehicleScoringInfo( i ) ).writeToStream( out );
+        }
     }
     
     /*

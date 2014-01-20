@@ -17,6 +17,10 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -54,6 +58,41 @@ class _rf2_GraphicsInfo extends GraphicsInfo
         _rf2_DataAddressKeeper ak = (_rf2_DataAddressKeeper)userObject;
         
         fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+    }
+    
+    private void readFromStreamImpl( InputStream in ) throws IOException
+    {
+        int offset = 0;
+        int bytesToRead = BUFFER_SIZE;
+        
+        while ( bytesToRead > 0 )
+        {
+            int n = in.read( buffer, offset, bytesToRead );
+            
+            if ( n < 0 )
+                throw new IOException();
+            
+            offset += n;
+            bytesToRead -= n;
+        }
+    }
+    
+    @Override
+    public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
+    {
+        final long now = System.nanoTime();
+        
+        prepareDataUpdate( null, now );
+        
+        readFromStreamImpl( in );
+        
+        onDataUpdated( null, now, isEditorMode );
+    }
+    
+    @Override
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        out.write( buffer, 0, BUFFER_SIZE );
     }
     
     /**

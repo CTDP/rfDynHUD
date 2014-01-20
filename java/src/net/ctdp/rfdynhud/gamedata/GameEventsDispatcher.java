@@ -61,12 +61,12 @@ class GameEventsDispatcher
     }
     
     /**
-     * 
+     * @param eventsManager
      * @param isEditorMode
      * @param gameData
      * @param renderListenerManager
      */
-    public void fireOnStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager renderListenerManager )
+    public void fireOnStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager renderListenerManager )
     {
         if ( plugins != null )
         {
@@ -74,7 +74,7 @@ class GameEventsDispatcher
             {
                 try
                 {
-                    plugins[i].onPluginStarted( gameData, isEditorMode, renderListenerManager );
+                    plugins[i].onPluginStarted( eventsManager, gameData, isEditorMode, renderListenerManager );
                 }
                 catch ( Throwable t )
                 {
@@ -638,12 +638,12 @@ class GameEventsDispatcher
     }
     
     /**
-     * 
+     * @param eventsManager
      * @param isEditorMode
      * @param gameData
      * @param renderListenerManager
      */
-    public void fireOnShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager renderListenerManager )
+    public void fireOnShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager renderListenerManager )
     {
         if ( plugins != null )
         {
@@ -651,7 +651,7 @@ class GameEventsDispatcher
             {
                 try
                 {
-                    plugins[i].onPluginShutdown( gameData, isEditorMode, renderListenerManager );
+                    plugins[i].onPluginShutdown( eventsManager, gameData, isEditorMode, renderListenerManager );
                 }
                 catch ( Throwable t )
                 {

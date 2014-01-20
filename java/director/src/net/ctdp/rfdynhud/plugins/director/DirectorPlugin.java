@@ -21,8 +21,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.gamedata.GameEventsListener;
+import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameEventsPlugin;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -30,7 +33,6 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo.ScoringInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
-import net.ctdp.rfdynhud.util.ConfigurationCandidatesIterator;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -57,11 +59,12 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     private String noConfigFoundMessage = "No configuration received so far.";
     private String originalNoConfigFoundMessage = null;
     
-    private ConfigurationLoader loader = null;
-    private ConfigurationCandidatesIterator defaultCandidatesIterator = null;
-    private final NullingConfigurationCandidatesIterator candidatesIterator = new NullingConfigurationCandidatesIterator();
+    private GameEventsManager eventsManager = null;
     
-    private final HashMap<String, DirectorWidgetController> widgetControllersMap = new HashMap<String, DirectorWidgetController>();
+    private ConfigurationLoader loader = null;
+    private Iterator<File> defaultCandidatesIterator = null;
+    
+    private final Map<String, DirectorWidgetController> widgetControllersMap = new HashMap<String, DirectorWidgetController>();
     
     private LiveGameData lastGameData = null;
     private boolean isInRealtimeMode = false;
@@ -77,8 +80,10 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     }
     
     @Override
-    public void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    public void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
+        this.eventsManager = eventsManager;
+        
         this.isEditorMode = isEditorMode;
         
         if ( iniFile.exists() )
@@ -121,14 +126,14 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
         widgetsManager.registerListener( this );
         
         this.loader = widgetsManager.getConfigurationLoader();
-        this.defaultCandidatesIterator = loader.getCandidatesIterator();
+        this.defaultCandidatesIterator = eventsManager.getConfigurationCandidatesIterator();
         this.originalNoConfigFoundMessage = loader.getNoConfigFoundMessage();
         
         communicator.connect();
     }
     
     @Override
-    public void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    public void onPluginShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         if ( enabled && ( communicator != null ) )
         {
@@ -145,10 +150,8 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     {
         debug( "Connection esteblished" );
         
-        loader.setCandidatesIterator( candidatesIterator );
+        eventsManager.setConfigurationCandidatesIterator( null );
         loader.setNoConfigFoundMessage( noConfigFoundMessage );
-        loader.setDefaultLoadingEnabled( false );
-        candidatesIterator.setNulling( true );
         
         if ( lastGameData != null )
         {
@@ -158,10 +161,8 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     
     public void onConnectionClosed()
     {
-        candidatesIterator.setNulling( false );
-        loader.setDefaultLoadingEnabled( true );
         loader.setNoConfigFoundMessage( originalNoConfigFoundMessage );
-        loader.setCandidatesIterator( defaultCandidatesIterator );
+        eventsManager.setConfigurationCandidatesIterator( defaultCandidatesIterator );
     }
     
     @Override

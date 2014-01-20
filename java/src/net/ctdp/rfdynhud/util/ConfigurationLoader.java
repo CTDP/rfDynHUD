@@ -21,12 +21,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
@@ -45,7 +45,7 @@ import org.jagatoo.util.versioning.Version;
 import org.openmali.vecmath2.util.ColorUtils;
 
 /**
- * This utility class servs to load HUD configuration files.
+ * This utility class serves to load HUD configuration files.
  * 
  * @author Marvin Froehlich (CTDP)
  */
@@ -53,10 +53,7 @@ public class ConfigurationLoader implements PropertyLoader
 {
     public static final Object DEFAULT_PLACEHOLDER = "~DEFAULT~";
     
-    private ConfigurationCandidatesIterator candidatesIterator = new ConfigurationCandidatesIterator();
     private final ConfigurationLoadListener loadListener;
-    
-    private boolean defaultLoadingEnabled = true;
     
     private String noConfigFoundMessage = "Couldn't find any overlay configuration file.";
     
@@ -68,29 +65,6 @@ public class ConfigurationLoader implements PropertyLoader
     private String effectiveKey = null;
     
     private Version sourceVersion = null;
-    
-    public void setCandidatesIterator( ConfigurationCandidatesIterator it )
-    {
-        if ( it == null )
-            throw new IllegalArgumentException( "it must not be null." );
-        
-        this.candidatesIterator = it;
-    }
-    
-    public final ConfigurationCandidatesIterator getCandidatesIterator()
-    {
-        return ( candidatesIterator );
-    }
-    
-    public void setDefaultLoadingEnabled( boolean enabled )
-    {
-        this.defaultLoadingEnabled = enabled;
-    }
-    
-    public final boolean isDefaultLoadingEnabled()
-    {
-        return ( defaultLoadingEnabled );
-    }
     
     public void setNoConfigFoundMessage( String message )
     {
@@ -764,28 +738,17 @@ public class ConfigurationLoader implements PropertyLoader
     }
     
     /**
-     * Loads a configuration and searches for the file in the following order:
-     * <ul>
-     *   <li>CONFIGURATION_FOLDER/MOD_FOLDER/overlay_VEHICLE_CLASS.ini</li>
-     *   <li>CONFIGURATION_FOLDER/MOD_FOLDER/overlay.ini</li>
-     *   <li>CONFIGURATION_FOLDER/config.ini</li>
-     * </ul>
+     * Loads a configuration and searches for the file in the order, defined by the iterator.
      * Then it checks, if that file is newer than the already loaded one.
      * 
-     * @param configFolder
-     * @param smallMonitor
-     * @param bigMonitor
-     * @param isInGarage
-     * @param modName
-     * @param vehicleClass
-     * @param vehicleName
-     * @param sessionType
+     * @param candidatesIterator
      * @param widgetsConfig
      * @param gameData
      * @param isEditorMode
      * @param force
+     * @param shortBreakInvalidCondition
      */
-    void reloadConfiguration( File configFolder, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
+    public void reloadConfiguration( Iterator<File> candidatesIterator, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force, boolean shortBreakInvalidCondition )
     {
         if ( force || !widgetsConfig.isValid() )
         {
@@ -797,17 +760,13 @@ public class ConfigurationLoader implements PropertyLoader
         
         try
         {
-            if ( isDefaultLoadingEnabled() )
+            if ( candidatesIterator != null )
             {
                 RFDHLog.debug( "DEBUG: (Re-)Loading overlay configuration..." );
                 
-                ConfigurationCandidatesIterator it = getCandidatesIterator();
-                it.reset();
-                it.collectCandidates( configFolder, smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
-                
-                while ( it.hasNext() )
+                while ( candidatesIterator.hasNext() )
                 {
-                    f = it.next();
+                    f = candidatesIterator.next();
                     
                     RFDHLog.debug( "DEBUG: Trying overlay configuration file \"", f.getAbsolutePath(), "\"... ", ( f.exists() ? "found." : "not found." ) );
                     
@@ -819,14 +778,14 @@ public class ConfigurationLoader implements PropertyLoader
                 }
             }
             
-            if ( smallMonitor || bigMonitor )
+            if ( shortBreakInvalidCondition )
             {
                 __WCPrivilegedAccess.setValid( widgetsConfig, false );
                 
                 return;
             }
             
-            if ( isDefaultLoadingEnabled() || !widgetsConfig.isValid() )
+            if ( candidatesIterator != null || !widgetsConfig.isValid() )
             {
                 loadFactoryDefaults( widgetsConfig, gameData, isEditorMode );
             }

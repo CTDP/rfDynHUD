@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.gamedata.rfactor1;
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
+import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
@@ -40,6 +41,52 @@ class _rf1_GameEventsManager extends GameEventsManager
     
     private long lastSessionStartedTimestamp = -1L;
     private float lastSessionTime = 0f;
+    
+    @Override
+    protected void reloadConfigAndSetupTextureImpl( boolean force )
+    {
+        boolean isEditorMode = false;
+        
+        boolean smallMonitor = false;
+        boolean bigMonitor = false;
+        
+        if ( !gameData.isInRealtimeMode() )
+        {
+            int gameResX = widgetsManager.getWidgetsConfiguration().getGameResolution().getResX();
+            //int gameResY = widgetsManager.getWidgetsConfiguration().getGameResolution().getResY();
+            int viewportWidth = widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportWidth();
+            //int viewportHeight = widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportHeight();
+            
+            if ( (float)viewportWidth / (float)gameResX > 0.8f )
+                bigMonitor = true;
+            else
+                smallMonitor = true;
+            /*
+            if ( ( viewportWidth == gameResX ) && ( viewportHeight == gameResY ) )
+                bigMonitor = true;
+            else
+                smallMonitor = true;
+            */
+        }
+        
+        String modName = gameData.getModInfo().getName();
+        SessionType sessionType = gameData.getScoringInfo().getSessionType();
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
+        String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
+        if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
+            vehicleName = null;
+        
+        _rf1_ConfigurationCandidatesIterator candidatesIterator = (_rf1_ConfigurationCandidatesIterator)getConfigurationCandidatesIterator();
+        
+        if ( candidatesIterator != null )
+        {
+            candidatesIterator.reset();
+            candidatesIterator.collectCandidates( smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, vehicleName, sessionType );
+        }
+        
+        loader.reloadConfiguration( candidatesIterator, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force, smallMonitor || bigMonitor );
+    }
     
     @Override
     protected void onSessionStartedImpl( Object userObject, long timestamp, boolean isEditorMode )
@@ -182,6 +229,8 @@ class _rf1_GameEventsManager extends GameEventsManager
     
     _rf1_GameEventsManager( RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager, _LiveGameDataObjectsFactory gdFactory )
     {
-        super( _rf1_LiveGameDataObjectsFactory.GAME_ID, rfDynHUD, drawingManager, gdFactory );
+        super( _rf1_LiveGameDataObjectsFactory.GAME_ID, rfDynHUD, drawingManager, gdFactory, null );
+        
+        setConfigurationCandidatesIterator( new _rf1_ConfigurationCandidatesIterator( gameData.getFileSystem().getConfigFolder() ) );
     }
 }

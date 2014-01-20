@@ -1590,19 +1590,19 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             ClassLoader classLoader = RFDynHUDEditor.class.getClassLoader();
             
             InputStream in = classLoader.getResourceAsStream( "data/game_data/commentary_info" );
-            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_CommentaryRequestInfo)gameData.getCommentaryRequestInfo() ).readFromStream( in, true );
+            gameData.getCommentaryRequestInfo().readFromStream( in, true );
             in.close();
             
             in = classLoader.getResourceAsStream( "data/game_data/graphics_info" );
-            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_GraphicsInfo)gameData.getGraphicsInfo() ).readFromStream( in, true );
+            gameData.getGraphicsInfo().readFromStream( in, true );
             in.close();
             
             in = classLoader.getResourceAsStream( "data/game_data/scoring_info" );
-            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_ScoringInfo)gameData.getScoringInfo() ).readFromStream( in, editorPresets );
+            gameData.getScoringInfo().readFromStream( in, editorPresets );
             in.close();
             
             in = classLoader.getResourceAsStream( "data/game_data/telemetry_data" );
-            ( (net.ctdp.rfdynhud.gamedata.rfactor1._rf1_TelemetryData)gameData.getTelemetryData() ).readFromStream( in, true );
+            gameData.getTelemetryData().readFromStream( in, true );
             in.close();
             
             __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );

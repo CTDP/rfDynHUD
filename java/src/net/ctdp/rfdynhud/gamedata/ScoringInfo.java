@@ -17,6 +17,9 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -134,6 +137,10 @@ public abstract class ScoringInfo
         
         gameData.unregisterDataUpdateListener( l );
     }
+    
+    public abstract void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException;
+    
+    public abstract void writeToStream( OutputStream out ) throws IOException;
     
     private VehicleScoringInfo[] vehicleScoringInfoCache = null;
     private VehicleScoringInfo[] vehicleScoringInfo = null;

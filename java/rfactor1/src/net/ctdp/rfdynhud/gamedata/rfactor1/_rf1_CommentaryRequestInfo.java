@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
+class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
 {
     private static final int OFFSET_NAME = 0;
     private static final int OFFSET_INPUT1 = OFFSET_NAME + 32 * ByteUtil.SIZE_CHAR;
@@ -68,6 +68,7 @@ public class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
         }
     }
     
+    @Override
     public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
     {
         final long now = System.nanoTime();
@@ -79,19 +80,10 @@ public class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
         onDataUpdated( null, now, isEditorMode );
     }
     
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        readFromStream( in, false );
-    }
-    
-    private void writeToStreamImpl( OutputStream out ) throws IOException
-    {
-        out.write( buffer, 0, BUFFER_SIZE );
-    }
-    
+    @Override
     public void writeToStream( OutputStream out ) throws IOException
     {
-        writeToStreamImpl( out );
+        out.write( buffer, 0, BUFFER_SIZE );
     }
     
     /**

@@ -17,6 +17,9 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
+import java.util.Iterator;
+
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
@@ -26,7 +29,6 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
-import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
@@ -80,7 +82,8 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     protected final GameEventsDispatcher eventsDispatcher;
     private final WidgetsManager renderListenersManager;
     
-    private final ConfigurationLoader loader = new ConfigurationLoader( this );
+    private Iterator<File> configurationCandidatesIterator = null;
+    protected final ConfigurationLoader loader = new ConfigurationLoader( this );
     private boolean texturesRequested = false;
     
     public final LiveGameData getGameData()
@@ -101,6 +104,16 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     public final boolean hasWaitingWidgets()
     {
         return ( eventsDispatcher.hasWaitingWidgets() );
+    }
+    
+    public void setConfigurationCandidatesIterator( Iterator<File> configurationCandidatesIterator )
+    {
+        this.configurationCandidatesIterator = configurationCandidatesIterator;
+    }
+    
+    public final Iterator<File> getConfigurationCandidatesIterator()
+    {
+        return ( configurationCandidatesIterator );
     }
     
     public final ConfigurationLoader getConfigurationLoader()
@@ -183,7 +196,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     {
         this.running = true;
         
-        eventsDispatcher.fireOnStarted( gameData, isEditorMode, renderListenersManager );
+        eventsDispatcher.fireOnStarted( this, gameData, isEditorMode, renderListenersManager );
     }
     
     /**
@@ -206,7 +219,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     {
         this.running = false;
         
-        eventsDispatcher.fireOnShutdown( gameData, isEditorMode, renderListenersManager );
+        eventsDispatcher.fireOnShutdown( this, gameData, isEditorMode, renderListenersManager );
     }
     
     /**
@@ -283,46 +296,21 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     /**
      * 
      * @param force force reload ignoring, whether it is already in action?
+     */
+    protected abstract void reloadConfigAndSetupTextureImpl( boolean force );
+    
+    /**
+     * 
+     * @param force force reload ignoring, whether it is already in action?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte reloadConfigAndSetupTexture( boolean force )
+    public final byte reloadConfigAndSetupTexture( boolean force )
     {
         byte result = 1;
         
         try
         {
-            boolean isEditorMode = false;
-            
-            boolean smallMonitor = false;
-            boolean bigMonitor = false;
-            
-            if ( !gameData.isInRealtimeMode() )
-            {
-                int gameResX = widgetsManager.getWidgetsConfiguration().getGameResolution().getResX();
-                //int gameResY = widgetsManager.getWidgetsConfiguration().getGameResolution().getResY();
-                int viewportWidth = widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportWidth();
-                //int viewportHeight = widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportHeight();
-                
-                if ( (float)viewportWidth / (float)gameResX > 0.8f )
-                    bigMonitor = true;
-                else
-                    smallMonitor = true;
-                /*
-                if ( ( viewportWidth == gameResX ) && ( viewportHeight == gameResY ) )
-                    bigMonitor = true;
-                else
-                    smallMonitor = true;
-                */
-            }
-            
-            String modName = gameData.getModInfo().getName();
-            SessionType sessionType = gameData.getScoringInfo().getSessionType();
-            VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
-            String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-            String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
-            if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
-                vehicleName = null;
-            __UtilPrivilegedAccess.reloadConfiguration( loader, gameData.getFileSystem().getConfigFolder(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
+            reloadConfigAndSetupTextureImpl( force );
             
             if ( texturesRequested )
             {
@@ -1425,8 +1413,9 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * @param rfDynHUD the main {@link RFDynHUD} instance
      * @param drawingManager the widgets drawing manager
      * @param gdFactory
+     * @param configurationCandidatesIterator
      */
-    public GameEventsManager( String gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager, _LiveGameDataObjectsFactory gdFactory )
+    public GameEventsManager( String gameId, RFDynHUD rfDynHUD, WidgetsDrawingManager drawingManager, _LiveGameDataObjectsFactory gdFactory, Iterator<File> configurationCandidatesIterator )
     {
         this.rfDynHUD = rfDynHUD;
         this.widgetsManager = drawingManager;

@@ -31,7 +31,7 @@ import net.ctdp.rfdynhud.gamedata.TelemVect3;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class _rf1_GraphicsInfo extends GraphicsInfo
+class _rf1_GraphicsInfo extends GraphicsInfo
 {
     private static final int OFFSET_CAM_POS = 0;
     private static final int OFFSET_CAM_ORI = OFFSET_CAM_POS + ByteUtil.SIZE_VECTOR3F;
@@ -73,6 +73,7 @@ public class _rf1_GraphicsInfo extends GraphicsInfo
         }
     }
     
+    @Override
     public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
     {
         final long now = System.nanoTime();
@@ -84,19 +85,10 @@ public class _rf1_GraphicsInfo extends GraphicsInfo
         onDataUpdated( null, now, isEditorMode );
     }
     
-    public void readFromStream( InputStream in ) throws IOException
-    {
-        readFromStream( in, false );
-    }
-    
-    private void writeToStreamImpl( OutputStream out ) throws IOException
-    {
-        out.write( buffer, 0, BUFFER_SIZE );
-    }
-    
+    @Override
     public void writeToStream( OutputStream out ) throws IOException
     {
-        writeToStreamImpl( out );
+        out.write( buffer, 0, BUFFER_SIZE );
     }
     
     /**

@@ -17,6 +17,10 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
@@ -128,6 +132,10 @@ public abstract class TelemetryData
         
         gameData.unregisterDataUpdateListener( l );
     }
+    
+    public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    
+    public abstract void writeToStream( OutputStream out ) throws IOException;
     
     /**
      * 
