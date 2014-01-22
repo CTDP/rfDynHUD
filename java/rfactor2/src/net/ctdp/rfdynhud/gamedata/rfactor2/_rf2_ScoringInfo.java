@@ -71,12 +71,9 @@ class _rf2_ScoringInfo extends ScoringInfo
     private static final int OFFSET_ON_PATH_WETNESS = OFFSET_WIND_SPEED + ByteUtil.SIZE_VECTOR3D;
     private static final int OFFSET_OFF_PATH_WETNESS = OFFSET_ON_PATH_WETNESS + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_MOD_NAME = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_DOUBLE;
-    private static final int OFFSET_MOD_VERSION = OFFSET_MOD_NAME + ByteUtil.SIZE_CHAR * 48;
+    private static final int OFFSET_EXPANSION = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_EXPANSION = OFFSET_MOD_VERSION + ByteUtil.SIZE_CHAR * 16;
-    
-    private static final int OFFSET_VEHICLES = OFFSET_EXPANSION + ( 192 * ByteUtil.SIZE_CHAR );
+    private static final int OFFSET_VEHICLES = OFFSET_EXPANSION + ( 256 * ByteUtil.SIZE_CHAR );
     
     private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_POINTER /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
     
@@ -511,22 +508,6 @@ class _rf2_ScoringInfo extends ScoringInfo
         // double mOffPathWetness
         
         return ( (float)ByteUtil.readDouble( buffer, OFFSET_OFF_PATH_WETNESS ) );
-    }
-    
-    // TODO: Use this in ModInfo implementation!
-    public final String getModName()
-    {
-        // char mModName[48];               // name of mod
-        
-        return ( ByteUtil.readString( buffer, OFFSET_MOD_NAME, 48 ) );
-    }
-    
-    // TODO: Use this in ModInfo implementation!
-    public final String getModVersion()
-    {
-        // char mModVersion[16];            // version string of mod
-        
-        return ( ByteUtil.readString( buffer, OFFSET_MOD_VERSION, 16 ) );
     }
     
     /**
