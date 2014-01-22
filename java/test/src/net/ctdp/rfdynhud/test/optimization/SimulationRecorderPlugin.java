@@ -37,7 +37,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo.ScoringInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.TelemetryData.TelemetryDataUpdateListener;
-import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
@@ -441,9 +440,8 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         
         DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( "D:\\rfdynhud_data2" ) ) );
         
-        RFDynHUD rfDynHUD = RFDynHUD.createInstance( new _rf1_LiveGameDataObjectsFactory(), 1920, 1200 );
+        RFDynHUD rfDynHUD = RFDynHUD.createInstance( new net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory(), 1920, 1200 );
         LiveGameData gameData = rfDynHUD.getGameData();
-        //_LiveGameData_CPP_Adapter gdcpp = rfDynHUD.getGameData_CPP_Adapter();
         GameEventsManager eventsManager = rfDynHUD.getEventsManager();
         GameEventsManager.simulationMode = true;
         

@@ -224,7 +224,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     public void loadVehiclePhysics( LiveGameData gameData )
     {
         // TODO
-        //_rf2_VehiclePhysicsParser.loadFromPhysicsFiles( (_rf1_ProfileInfo)gameData.getProfileInfo(), (_rf1_TrackInfo)gameData.getTrackInfo(), (_rf1_VehiclePhysics)gameData.getPhysics() );
+        //_rf2_VehiclePhysicsParser.loadFromPhysicsFiles( (_rf2_ProfileInfo)gameData.getProfileInfo(), (_rf2_TrackInfo)gameData.getTrackInfo(), (_rf2_VehiclePhysics)gameData.getPhysics() );
     }
     
     /**

@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleUpgradePack;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class _rf1_VehicleScoringInfo extends VehicleScoringInfo
+class _rf1_VehicleScoringInfo extends VehicleScoringInfo
 {
     private static final int OFFSET_DRIVER_NAME = 0;
     private static final int MAX_DRIVER_NAME_LENGTH = 32;
@@ -233,14 +233,9 @@ public class _rf1_VehicleScoringInfo extends VehicleScoringInfo
         onDataUpdated( System.nanoTime() );
     }
     
-    private void writeToStreamImpl( OutputStream out ) throws IOException
-    {
-        out.write( buffer, buffOff, BUFFER_SIZE );
-    }
-    
     public void writeToStream( OutputStream out ) throws IOException
     {
-        writeToStreamImpl( out );
+        out.write( buffer, buffOff, BUFFER_SIZE );
     }
     
     /*

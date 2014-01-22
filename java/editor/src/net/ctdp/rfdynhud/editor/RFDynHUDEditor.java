@@ -1495,7 +1495,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     
     public void showStrategyTool()
     {
-        StrategyTool.showStrategyTool( getMainWindow() );
+        StrategyTool.showStrategyTool( getMainWindow(), gameData );
     }
     
     public void mergeDirectorConnectionString( String connectionString )

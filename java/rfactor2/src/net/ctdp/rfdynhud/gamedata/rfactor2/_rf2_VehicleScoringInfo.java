@@ -17,6 +17,10 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.FinishStatus;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -120,6 +124,35 @@ class _rf2_VehicleScoringInfo extends VehicleScoringInfo
         // Unfortunately the slot-ID is not really unique, since it gets reused after some leaves according to the API.
         
         return ( getSlotId() );
+    }
+    
+    private void readFromStreamImpl( InputStream in ) throws IOException
+    {
+        int offset = 0;
+        int bytesToRead = BUFFER_SIZE;
+        
+        while ( bytesToRead > 0 )
+        {
+            int n = in.read( buffer, buffOff + offset, bytesToRead );
+            
+            if ( n < 0 )
+                throw new IOException();
+            
+            offset += n;
+            bytesToRead -= n;
+        }
+    }
+    
+    public void readFromStream( InputStream in ) throws IOException
+    {
+        readFromStreamImpl( in );
+        
+        onDataUpdated( System.nanoTime() );
+    }
+    
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        out.write( buffer, buffOff, BUFFER_SIZE );
     }
     
     /*

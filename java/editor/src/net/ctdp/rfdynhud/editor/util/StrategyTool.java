@@ -45,7 +45,6 @@ import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 public class StrategyTool
@@ -210,10 +209,8 @@ public class StrategyTool
         return ( 3.123f );
     }
     
-    private StrategyTool( JFrame owner )
+    private StrategyTool( JFrame owner, LiveGameData gameData )
     {
-        LiveGameData gameData = new LiveGameData( null, new _rf1_LiveGameDataObjectsFactory() );
-        
         ProfileInfo profileInfo = gameData.getProfileInfo();
         __GDPrivilegedAccess.updateProfileInfo( profileInfo );
         ModInfo modInfo = gameData.getModInfo();
@@ -432,10 +429,10 @@ public class StrategyTool
         } );
     }
     
-    public static void showStrategyTool( JFrame owner )
+    public static void showStrategyTool( JFrame owner, LiveGameData gameData )
     {
         RFDHLog.printlnEx( "Opening Strategy Calculator" );
         
-        new StrategyTool( owner ).frame.setVisible( true );
+        new StrategyTool( owner, gameData ).frame.setVisible( true );
     }
 }

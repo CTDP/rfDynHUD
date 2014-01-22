@@ -26,7 +26,6 @@ import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
-import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
@@ -125,7 +124,7 @@ class _rf2_ScoringInfo extends ScoringInfo
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            ( (_rf1_VehicleScoringInfo)getVehicleScoringInfo( i ) ).readFromStream( in );
+            ( (_rf2_VehicleScoringInfo)getVehicleScoringInfo( i ) ).readFromStream( in );
         }
         
         onDataUpdated( numVehicles, null, now, editorPresets );
@@ -171,7 +170,7 @@ class _rf2_ScoringInfo extends ScoringInfo
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            ( (_rf1_VehicleScoringInfo)getVehicleScoringInfo( i ) ).writeToStream( out );
+            ( (_rf2_VehicleScoringInfo)getVehicleScoringInfo( i ) ).writeToStream( out );
         }
     }
     
