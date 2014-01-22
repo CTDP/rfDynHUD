@@ -94,8 +94,8 @@ public:
     virtual void RenderScreenBeforeOverlays( const ScreenInfoV01& info );  // before rFactor overlays
     virtual void RenderScreenAfterOverlays( const ScreenInfoV01& info );   // after rFactor overlays
     
-    virtual void PreReset( const ScreenInfoV01 &info );                    // after detecting device lost but before resetting (note: placeholder not currently called)
-    virtual void PostReset( const ScreenInfoV01 &info );                   // after resetting
+    void PreReset( const ScreenInfoV01 &info );                    // after detecting device lost but before resetting (note: placeholder not currently called)
+    void PostReset( const ScreenInfoV01 &info );                   // after resetting
     
     virtual void SetPhysicsOptions( PhysicsOptionsV01 &options );
     

@@ -125,6 +125,97 @@ bool doSanityCheck()
     return ( true );
 }
 
+bool directInputInitialized = false;
+
+bool appRunning = false;
+boolean sane = false;
+
+/**
+ * Thread A
+ */
+void RFDynHUD4rf2InternalsPlugin::Startup( long version )
+{
+    appRunning = true;
+    
+    initLogFilename( RFACTOR_PATH, PLUGIN_PATH );
+    
+    sane = false;
+    
+    if ( !doSanityCheck() )
+        return;
+    
+    if ( !directInputInitialized )
+    {
+        logg( "Initializing DirectInput..." );
+        if ( !initDirectInput( hWnd ) )
+        {
+            logg( "ERROR: DirectInput not initialized. Plugin won't work." );
+            
+            return;
+        }
+        
+        logg( "Successfully initialized DirectInput." );
+        directInputInitialized = true;
+    }
+    
+    if ( !global.jvmConn.init( PLUGIN_PATH, lastKnownScreenResolutionX, lastKnownScreenResolutionY ) )
+        return;
+    
+    sane = true;
+    
+    logg( "Starting up rfDynHUD Plugin..." );
+    
+    global.jvmConn.telemFuncs.call_onStartup();
+    
+    logg( "Successfully started up rfDynHUD Plugin." );
+}
+
+bool RFDynHUD4rf2InternalsPlugin::InitCustomControl( CustomControlInfoV01 &info )
+{
+    return ( false );
+}
+
+void RFDynHUD4rf2InternalsPlugin::Shutdown()
+{
+    if ( sane )
+    {
+        global.jvmConn.attachCurrentThread();
+        
+        logg( "Shutting down rfDynHUD Plugin..." );
+        
+        global.jvmConn.telemFuncs.call_onShutdown();
+        
+        logg( "Successfully shut down rfDynHUD Plugin." );
+        
+        if ( directInputInitialized )
+        {
+            logg( "Disposing DirectInput..." );
+            disposeDirectInput();
+            logg( "Successfully disposed DirectInput." );
+        }
+        
+        global.jvmConn.destroy();
+    }
+    
+    appRunning = false;
+}
+
+void RFDynHUD4rf2InternalsPlugin::ThreadStarted( long type )
+{
+}
+
+void RFDynHUD4rf2InternalsPlugin::ThreadStopping( long type )
+{
+    if ( type == 0 ) // multimedia
+    {
+    }
+    else if ( type == 1 ) // simulation
+    {
+        if ( sane )
+            global.jvmConn.detachCurrentThread();
+    }
+}
+
 void checkRenderModeResult( const char* source, const char result )
 {
     //logg2( "Checking result from ", source, false );
@@ -152,90 +243,14 @@ void checkRenderModeResult( const char* source, const char result )
     }
 }
 
-void RFDynHUD4rf2InternalsPlugin::ThreadStarted( long type )
-{
-}
-
-void RFDynHUD4rf2InternalsPlugin::ThreadStopping( long type )
-{
-    if ( type == 0 ) // multimedia
-    {
-    }
-    else if ( type == 1 ) // simulation
-    {
-        global.jvmConn.detachCurrentThread();
-    }
-}
-
-bool directInputInitialized = false;
-
-bool appRunning = false;
-
-/**
- * Thread A
- */
-void RFDynHUD4rf2InternalsPlugin::Startup( long version )
-{
-    initLogFilename( RFACTOR_PATH, PLUGIN_PATH );
-    
-    if ( !doSanityCheck() )
-    {
-        // TODO: Set some flags...
-    }
-    
-    appRunning = true;
-    
-    if ( !directInputInitialized )
-    {
-        logg( "Initializing DirectInput..." );
-        if ( initDirectInput( hWnd ) )
-            logg( "Successfully initialized DirectInput." );
-        else
-            logg( "ERROR: DirectInput not initialized. Plugin won't work." );
-        directInputInitialized = true;
-    }
-    
-    global.jvmConn.init( PLUGIN_PATH, lastKnownScreenResolutionX, lastKnownScreenResolutionY );
-    
-    logg( "Starting up rfDynHUD Plugin..." );
-    
-    global.jvmConn.telemFuncs.call_onStartup();
-    
-    logg( "Successfully started up rfDynHUD Plugin." );
-}
-
-bool RFDynHUD4rf2InternalsPlugin::InitCustomControl( CustomControlInfoV01 &info )
-{
-    return ( false );
-}
-
-void RFDynHUD4rf2InternalsPlugin::Shutdown()
-{
-    global.jvmConn.attachCurrentThread();
-    
-    appRunning = false;
-    
-    logg( "Shutting down rfDynHUD Plugin..." );
-    
-    global.jvmConn.telemFuncs.call_onShutdown();
-    
-    logg( "Successfully shut down rfDynHUD Plugin." );
-    
-    if ( directInputInitialized )
-    {
-        logg( "Disposing DirectInput..." );
-        disposeDirectInput();
-        logg( "Successfully disposed DirectInput." );
-    }
-    
-    global.jvmConn.destroy();
-}
-
 /**
  * Thread A
  */
 void RFDynHUD4rf2InternalsPlugin::StartSession()
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     global.isSessionRunning = true;
@@ -251,6 +266,9 @@ void RFDynHUD4rf2InternalsPlugin::StartSession()
 
 void RFDynHUD4rf2InternalsPlugin::EndSession()
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     global.jvmConn.telemFuncs.call_onSessionEnded();
@@ -269,6 +287,9 @@ void RFDynHUD4rf2InternalsPlugin::EndSession()
  */
 void RFDynHUD4rf2InternalsPlugin::EnterRealtime()
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     char result = global.jvmConn.telemFuncs.call_onRealtimeEntered();
@@ -285,6 +306,9 @@ void RFDynHUD4rf2InternalsPlugin::EnterRealtime()
  */
 void RFDynHUD4rf2InternalsPlugin::ExitRealtime()
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     global.isInRealtime = false;
@@ -304,6 +328,9 @@ const unsigned int TELEM_INFO_SIZE = sizeof( TelemInfoV01 );
  */
 void RFDynHUD4rf2InternalsPlugin::UpdateTelemetry( const TelemInfoV01& info )
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     char result = global.jvmConn.telemFuncs.call_onTelemetryDataUpdated( (void*)&info, TELEM_INFO_SIZE );
@@ -323,6 +350,9 @@ const unsigned int VEHICLE_SCORING_INFO_SIZE = sizeof( VehicleScoringInfoV01 );
  */
 void RFDynHUD4rf2InternalsPlugin::UpdateScoring( const ScoringInfoV01& info )
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     char result = global.jvmConn.telemFuncs.call_onScoringInfoUpdated( info.mNumVehicles, (void*)&info, SCORING_INFO_SIZE, (void*)(info.mVehicle), VEHICLE_SCORING_INFO_SIZE );
@@ -343,6 +373,9 @@ const unsigned int COMMENTARY_INFO_SIZE = sizeof( CommentaryRequestInfoV01 );
  */
 bool RFDynHUD4rf2InternalsPlugin::RequestCommentary( CommentaryRequestInfoV01& info )
 {
+    if ( !sane )
+        return ( false );
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     global.jvmConn.telemFuncs.call_onCommentaryRequestInfoUpdated( (void*)&info, COMMENTARY_INFO_SIZE );
@@ -362,6 +395,9 @@ const unsigned int GRAPHICS_INFO_SIZE = sizeof( GraphicsInfoV02 );
  */
 void RFDynHUD4rf2InternalsPlugin::UpdateGraphics( const GraphicsInfoV02& info )
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     global.jvmConn.telemFuncs.call_onGraphicsInfoUpdated( (void*)&info, GRAPHICS_INFO_SIZE );
@@ -431,6 +467,9 @@ void disposeD3DManager( void* device )
  */
 void RFDynHUD4rf2InternalsPlugin::InitScreen( const ScreenInfoV01& info )
 {
+    if ( !sane )
+        return;
+    
     hWnd = info.mAppWindow;
     lastKnownScreenResolutionX = info.mWidth;
     lastKnownScreenResolutionY = info.mHeight;
@@ -443,6 +482,9 @@ void RFDynHUD4rf2InternalsPlugin::InitScreen( const ScreenInfoV01& info )
  */
 void RFDynHUD4rf2InternalsPlugin::UninitScreen( const ScreenInfoV01& info )
 {
+    if ( !sane )
+        return;
+    
     //disposeD3DManager( info.mDevice );
 }
 
@@ -451,21 +493,24 @@ void RFDynHUD4rf2InternalsPlugin::UninitScreen( const ScreenInfoV01& info )
  */
 void RFDynHUD4rf2InternalsPlugin::DeactivateScreen( const ScreenInfoV01& info )
 {
+logg( ">>>>DeactivateScreen" );
     // This function is called at application start. This is unexpected and must be suppressed.
     if ( !appRunning )
         return;
     
-    /*
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
-    overlayTextureManager->release( false );
-    d3dManager->postReset(info.mDevice, info.mWidth, info.mHeight, extractColorDepthFromPixelFormat( info.mPixelFormat ), info.mWindowed, (unsigned short)info.mRefreshRate, info.mAppWindow );
+    //overlayTextureManager->release( false );
+    //d3dManager->preReset( info.mDevice );
+    //d3dManager->postReset(info.mDevice, info.mWidth, info.mHeight, extractColorDepthFromPixelFormat( info.mPixelFormat ), info.mWindowed, (unsigned short)info.mRefreshRate, info.mAppWindow );
     
     #ifdef DIRECT_THREAD_DETACH
     if ( attach )
         global.jvmConn.detachCurrentThread();
     #endif
-    */
 }
 
 /**
@@ -475,6 +520,9 @@ void RFDynHUD4rf2InternalsPlugin::ReactivateScreen( const ScreenInfoV01& info )
 {
     // This function is called at application start. This is unexpected and must be suppressed.
     if ( !appRunning )
+        return;
+    
+    if ( !sane )
         return;
     
     /*
@@ -502,6 +550,9 @@ void RFDynHUD4rf2InternalsPlugin::RenderScreenBeforeOverlays( const ScreenInfoV0
  */
 void RFDynHUD4rf2InternalsPlugin::RenderScreenAfterOverlays( const ScreenInfoV01& info )
 {
+    if ( !sane )
+        return;
+    
     bool attach = global.jvmConn.attachCurrentThread();
     
     hWnd = info.mAppWindow;
@@ -548,6 +599,9 @@ void RFDynHUD4rf2InternalsPlugin::RenderScreenAfterOverlays( const ScreenInfoV01
 void RFDynHUD4rf2InternalsPlugin::PreReset( const ScreenInfoV01 &info )
 {
 logg( ">>>>prereset" );
+    if ( !sane )
+        return;
+    
     overlayTextureManager->release( false );
     d3dManager->preReset( info.mDevice );
 }
@@ -558,6 +612,9 @@ logg( ">>>>prereset" );
 void RFDynHUD4rf2InternalsPlugin::PostReset( const ScreenInfoV01 &info )
 {
 logg( ">>>>postreset" );
+    if ( !sane )
+        return;
+    
     lastKnownScreenResolutionX = (unsigned short)info.mWidth;
     lastKnownScreenResolutionY = (unsigned short)info.mHeight;
         
