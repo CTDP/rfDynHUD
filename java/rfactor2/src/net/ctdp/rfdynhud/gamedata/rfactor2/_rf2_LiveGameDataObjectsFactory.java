@@ -17,9 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
-import java.io.File;
-import java.io.IOException;
-
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
@@ -56,6 +53,8 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     
     public static final String GAME_ID = "rFactor2";
     
+    private final String dataPath;
+    
     /**
      * {@inheritDoc}
      */
@@ -89,7 +88,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     @Override
     public GameFileSystem newGameFileSystem( PluginINI pluginIni )
     {
-        return ( new _rf2_GameFileSystem( pluginIni ) );
+        return ( new _rf2_GameFileSystem( dataPath, pluginIni ) );
     }
     
     /**
@@ -98,7 +97,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     @Override
     public ProfileInfo newProfileInfo( LiveGameData gameData )
     {
-        return ( new _rf2_ProfileInfo( gameData.getFileSystem() ) );
+        return ( new _rf2_ProfileInfo( (_rf2_GameFileSystem)gameData.getFileSystem() ) );
     }
     
     /**
@@ -123,7 +122,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleInfo newVehicleInfo()
+    public VehicleInfo newVehicleInfo( LiveGameData gameData )
     {
         return ( new _rf2_VehicleInfo() );
     }
@@ -132,7 +131,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehiclePhysics newVehiclePhysics()
+    public VehiclePhysics newVehiclePhysics( LiveGameData gameData )
     {
         return ( new _rf2_VehiclePhysics() );
     }
@@ -141,19 +140,9 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleSetup newVehicleSetup()
+    public VehicleSetup newVehicleSetup( LiveGameData gameData )
     {
         return ( new _rf2_VehicleSetup() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void parseVehicleInfo( File file, String filename, VehicleInfo info ) throws IOException
-    {
-        // TODO
-        //new _rf2_VehicleInfoParser( filename, (_rf2_VehicleInfo)info ).parse( file );
     }
     
     /**
@@ -243,5 +232,10 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     public boolean loadVehicleSetupIfChanged( LiveGameData gameData )
     {
         return ( _rf2_VehicleSetupParser.loadSetupIfChanged( gameData ) );
+    }
+    
+    public _rf2_LiveGameDataObjectsFactory( byte[] dataPath, int dataPathLength )
+    {
+        this.dataPath = new String( dataPath, 0, dataPathLength );
     }
 }

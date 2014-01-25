@@ -80,11 +80,11 @@ class _rf1_GameFileSystem extends GameFileSystem
         return ( pluginFolder.getParentFile().getAbsoluteFile() );
     }
     
-    /**
+    /*
      * {@inheritDoc}
      */
-    @Override
-    protected File findLocationsFolder( PluginINI pluginINI, File gameFolder )
+    //@Override
+    protected File findLocationsFolder( @SuppressWarnings( "unused" ) PluginINI pluginINI, @SuppressWarnings( "unused" ) File gameFolder )
     {
         return ( getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" ) );
     }
@@ -104,9 +104,13 @@ class _rf1_GameFileSystem extends GameFileSystem
     }
     
     /**
-     * {@inheritDoc}
+     * Gets an absolute path from the game's config ini file.
+     * 
+     * @param setting the setting to query
+     * @param fallback the fallback value, if the setting couldn't be read
+     * 
+     * @return the path as a File object.
      */
-    @Override
     public File getPathFromGameConfigINI( final String setting, String fallback )
     {
         File gameFolder = getGameFolder();

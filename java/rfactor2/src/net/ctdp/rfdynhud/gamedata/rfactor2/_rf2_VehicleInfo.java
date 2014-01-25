@@ -37,7 +37,8 @@ class _rf2_VehicleInfo extends VehicleInfo
         
         if ( ( playerVEHFile != null ) && playerVEHFile.exists() )
         {
-            net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess.getGameDataObjectsFactory( gameData ).parseVehicleInfo( playerVEHFile, playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() );
+            //net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess.getGameDataObjectsFactory( gameData ).parseVehicleInfo( playerVEHFile, playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() );
+            new _rf2_VehicleInfoParser( playerVEHFile.getAbsolutePath(), (_rf2_VehicleInfo)gameData.getVehicleInfo() ).parse( playerVEHFile );
         }
         */
     }

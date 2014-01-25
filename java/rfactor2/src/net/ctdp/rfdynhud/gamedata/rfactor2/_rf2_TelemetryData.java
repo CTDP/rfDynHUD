@@ -26,8 +26,10 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SurfaceType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
+import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -168,6 +170,17 @@ class _rf2_TelemetryData extends TelemetryData
         _rf2_DataAddressKeeper ak = (_rf2_DataAddressKeeper)userObject;
         
         fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+    }
+    
+    @Override
+    protected float clampEngineMaxRPMByPhysics( float maxRPM, VehiclePhysics.Engine engine )
+    {
+        // TODO: Remove this once vehicle physics are known!
+        __GDPrivilegedAccess.set( maxRPM, 0, 1, engine.getRevLimitRange() );
+        
+        //return ( engine.getRevLimitRange().clampValue( maxRPM ) );
+        
+        return ( maxRPM );
     }
     
     private void readFromStreamImpl( InputStream in ) throws IOException

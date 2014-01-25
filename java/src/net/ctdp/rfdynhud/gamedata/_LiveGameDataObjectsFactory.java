@@ -1,8 +1,5 @@
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.File;
-import java.io.IOException;
-
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.PluginINI;
@@ -32,13 +29,11 @@ public interface _LiveGameDataObjectsFactory
     
     public abstract TrackInfo newTrackInfo( LiveGameData gameData );
     
-    public abstract VehicleInfo newVehicleInfo();
+    public abstract VehicleInfo newVehicleInfo( LiveGameData gameData );
     
-    public abstract VehiclePhysics newVehiclePhysics();
+    public abstract VehiclePhysics newVehiclePhysics( LiveGameData gameData );
     
-    public abstract VehicleSetup newVehicleSetup();
-    
-    public abstract void parseVehicleInfo( File file, String filename, VehicleInfo info ) throws IOException;
+    public abstract VehicleSetup newVehicleSetup( LiveGameData gameData );
     
     public abstract CommentaryRequestInfo newCommentaryRequestInfo( LiveGameData gameData );
     

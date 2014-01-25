@@ -85,8 +85,8 @@ public:
     virtual void SetEnvironment( const EnvironmentInfoV01& info );         // may be called whenever the environment changes
     
     // SCREEN INFO NOTIFICATIONS
-    virtual void InitScreen( const ScreenInfoV01& info );                  // Track load
-    virtual void UninitScreen( const ScreenInfoV01& info );                // Track unload
+    virtual void InitScreen( const ScreenInfoV01& info );                  // Now happens right after graphics device initialization
+    virtual void UninitScreen( const ScreenInfoV01& info );                // Now happens right before graphics device uninitialization
     
     virtual void DeactivateScreen( const ScreenInfoV01& info );            // Window deactivation
     virtual void ReactivateScreen( const ScreenInfoV01& info );            // Window reactivation
@@ -94,7 +94,7 @@ public:
     virtual void RenderScreenBeforeOverlays( const ScreenInfoV01& info );  // before rFactor overlays
     virtual void RenderScreenAfterOverlays( const ScreenInfoV01& info );   // after rFactor overlays
     
-    void PreReset( const ScreenInfoV01 &info );                    // after detecting device lost but before resetting (note: placeholder not currently called)
+    void PreReset( const ScreenInfoV01 &info );                    // after detecting device lost but before resetting
     void PostReset( const ScreenInfoV01 &info );                   // after resetting
     
     virtual void SetPhysicsOptions( PhysicsOptionsV01 &options );

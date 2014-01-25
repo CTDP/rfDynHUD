@@ -488,8 +488,8 @@ public class LiveGameData
         this.fileSystem = gdFactory.newGameFileSystem( __UtilHelper.PLUGIN_INI );
         
         this.gameResolution = ( eventsManager == null ) ? null : eventsManager.getWidgetsManager().getWidgetsConfiguration().getGameResolution();
-        this.physics = gdFactory.newVehiclePhysics();
-        this.setup = gdFactory.newVehicleSetup();
+        this.physics = gdFactory.newVehiclePhysics( this );
+        this.setup = gdFactory.newVehicleSetup( this );
         this.telemetryData = gdFactory.newTelemetryData( this );
         this.scoringInfo = gdFactory.newScoringInfo( this );
         this.graphicsInfo = gdFactory.newGraphicsInfo( this );
@@ -497,7 +497,7 @@ public class LiveGameData
         
         this.profileInfo = gdFactory.newProfileInfo( this );
         this.modInfo = gdFactory.newModInfo( this );
-        this.vehicleInfo = gdFactory.newVehicleInfo();
+        this.vehicleInfo = gdFactory.newVehicleInfo( this );
         this.trackInfo = gdFactory.newTrackInfo( this );
         
         gdFactory.loadVehicleSetupDefaults( this );

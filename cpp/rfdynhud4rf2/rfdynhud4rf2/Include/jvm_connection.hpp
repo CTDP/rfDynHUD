@@ -229,7 +229,7 @@ public:
     JVMInputFunctions inputFuncs;
     JVMTelemtryUpdateFunctions telemFuncs;
     
-    bool init( const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY );
+    bool init( const char* GAME_PATH, const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY );
     
     bool attachCurrentThread();
     void detachCurrentThread();

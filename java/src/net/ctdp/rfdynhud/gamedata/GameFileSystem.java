@@ -40,8 +40,6 @@ public abstract class GameFileSystem
     public static final String BORDERS_FOLDER_NAME = "data/borders";
     public static final String IMAGES_FOLDER_NAME = "data/images";
     
-   // TODO: Eliminate some rFactor specific folders from here!
-    
     private final File pluginFolder = __UtilHelper.PLUGIN_FOLDER;
     private final String pluginPath = pluginFolder.getAbsolutePath();
     private final PluginINI pluginINI;
@@ -105,16 +103,6 @@ public abstract class GameFileSystem
         
         return ( findGameFolderImpl( ini, __UtilHelper.PLUGIN_FOLDER ) );
     }
-    
-    /**
-     * Called once at instantiation time to initialize the game's &quot;Locations&quot; folder.
-     * 
-     * @param ini the plugin's main config file
-     * @param gameFolder the game's root folder
-     * 
-     * @return the game's &quot;Locations&quot; folder.
-     */
-    protected abstract File findLocationsFolder( PluginINI ini, File gameFolder );
     
     /**
      * Called once at instantiation time to initialize the plugin's config folder.
@@ -211,16 +199,6 @@ public abstract class GameFileSystem
         
         return ( new File( pluginFolder, "editor" ).getAbsoluteFile() );
     }
-    
-    /**
-     * Gets an absolute path from the game's config ini file.
-     * 
-     * @param setting the setting to query
-     * @param fallback the fallback value, if the setting couldn't be read
-     * 
-     * @return the path as a File object.
-     */
-    public abstract File getPathFromGameConfigINI( String setting, String fallback );
     
     /**
      * Called once at instantiation time to initialize the game's screenshots folder.

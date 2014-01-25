@@ -20,7 +20,7 @@ char* readJavaHomeFromRegistry()
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.7", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
-        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1 );
         RegCloseKey( keyHandle );
         
         *((int*)buffer0) = 17;
@@ -31,7 +31,7 @@ char* readJavaHomeFromRegistry()
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.6", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
-        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1 );
         RegCloseKey( keyHandle );
         
         *((int*)buffer0) = 16;

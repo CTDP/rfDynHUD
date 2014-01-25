@@ -20,7 +20,7 @@ char* readJavaHomeFromRegistry()
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.7", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
-        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1 );
         RegCloseKey( keyHandle );
         
         *((int*)buffer0) = 17;
@@ -31,7 +31,7 @@ char* readJavaHomeFromRegistry()
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.6", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
-        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1 );
         RegCloseKey( keyHandle );
         
         *((int*)buffer0) = 16;
@@ -929,7 +929,46 @@ void JVMTelemtryUpdateFunctions::destroy()
     env = NULL;
 }
 
-bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY )
+int readDataPath( JNIEnv* env, jbyteArray buffer )
+{
+    HKEY keyHandle;
+    DWORD size;
+    DWORD Type;
+    
+    if ( RegOpenKeyEx( HKEY_CURRENT_USER, "Software\\Image Space Incorporated\\rFactor2 Mod Manager\\Packages Dir", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
+    {
+        size = MAX_PATH;
+        jboolean isCopy;
+        char* buffer2 = (char*)env->GetPrimitiveArrayCritical( buffer, &isCopy );
+        if ( RegQueryValueEx( keyHandle, "File1", NULL, &Type, (LPBYTE)buffer2, &size ) == ERROR_SUCCESS )
+        {
+            size = removeLastPathComponent( buffer2, size - 2 );
+        }
+        else
+        {
+            size = -1;
+        }
+        env->ReleasePrimitiveArrayCritical( buffer, buffer2, 0 );
+        RegCloseKey( keyHandle );
+        
+        return ( (int)size );
+    }
+    
+    return ( -1 );
+}
+
+int setDefaultDataPath( const char* GAME_PATH, JNIEnv* env, jbyteArray buffer )
+{
+    char* buffer2 = (char*)env->GetPrimitiveArrayCritical( buffer, &isCopy );
+    int length = strlen( GAME_PATH );
+    memcpy( buffer2, GAME_PATH, length );
+    memcpy( buffer2 + length, "\\UserData\0", 10 );
+    env->ReleasePrimitiveArrayCritical( buffer, buffer2, 0 );
+    
+    return ( length + 9 );
+}
+
+bool JVMConnection::init( const char* GAME_PATH, const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY )
 {
     if ( !createNewJavaVM( PLUGIN_PATH, &jvm, &env ) )
         return ( false );
@@ -944,7 +983,7 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
         return ( false );
     }
     
-    jmethodID LiveGameDataObjectsFactory_constructor = env->GetMethodID( LiveGameDataObjectsFactory, "<init>", "()V" );
+    jmethodID LiveGameDataObjectsFactory_constructor = env->GetMethodID( LiveGameDataObjectsFactory, "<init>", "([BI)V" );
     
     if ( LiveGameDataObjectsFactory_constructor == 0 )
     {
@@ -952,7 +991,16 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
         return ( false );
     }
     
-    jobject liveGameDataObjectsFactory = env->NewObject( LiveGameDataObjectsFactory, LiveGameDataObjectsFactory_constructor );
+    jbyteArray dataPathBuffer = env->NewByteArray( MAX_PATH );
+    int dataPathLength = readDataPath( env, dataPathBuffer );
+    if ( dataPathLength < 0 )
+    {
+        dataPathLength = setDefaultDataPath( GAME_PATH, env, dataPathBuffer );
+    }
+
+    jobject liveGameDataObjectsFactory = env->NewObject( LiveGameDataObjectsFactory, LiveGameDataObjectsFactory_constructor, dataPathBuffer, (jint)dataPathLength );
+    
+    env->DeleteLocalRef( dataPathBuffer );
     
     RFDynHUD = globalizeClass( env, env->FindClass( "net/ctdp/rfdynhud/RFDynHUD" ) );
     

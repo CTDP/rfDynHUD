@@ -454,7 +454,7 @@ class _rf1_ProfileInfo extends ProfileInfo
      * 
      * @param fileSystem
      */
-    public _rf1_ProfileInfo( GameFileSystem fileSystem )
+    public _rf1_ProfileInfo( _rf1_GameFileSystem fileSystem )
     {
         this.fileSystem = fileSystem;
         this.USERDATA_FOLDER = fileSystem.getPathFromGameConfigINI( "SaveDir", "UserData" );

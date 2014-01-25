@@ -17,9 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor1;
 
-import java.io.File;
-import java.io.IOException;
-
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
@@ -98,7 +95,7 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     @Override
     public ProfileInfo newProfileInfo( LiveGameData gameData )
     {
-        return ( new _rf1_ProfileInfo( gameData.getFileSystem() ) );
+        return ( new _rf1_ProfileInfo( (_rf1_GameFileSystem)gameData.getFileSystem() ) );
     }
     
     /**
@@ -123,7 +120,7 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleInfo newVehicleInfo()
+    public VehicleInfo newVehicleInfo( LiveGameData gameData )
     {
         return ( new _rf1_VehicleInfo() );
     }
@@ -132,7 +129,7 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehiclePhysics newVehiclePhysics()
+    public VehiclePhysics newVehiclePhysics( LiveGameData gameData )
     {
         return ( new _rf1_VehiclePhysics() );
     }
@@ -141,18 +138,9 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleSetup newVehicleSetup()
+    public VehicleSetup newVehicleSetup( LiveGameData gameData )
     {
         return ( new _rf1_VehicleSetup() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void parseVehicleInfo( File file, String filename, VehicleInfo info ) throws IOException
-    {
-        new _rf1_VehicleInfoParser( filename, (_rf1_VehicleInfo)info ).parse( file );
     }
     
     /**

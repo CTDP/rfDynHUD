@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.gamedata.rfactor2;
 import java.io.File;
 import java.io.FileFilter;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.input.KnownInputActions;
@@ -45,8 +44,7 @@ class _rf2_ProfileInfo extends ProfileInfo
         }
     };
     
-    private final GameFileSystem fileSystem;
-    private final File USERDATA_FOLDER;
+    private final _rf2_GameFileSystem fileSystem;
     
     private File profileFolder = null;
     private File plrFile = null;
@@ -67,7 +65,7 @@ class _rf2_ProfileInfo extends ProfileInfo
     
     private File findPLRFile()
     {
-        File[] profileCandidates = USERDATA_FOLDER.listFiles( DIRECTORY_FILE_FILTER );
+        File[] profileCandidates = fileSystem.getGameUserDataFolder().listFiles( DIRECTORY_FILE_FILTER );
         
         if ( profileCandidates == null )
             return ( null );
@@ -113,7 +111,7 @@ class _rf2_ProfileInfo extends ProfileInfo
         
         if ( plrFile == null )
         {
-            RFDHLog.error( "ERROR: No Profile with PLR file found under \"" + USERDATA_FOLDER.getAbsolutePath() + "\". Plugin unusable!" );
+            RFDHLog.error( "ERROR: No Profile with PLR file found under \"" + fileSystem.getGameUserDataFolder().getAbsolutePath() + "\". Plugin unusable!" );
             
             reset();
             return ( false );
@@ -438,10 +436,8 @@ class _rf2_ProfileInfo extends ProfileInfo
      * 
      * @param fileSystem
      */
-    public _rf2_ProfileInfo( GameFileSystem fileSystem )
+    public _rf2_ProfileInfo( _rf2_GameFileSystem fileSystem )
     {
         this.fileSystem = fileSystem;
-        //this.USERDATA_FOLDER = fileSystem.getPathFromGameConfigINI( "SaveDir", "UserData" );
-        this.USERDATA_FOLDER = new File( fileSystem.getGameFolder(), "UserData" ); // TODO: Where can we get this from in rf2?
     }
 }

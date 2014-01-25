@@ -224,6 +224,11 @@ public abstract class TelemetryData
         this.updateId++;
     }
     
+    protected float clampEngineMaxRPMByPhysics( float maxRPM, VehiclePhysics.Engine engine )
+    {
+        return ( engine.getRevLimitRange().clampValue( maxRPM ) );
+    }
+    
     /**
      * 
      * @param userObject
@@ -239,8 +244,7 @@ public abstract class TelemetryData
             this.lastUpdateTimestamp = updateTimestamp;
             this.updateTimestamp = timestamp;
             
-            float bmr = getEngineMaxRPMImpl();
-            bmr = gameData.getPhysics().getEngine().getRevLimitRange().clampValue( bmr );
+            float bmr = clampEngineMaxRPMByPhysics( getEngineMaxRPMImpl(), gameData.getPhysics().getEngine() );
             
             if ( bmr != engineBaseMaxRPM )
             {

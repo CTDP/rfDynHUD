@@ -158,7 +158,7 @@ void RFDynHUD4rf2InternalsPlugin::Startup( long version )
         directInputInitialized = true;
     }
     
-    if ( !global.jvmConn.init( PLUGIN_PATH, lastKnownScreenResolutionX, lastKnownScreenResolutionY ) )
+    if ( !global.jvmConn.init( RFACTOR_PATH, PLUGIN_PATH, lastKnownScreenResolutionX, lastKnownScreenResolutionY ) )
         return;
     
     sane = true;
@@ -463,7 +463,7 @@ void disposeD3DManager( void* device )
 }
 
 /**
- * Track load
+ * Now happens right after graphics device initialization
  */
 void RFDynHUD4rf2InternalsPlugin::InitScreen( const ScreenInfoV01& info )
 {
@@ -478,7 +478,7 @@ void RFDynHUD4rf2InternalsPlugin::InitScreen( const ScreenInfoV01& info )
 }
 
 /**
- * Track unload
+ * Now happens right before graphics device uninitialization
  */
 void RFDynHUD4rf2InternalsPlugin::UninitScreen( const ScreenInfoV01& info )
 {

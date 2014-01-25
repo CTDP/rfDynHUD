@@ -29,6 +29,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
 
 class _rf2_GameFileSystem extends GameFileSystem
 {
+    private final File gameUserDataFolder;
+    
     private static boolean isRoot( File folder )
     {
         return ( folder.getParent() == null );
@@ -57,13 +59,9 @@ class _rf2_GameFileSystem extends GameFileSystem
         return ( pluginFolder.getParentFile().getParentFile().getAbsoluteFile() );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected File findLocationsFolder( PluginINI pluginINI, File gameFolder )
+    public final File getGameUserDataFolder()
     {
-        return ( getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" ) );
+        return ( gameUserDataFolder );
     }
     
     private static File getFallbackGameConfigINIPath( File gameFolder, String fallback )
@@ -81,9 +79,13 @@ class _rf2_GameFileSystem extends GameFileSystem
     }
     
     /**
-     * {@inheritDoc}
+     * Gets an absolute path from the game's config ini file.
+     * 
+     * @param setting the setting to query
+     * @param fallback the fallback value, if the setting couldn't be read
+     * 
+     * @return the path as a File object.
      */
-    @Override
     public File getPathFromGameConfigINI( final String setting, String fallback )
     {
         File gameFolder = getGameFolder();
@@ -156,11 +158,13 @@ class _rf2_GameFileSystem extends GameFileSystem
     @Override
     protected File findGameScreenshotsFolder( PluginINI pluginINI, File gameFolder )
     {
-        return ( getPathFromGameConfigINI( "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" ) );
+        return ( new File( getGameUserDataFolder(), "ScreenShots" ) );
     }
     
-    public _rf2_GameFileSystem( PluginINI pluginINI )
+    public _rf2_GameFileSystem( String dataPath, PluginINI pluginINI )
     {
         super( pluginINI );
+        
+        this.gameUserDataFolder = new File( dataPath, "UserData" );
     }
 }
