@@ -39,6 +39,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -77,7 +78,7 @@ public class ImageSelector extends JPanel
         public void onDialogCloseRequested();
     }
     
-    private final ArrayList<DoubleClickSelectionListener> doubleClickSelectionListeners = new ArrayList<ImageSelector.DoubleClickSelectionListener>();
+    private final List<DoubleClickSelectionListener> doubleClickSelectionListeners = new ArrayList<ImageSelector.DoubleClickSelectionListener>();
     
     public void addDoubleClickSelectionListener( DoubleClickSelectionListener l )
     {

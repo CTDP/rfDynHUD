@@ -18,7 +18,9 @@
 package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo;
+import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
@@ -43,13 +45,16 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     
     static
     {
-        try
+        if ( __EDPrivilegedAccess.editorClassLoader == null )
         {
-            System.loadLibrary( "rfdynhud4rf1" );
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( t );
+            try
+            {
+                System.loadLibrary( "rfdynhud4rf1" );
+            }
+            catch ( Throwable t )
+            {
+                RFDHLog.exception( t );
+            }
         }
     }
     
@@ -141,6 +146,15 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     public VehicleSetup newVehicleSetup( LiveGameData gameData )
     {
         return ( new _rf1_VehicleSetup() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DrivingAids newDrivingAids( LiveGameData gameData )
+    {
+        return ( new _rf1_DrivingAids( gameData ) );
     }
     
     /**

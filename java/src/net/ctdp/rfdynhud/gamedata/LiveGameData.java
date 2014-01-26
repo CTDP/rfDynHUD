@@ -37,10 +37,12 @@ public class LiveGameData
     private final GameResolution gameResolution;
     
     private boolean gamePaused = false;
-    private boolean realtimeMode = false;
+    private boolean isInCockpit = false;
     
     private final VehiclePhysics physics;
     private final VehicleSetup setup;
+    
+    private final DrivingAids drivingAids;
     
     private final TelemetryData telemetryData;
     private final ScoringInfo scoringInfo;
@@ -57,9 +59,9 @@ public class LiveGameData
     public static interface GameDataUpdateListener
     {
         public void onSessionStarted( LiveGameData gameData, boolean isEditorMode );
-        public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode );
+        public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode );
         public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused );
-        public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode );
+        public void onCockpitExited( LiveGameData gameData, boolean isEditorMode );
     }
     
     private GameDataUpdateListener[] updateListeners = null;
@@ -304,13 +306,13 @@ public class LiveGameData
         }
     }
     
-    void setRealtimeMode( boolean realtimeMode, long timestamp, boolean isEditorMode )
+    void setInCockpit( boolean isInCockpit, long timestamp, boolean isEditorMode )
     {
-        boolean was = this.realtimeMode;
+        boolean was = this.isInCockpit;
         
-        this.realtimeMode = realtimeMode;
+        this.isInCockpit = isInCockpit;
         
-        if ( !was && realtimeMode )
+        if ( !was && isInCockpit )
         {
             if ( updateListeners != null )
             {
@@ -318,7 +320,7 @@ public class LiveGameData
                 {
                     try
                     {
-                        updateListeners[i].onRealtimeEntered( this, isEditorMode );
+                        updateListeners[i].onCockpitEntered( this, isEditorMode );
                     }
                     catch ( Throwable t )
                     {
@@ -327,11 +329,11 @@ public class LiveGameData
                 }
             }
             
-            getTelemetryData().onRealtimeEntered( timestamp );
-            getScoringInfo().onRealtimeEntered( timestamp );
-            getSetup().onRealtimeEntered( timestamp );
+            getTelemetryData().onCockpitEntered( timestamp );
+            getScoringInfo().onCockpitEntered( timestamp );
+            getSetup().onCockpitEntered( timestamp );
         }
-        else if ( was && !realtimeMode )
+        else if ( was && !isInCockpit )
         {
             if ( updateListeners != null )
             {
@@ -339,7 +341,7 @@ public class LiveGameData
                 {
                     try
                     {
-                        updateListeners[i].onRealtimeExited( this, isEditorMode );
+                        updateListeners[i].onCockpitExited( this, isEditorMode );
                     }
                     catch ( Throwable t )
                     {
@@ -348,20 +350,33 @@ public class LiveGameData
                 }
             }
             
-            getTelemetryData().onRealtimeExited( timestamp );
-            getScoringInfo().onRealtimeExited( timestamp );
-            getSetup().onRealtimeExited( timestamp );
+            getTelemetryData().onCockpitExited( timestamp );
+            getScoringInfo().onCockpitExited( timestamp );
+            getSetup().onCockpitExited( timestamp );
         }
+    }
+    
+    /**
+     * Gets whether we're in the cockpit.
+     * 
+     * @return whether we're in the cockpit.
+     */
+    public final boolean isInCockpit()
+    {
+        return ( isInCockpit );
     }
     
     /**
      * Gets whether we're in realtime mode (cockpit).
      * 
      * @return whether we're in realtime mode (cockpit).
+     * 
+     * @deprecated replaced by {@link #isInCockpit()}
      */
+    @Deprecated
     public final boolean isInRealtimeMode()
     {
-        return ( realtimeMode );
+        return ( isInCockpit() );
     }
     
     /**
@@ -382,6 +397,11 @@ public class LiveGameData
     public final VehicleSetup getSetup()
     {
         return ( setup );
+    }
+    
+    public final DrivingAids getDrivingAids()
+    {
+        return ( drivingAids );
     }
     
     /**
@@ -490,6 +510,7 @@ public class LiveGameData
         this.gameResolution = ( eventsManager == null ) ? null : eventsManager.getWidgetsManager().getWidgetsConfiguration().getGameResolution();
         this.physics = gdFactory.newVehiclePhysics( this );
         this.setup = gdFactory.newVehicleSetup( this );
+        this.drivingAids = gdFactory.newDrivingAids( this );
         this.telemetryData = gdFactory.newTelemetryData( this );
         this.scoringInfo = gdFactory.newScoringInfo( this );
         this.graphicsInfo = gdFactory.newGraphicsInfo( this );

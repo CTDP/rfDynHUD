@@ -449,10 +449,10 @@ public class DirectorCommunicator implements Runnable
                 manager.onLapStarted( driverID, lap );
                 break;
             case DirectorConstants.ON_REALTIME_ENTERED:
-                manager.onRealtimeEntered();
+                manager.onCockpitEntered();
                 break;
             case DirectorConstants.ON_REALTIME_EXITED:
-                manager.onRealtimeExited();
+                manager.onCockpitExited();
                 break;
             case DirectorConstants.ON_GAME_PAUSE_STATE_CHANGED:
                 manager.onGamePauseStateChanged( in.readBoolean() );

@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class FlatPropertiesContainer extends PropertiesContainer
 {
-    private final ArrayList<Property> properties = new ArrayList<Property>();
+    private final List<Property> properties = new ArrayList<Property>();
     
     /**
      * Gets the properties list.

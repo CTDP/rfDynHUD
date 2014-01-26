@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.jagatoo.util.strings.SimpleStringTokenizer;
 
@@ -81,9 +83,9 @@ public class ArgumentsRegistry
     private final String headLine;
     private final String name;
     
-    private final HashMap<Character, Argument> arguments_by_short_name = new HashMap<Character, Argument>();
-    private final HashMap<String, Argument> arguments_by_long_name = new HashMap<String, Argument>();
-    private final ArrayList<Argument> arguments = new ArrayList<Argument>();
+    private final Map<Character, Argument> arguments_by_short_name = new HashMap<Character, Argument>();
+    private final Map<String, Argument> arguments_by_long_name = new HashMap<String, Argument>();
+    private final List<Argument> arguments = new ArrayList<Argument>();
     
     /**
      * Gets this registry's name.

@@ -337,7 +337,7 @@ public class WidgetsDrawingManager
         return ( textures[textureIndex] );
     }
     
-    public void onRealtimeEntered( LiveGameData gameData )
+    public void onCockpitEntered( LiveGameData gameData )
     {
         clock.init( gameData.getScoringInfo().getSessionNanos() );
         frameCounter = 0L;

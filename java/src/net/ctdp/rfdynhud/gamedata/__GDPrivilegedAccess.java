@@ -108,9 +108,9 @@ public class __GDPrivilegedAccess
         gameData.getSetup().onSessionEnded( timestamp );
     }
     
-    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, long timestamp, boolean isEditorMode )
+    public static final void setInCockpit( boolean isInCockpit, LiveGameData gameData, long timestamp, boolean isEditorMode )
     {
-        gameData.setRealtimeMode( realtimeMode, timestamp, isEditorMode );
+        gameData.setInCockpit( isInCockpit, timestamp, isEditorMode );
     }
     
     public static final void updateSessionTime( LiveGameData gameData, boolean isEditorMode, long timestamp )

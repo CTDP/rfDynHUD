@@ -50,7 +50,7 @@ class _rf2_GameEventsManager extends GameEventsManager
         boolean smallMonitor = false;
         boolean bigMonitor = false;
         
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
         {
             int gameResX = widgetsManager.getWidgetsConfiguration().getGameResolution().getResX();
             //int gameResY = widgetsManager.getWidgetsConfiguration().getGameResolution().getResY();
@@ -97,7 +97,7 @@ class _rf2_GameEventsManager extends GameEventsManager
     }
     
     @Override
-    protected boolean isReendetingGarageSupported()
+    protected boolean isReenteringGarageSupported()
     {
         // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
         return ( false );
@@ -106,7 +106,7 @@ class _rf2_GameEventsManager extends GameEventsManager
     @Override
     protected boolean checkIsInGarage()
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return ( true );
         
         if ( !gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() )
@@ -147,7 +147,7 @@ class _rf2_GameEventsManager extends GameEventsManager
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
+                if ( !gameData.isInCockpit() && ( viewportY == 0 ) )
                 {
                     __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
                     result = 0;
@@ -162,7 +162,7 @@ class _rf2_GameEventsManager extends GameEventsManager
             
             onViewportChanged( viewportX, viewportY, viewportWidth, viewportHeight );
         }
-        else if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
+        else if ( !gameData.isInCockpit() && ( viewportY == 0 ) )
         {
             __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
             result = 0;

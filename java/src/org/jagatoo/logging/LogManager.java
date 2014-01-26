@@ -65,6 +65,8 @@ package org.jagatoo.logging;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This object manages multiple logs.  This provides a single point
@@ -79,14 +81,14 @@ import java.util.HashSet;
  */
 public class LogManager
 {
-    private final ArrayList<LogHandler> logs;
+    private final List<LogHandler> logs;
     private int maxRegisteredLogLevel = -Integer.MAX_VALUE;
     private int registeredChannels = 0;
     private long startTime;
     private boolean timestampsEnabled = false;
     private boolean channelsVisible = false;
     private boolean lastNewLine = true;
-    private final HashSet<String> debugPackageFilter = new HashSet<String>();
+    private final Set<String> debugPackageFilter = new HashSet<String>();
     
     private String indentationString = "    ";
     private int indentation = 0;
@@ -159,7 +161,7 @@ public class LogManager
         debugPackageFilter.remove( pkg );
     }
     
-    public final HashSet<String> getDebuggingPackageFiler()
+    public final Set<String> getDebuggingPackageFiler()
     {
         return ( debugPackageFilter );
     }

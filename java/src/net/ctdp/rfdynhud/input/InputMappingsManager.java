@@ -23,6 +23,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
@@ -271,7 +272,7 @@ public class InputMappingsManager
         {
             File configFile = new File( fileSystem.getConfigFolder(), CONFIG_FILE_NAME );
             
-            final ArrayList<Object[]> rawBindings = new ArrayList<Object[]>();
+            final List<Object[]> rawBindings = new ArrayList<Object[]>();
             String lastDevice = null;
             
             if ( !configFile.exists() || !configFile.canRead() )
@@ -563,7 +564,7 @@ public class InputMappingsManager
                             {
                                 isPluginEnabled = !isPluginEnabled;
                             }
-                            else if ( isPluginEnabled && rfDynHUD.isInRenderMode() && gameData.isInRealtimeMode() )
+                            else if ( isPluginEnabled && rfDynHUD.isInRenderMode() && gameData.isInCockpit() )
                             {
                                 if ( action.getConsumer() != null )
                                 {
@@ -571,22 +572,26 @@ public class InputMappingsManager
                                 }
                                 else if ( action == KnownInputActions.ToggleFixedViewedVehicle )
                                 {
-                                    if ( gameData.getScoringInfo().isInCockpit() )
+                                    //if ( gameData.getScoringInfo().isInCockpit() )
+                                    if ( gameData.getScoringInfo().isUpdatedInTimeScope() )
                                         __GDPrivilegedAccess.toggleFixedViewedVSI( gameData.getScoringInfo() );
                                 }
                                 else if ( action == KnownInputActions.IncBoost )
                                 {
-                                    if ( gameData.getScoringInfo().isInCockpit() )
+                                    //if ( gameData.getScoringInfo().isInCockpit() )
+                                    if ( gameData.getScoringInfo().isUpdatedInTimeScope() )
                                         __GDPrivilegedAccess.incEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
                                 }
                                 else if ( action == KnownInputActions.DecBoost )
                                 {
-                                    if ( gameData.getScoringInfo().isInCockpit() )
+                                    //if ( gameData.getScoringInfo().isInCockpit() )
+                                    if ( gameData.getScoringInfo().isUpdatedInTimeScope() )
                                         __GDPrivilegedAccess.decEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
                                 }
                                 else if ( action == KnownInputActions.TempBoost )
                                 {
-                                    if ( gameData.getScoringInfo().isInCockpit() )
+                                    //if ( gameData.getScoringInfo().isInCockpit() )
+                                    if ( gameData.getScoringInfo().isUpdatedInTimeScope() )
                                         __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
                                 }
                                 else if ( isPluginEnabled && action.isWidgetAction() )

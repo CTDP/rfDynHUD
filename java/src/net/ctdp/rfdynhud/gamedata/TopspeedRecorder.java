@@ -66,7 +66,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
         firstValidTime = gameData.getScoringInfo().getSessionNanos() + 3L * 1000000000L;
     }
@@ -79,7 +79,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( !gameData.isInRealtimeMode() || ( scoringInfo.getSessionNanos() < firstValidTime ) )
+        if ( !gameData.isInCockpit() || ( scoringInfo.getSessionNanos() < firstValidTime ) )
             return;
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -103,7 +103,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             
-            if ( !vsi.isPlayer() || ( gameData.isInRealtimeMode() && ( scoringInfo.getSessionNanos() >= firstValidTime ) ) )
+            if ( !vsi.isPlayer() || ( gameData.isInCockpit() && ( scoringInfo.getSessionNanos() >= firstValidTime ) ) )
             {
                 float velocity = vsi.getScalarVelocity();
                 
@@ -123,5 +123,5 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode ) {}
 }

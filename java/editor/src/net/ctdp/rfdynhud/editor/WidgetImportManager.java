@@ -584,7 +584,7 @@ public class WidgetImportManager
             
             newWidget.setName( name );
             
-            __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false );
+            __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false, editor.getGameData() );
             
             widget.setAllPosAndSizeToPercents();
             
@@ -597,7 +597,7 @@ public class WidgetImportManager
                 if ( answer == JOptionPane.NO_OPTION )
                 {
                     editor.getEditorPanel().clearWidgetRegion( newWidget );
-                    __WCPrivilegedAccess.removeWidget( widgetsConfig, newWidget );
+                    __WCPrivilegedAccess.removeWidget( widgetsConfig, newWidget, editor.getGameData() );
                     
                     return ( null );
                 }
@@ -613,7 +613,7 @@ public class WidgetImportManager
                 if ( decision == null )
                 {
                     editor.getEditorPanel().clearWidgetRegion( newWidget );
-                    __WCPrivilegedAccess.removeWidget( widgetsConfig, newWidget );
+                    __WCPrivilegedAccess.removeWidget( widgetsConfig, newWidget, editor.getGameData() );
                     
                     return ( null );
                 }

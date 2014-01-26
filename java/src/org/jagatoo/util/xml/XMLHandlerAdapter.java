@@ -30,6 +30,7 @@
 package org.jagatoo.util.xml;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import org.xml.sax.Attributes;
@@ -44,7 +45,7 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
 {
-    private final ArrayList<XMLPath> pathStack = new ArrayList<XMLPath>();
+    private final List<XMLPath> pathStack = new ArrayList<XMLPath>();
     private XMLPath path = null;
     private final Stack<SimpleXMLHandlerDelegate> simpleHandlerStack = new Stack<SimpleXMLHandlerDelegate>();
     private SimpleXMLHandlerDelegate simpleHandler = null;

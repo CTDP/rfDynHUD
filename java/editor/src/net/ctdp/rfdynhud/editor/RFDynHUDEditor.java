@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -356,7 +358,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private void fillConfigurationFiles( File folder, ArrayList<String> list )
+    private void fillConfigurationFiles( File folder, List<String> list )
     {
         for ( File f : folder.listFiles() )
         {
@@ -376,9 +378,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
-    private ArrayList<String> getConfigurationFiles()
+    private List<String> getConfigurationFiles()
     {
-        ArrayList<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<String>();
         
         list.add( "<none>" );
         
@@ -410,7 +412,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         widgetsConfig.getProperties( propsCont, false );
     }
     
-    private final HashMap<String, Boolean> expandedRows = new HashMap<String, Boolean>();
+    private final Map<String, Boolean> expandedRows = new HashMap<String, Boolean>();
     
     @Override
     public void onWidgetSelected( Widget widget, boolean selectionChanged, boolean doubleClick )
@@ -1305,7 +1307,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         newWidget.setName( name );
         
-        __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false );
+        __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false, gameData );
         
         return ( newWidget );
     }
@@ -1319,9 +1321,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         RFDHLog.println( "Removing Widget of type \"" + widget.getClass().getName() + "\" and name \"" + widget.getName() + "\"..." );
         
         if ( widget.getMasterWidget() == null )
-            __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
+            __WCPrivilegedAccess.removeWidget( widgetsConfig, widget, gameData );
         else
-            __WPrivilegedAccess.removePart( widget, widget.getMasterWidget() );
+            __WPrivilegedAccess.removePart( widget, widget.getMasterWidget(), gameData );
         
         setDirtyFlag();
         
@@ -1431,17 +1433,17 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 {
                     String name = editorPanel.getScopeWidget().findFreePartName( widget.getClass().getSimpleName() );
                     widget.setName( "dummy" + System.currentTimeMillis() );
-                    __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+                    __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false, gameData );
                     w = widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth();
                     h = widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight();
-                    __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
+                    __WCPrivilegedAccess.removeWidget( widgetsConfig, widget, gameData );
                     widget.setName( name );
                 }
                 
                 if ( editorPanel.getScopeWidget() == null )
-                    __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+                    __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false, gameData );
                 else
-                    __WPrivilegedAccess.addPart( widget, editorPanel.getScopeWidget() );
+                    __WPrivilegedAccess.addPart( widget, editorPanel.getScopeWidget(), gameData );
                 if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
                     widget.setAllPosAndSizeToPercents();
                 else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
@@ -1639,15 +1641,16 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
         __GDPrivilegedAccess.updateInfo( gameData );
         
-        eventsManager.onStartup( true );
-        eventsManager.onSessionStarted( true );
-        eventsManager.onTelemetryDataUpdated( true );
-        eventsManager.onScoringInfoUpdated( 22, null, true );
-        
-        __GDPrivilegedAccess.setRealtimeMode( true, gameData, System.nanoTime(), true );
+        eventsManager.onStartup( null, true );
+        eventsManager.onSessionStarted( null, true );
         
         loadEditorPresets();
         initTestGameData( gameData, presets );
+        
+        eventsManager.onTelemetryDataUpdated( null, true );
+        eventsManager.onScoringInfoUpdated( 22, null, true );
+        
+        __GDPrivilegedAccess.setInCockpit( true, gameData, System.nanoTime(), true );
     }
     
     private WidgetsEditorPanel createEditorPanel()
@@ -1666,7 +1669,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     
     private Property createTemplateConfigProperty( final GameFileSystem fileSystem )
     {
-        Property templateConfigProp = new ListProperty<String, ArrayList<String>>( "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
+        Property templateConfigProp = new ListProperty<String, List<String>>( "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
             @Override
             public void setValue( Object value )
@@ -1905,7 +1908,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                     editor.loadFallbackConfig();
             }
             
-            editor.eventsManager.onRealtimeEntered( true );
+            editor.eventsManager.onCockpitEntered( true );
             
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
             

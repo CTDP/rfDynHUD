@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -98,9 +99,9 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
     }
     
-    private final HashMap<String, Float> fuelUsages = new HashMap<String, Float>();
-    private final HashMap<String, Laptime> fastestNormalLaptimes = new HashMap<String, Laptime>();
-    private final HashMap<String, Laptime> fastestHotLaptimes = new HashMap<String, Laptime>();
+    private final Map<String, Float> fuelUsages = new HashMap<String, Float>();
+    private final Map<String, Laptime> fastestNormalLaptimes = new HashMap<String, Laptime>();
+    private final Map<String, Laptime> fastestHotLaptimes = new HashMap<String, Laptime>();
     
     void liveReset( LiveGameData gameData )
     {
@@ -432,7 +433,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     @Override
     public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
@@ -491,7 +492,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     }
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
         //VehicleScoringInfo player = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
         //String teamName = player.getVehicleName();

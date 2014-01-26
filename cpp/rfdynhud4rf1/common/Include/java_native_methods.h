@@ -12,7 +12,7 @@ extern "C" {
  * Signature: (JI[B)V
  */
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1TelemetryData_fetchData
-  (JNIEnv *, jobject, jlong, jint, jbyteArray);
+  (JNIEnv *, jclass, jlong, jint, jbyteArray);
 
 /*
  * Class:     net_ctdp_rfdynhud_gamedata_rfactor1__rf1_ScoringInfo
@@ -20,7 +20,7 @@ JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1Telemetry
  * Signature: (IJI[BJI[B)V
  */
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1ScoringInfo_fetchData
-  (JNIEnv *, jobject, jint, jlong, jint, jbyteArray, jlong, jint, jbyteArray);
+  (JNIEnv *, jclass, jint, jlong, jint, jbyteArray, jlong, jint, jbyteArray);
 
 /*
  * Class:     net_ctdp_rfdynhud_gamedata_rfactor1__rf1_CommentaryRequestInfo
@@ -28,7 +28,7 @@ JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1ScoringIn
  * Signature: (JI[B)V
  */
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1CommentaryRequestInfo_fetchData
-  (JNIEnv *, jobject, jlong, jint, jbyteArray);
+  (JNIEnv *, jclass, jlong, jint, jbyteArray);
 
 /*
  * Class:     net_ctdp_rfdynhud_gamedata_rfactor1__rf1_GraphicsInfo
@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1Commentar
  * Signature: (JI[B)V
  */
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1GraphicsInfo_fetchData
-  (JNIEnv *, jobject, jlong, jint, jbyteArray);
+  (JNIEnv *, jclass, jlong, jint, jbyteArray);
 
 #ifdef __cplusplus
 }

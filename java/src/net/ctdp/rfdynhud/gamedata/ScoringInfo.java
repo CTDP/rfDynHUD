@@ -53,8 +53,8 @@ public abstract class ScoringInfo
     private int sessionJustStarted = 0;
     
     private long sessionStartTimestamp = -1L;
-    private long realtimeEnteredTimestamp = -1L;
-    private int realtimeEnteredId = 0;
+    private long cockpitEnteredTimestamp = -1L;
+    private int cockpitEnteredId = 0;
     
     private boolean gamePausedCache = false;
     private long lastUpdateTimestamp = -1L;
@@ -537,14 +537,6 @@ public abstract class ScoringInfo
         }
     }
     
-    /**
-     * Increments the update ID.
-     */
-    protected void onDataUpdated()
-    {
-        this.updateId++;
-    }
-    
     private GamePhase lastGamePhase = null;
     
     protected void executeOnVSIDataUpdated( long timestamp )
@@ -723,10 +715,10 @@ public abstract class ScoringInfo
         return ( sessionStartTimestamp );
     }
     
-    final void onRealtimeEntered( long timestamp )
+    final void onCockpitEntered( long timestamp )
     {
-        this.realtimeEnteredTimestamp = timestamp;
-        this.realtimeEnteredId++;
+        this.cockpitEnteredTimestamp = timestamp;
+        this.cockpitEnteredId++;
         this.updatedInTimeScope = true;
     }
     
@@ -734,19 +726,19 @@ public abstract class ScoringInfo
      * 
      * @param timestamp
      */
-    final void onRealtimeExited( long timestamp )
+    final void onCockpitExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
     
     /**
-     * Gets the system timestamp in nanoseconds, at which the player entered realtime mode.
+     * Gets the system timestamp in nanoseconds, at which the player entered the cockpit.
      * 
-     * @return the system timestamp in nanoseconds, at which the player entered realtime mode.
+     * @return the system timestamp in nanoseconds, at which the player entered the cockpit.
      */
-    public final long getRealtimeEnteredTimestamp()
+    public final long getCockpitEnteredTimestamp()
     {
-        return ( realtimeEnteredTimestamp );
+        return ( cockpitEnteredTimestamp );
     }
     
     /**
@@ -756,12 +748,12 @@ public abstract class ScoringInfo
      */
     public final int getRealtimeEntredId()
     {
-        return ( realtimeEnteredId );
+        return ( cockpitEnteredId );
     }
     
     /**
-     * Gets, whether the last update of these data has been done while in running session resp. realtime mode.
-     * @return whether the last update of these data has been done while in running session resp. realtime mode.
+     * Gets, whether the last update of these data has been done while in running session resp. cockpit mode.
+     * @return whether the last update of these data has been done while in running session resp. cockpit mode.
      */
     public final boolean isUpdatedInTimeScope()
     {
@@ -1147,23 +1139,16 @@ public abstract class ScoringInfo
     }
     
     /**
-     * Gets whether we're in the cockpit as opposed to at the monitor.
-     * 
-     * @return whether we're in the cockpit as opposed to at the monitor.
-     */
-    public abstract boolean isInCockpit();
-    
-    /**
      * Gets whether we're in realtime as opposed to at the monitor.
      * 
      * @return whether we're in realtime as opposed to at the monitor.
      * 
-     * @deprecated replaced by {@link #isInCockpit()}
+     * @deprecated replaced by {@link LiveGameData#isInCockpit()}
      */
     @Deprecated
     public final boolean isInRealtimeMode()
     {
-        return ( isInCockpit() );
+        return ( gameData.isInCockpit() );
     }
     
     /**

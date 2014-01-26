@@ -445,9 +445,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, isEditorMode );
+        super.onCockpitEntered( gameData, isEditorMode );
         
         loadLowFuelWarningImages( isEditorMode );
         resetBlink( isEditorMode );

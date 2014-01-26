@@ -146,7 +146,7 @@ class GameEventsDispatcher
         }
     }
     
-    private final ArrayList<Widget> waitingWidgets = new ArrayList<Widget>();
+    private final List<Widget> waitingWidgets = new ArrayList<Widget>();
     
     public final boolean hasWaitingWidgets()
     {
@@ -187,12 +187,12 @@ class GameEventsDispatcher
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
+     * Calls {@link Widget#onCockpitEntered(LiveGameData, boolean)} on each Widget.
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void fireOnCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
         waitingWidgets.clear();
         
@@ -203,7 +203,7 @@ class GameEventsDispatcher
             
             try
             {
-                widget.onRealtimeEntered( gameData, isEditorMode );
+                widget.onCockpitEntered( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -217,7 +217,7 @@ class GameEventsDispatcher
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
+     * Calls {@link Widget#onCockpitEntered(LiveGameData, boolean)} on each Widget.
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
@@ -417,14 +417,14 @@ class GameEventsDispatcher
     }
     
     /**
-     * This method is called when a the user exited realtime mode.<br>
+     * This method is called when a the user exited the cockpit.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeExited(LiveGameData, boolean)} on each Widget.
+     * Calls {@link Widget#onCockpitExited(LiveGameData, boolean)} on each Widget.
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void fireOnRealtimeExited( LiveGameData gameData, boolean isEditorMode )
+    public void fireOnCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
         waitingWidgets.clear();
         
@@ -433,7 +433,7 @@ class GameEventsDispatcher
         {
             try
             {
-                widgetsConfig.getWidget( i ).onRealtimeExited( gameData, isEditorMode );
+                widgetsConfig.getWidget( i ).onCockpitExited( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {

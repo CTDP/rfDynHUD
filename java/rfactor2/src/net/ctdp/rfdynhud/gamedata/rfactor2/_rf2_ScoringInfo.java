@@ -79,7 +79,7 @@ class _rf2_ScoringInfo extends ScoringInfo
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
-    private native void fetchData( final int numVehicles, final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer, final long sourceBufferAddress2, final int sourceBufferSize2, final byte[] targetBuffer2 );
+    private static native void fetchData( final int numVehicles, final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer, final long sourceBufferAddress2, final int sourceBufferSize2, final byte[] targetBuffer2 );
     
     @Override
     protected void updateDataImpl( int numVehicles, Object userObject, long timestamp )
@@ -397,17 +397,14 @@ class _rf2_ScoringInfo extends ScoringInfo
         
         return ( ByteUtil.readUnsignedByte( buffer, OFFSET_NUM_RED_LIGHTS ) );
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final boolean isInCockpit()
+    /*
+    public final boolean isInRealtimeMode()
     {
         // bool mInRealtime
         
         return ( ByteUtil.readBoolean( buffer, OFFSET_IN_REALTIME ) );
     }
+    */
     
     /**
      * {@inheritDoc}

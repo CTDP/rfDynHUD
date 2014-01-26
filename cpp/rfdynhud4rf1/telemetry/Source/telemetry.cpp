@@ -207,8 +207,11 @@ void RFDynHUDPlugin::EnterRealtime()
     Handshake* handshake = getHandshakeIfComplete();
     if ( handshake != NULL )
     {
-        char result = handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
+        char result = handshake->jvmConn.telemFuncs.call_onCockpitEntered();
         /*handshake->*/_checkRenderModeResult( "EnterRealtime()", result );
+        
+        result = handshake->jvmConn.telemFuncs.call_onDrivingAidsUpdated();
+        /*handshake->*/_checkRenderModeResult( "EnterRealtime()/UpdateDrivingAids", result );
         
         handshake->isInRealtime = true;
         handshake->onRealtimeEntered();
@@ -222,7 +225,7 @@ void RFDynHUDPlugin::ExitRealtime()
     {
         handshake->isInRealtime = false;
         
-        handshake->jvmConn.telemFuncs.call_onRealtimeExited();
+        handshake->jvmConn.telemFuncs.call_onCockpitExited();
         //handshake->isInRenderMode = false;
         handshake->onRealtimeExited();
     }

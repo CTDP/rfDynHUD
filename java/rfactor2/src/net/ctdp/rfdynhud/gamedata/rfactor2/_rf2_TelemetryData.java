@@ -162,7 +162,7 @@ class _rf2_TelemetryData extends TelemetryData
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
-    private native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
+    private static native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
     
     @Override
     protected void updateDataImpl( Object userObject, long timestamp )

@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.editor.input;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -52,7 +53,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     
     private final WidgetsConfiguration widgetsConfig;
     
-    private final ArrayList<Object[]> rows = new ArrayList<Object[]>();
+    private final List<Object[]> rows = new ArrayList<Object[]>();
     
     private int currentInputPollingRow = -1;
     

@@ -68,9 +68,9 @@ public class Lesson2bWidget_FirstDynamics extends Widget
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, isEditorMode );
+        super.onCockpitEntered( gameData, isEditorMode );
         
         /*
          * Whenever we enter the cockpit, we need to reset our value, so that it is guaranteed

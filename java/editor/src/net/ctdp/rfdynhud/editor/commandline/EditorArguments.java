@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class EditorArguments
 {
-    private final ArrayList<String> excludedJars = new ArrayList<String>();
+    private final List<String> excludedJars = new ArrayList<String>();
     
     void addExcludedJar( String excludedJar )
     {

@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.base.widget;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -42,7 +43,7 @@ import java.util.HashMap;
 public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
 {
     @SuppressWarnings( "rawtypes" )
-    private static final HashMap<Class<? extends StatefulWidget>, Object> generalStores = new HashMap<Class<? extends StatefulWidget>, Object>();
+    private static final Map<Class<? extends StatefulWidget>, Object> generalStores = new HashMap<Class<? extends StatefulWidget>, Object>();
     private GeneralStore generalStore = null;
     private LocalStore localStore = null;
     

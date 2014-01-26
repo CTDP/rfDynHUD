@@ -26,6 +26,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -76,10 +78,10 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
     private long sessionTime = -1L;
     private boolean isTimeDecreasing = false;
     
-    private final ArrayList<DriverCapsule> driversList = new ArrayList<DriverCapsule>();
-    private final HashMap<Integer, DriverCapsule> driversMap = new HashMap<Integer, DriverCapsule>();
+    private final List<DriverCapsule> driversList = new ArrayList<DriverCapsule>();
+    private final Map<Integer, DriverCapsule> driversMap = new HashMap<Integer, DriverCapsule>();
     
-    private final ArrayList<WidgetStatesSet> statesSets = new ArrayList<WidgetStatesSet>();
+    private final List<WidgetStatesSet> statesSets = new ArrayList<WidgetStatesSet>();
     
     private final StateSetsListProperty stateSetsListProp = new StateSetsListProperty( this, statesSets );
     
@@ -730,7 +732,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
         isTimeDecreasing = false;
     }
     
-    public void onRealtimeEntered()
+    public void onCockpitEntered()
     {
         sendCurrentConfiguration( true );
     }
@@ -743,7 +745,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
     {
     }
     
-    public void onRealtimeExited()
+    public void onCockpitExited()
     {
     }
     

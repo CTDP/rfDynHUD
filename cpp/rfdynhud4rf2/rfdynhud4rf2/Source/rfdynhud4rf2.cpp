@@ -292,7 +292,7 @@ void RFDynHUD4rf2InternalsPlugin::EnterRealtime()
     
     bool attach = global.jvmConn.attachCurrentThread();
     
-    char result = global.jvmConn.telemFuncs.call_onRealtimeEntered();
+    char result = global.jvmConn.telemFuncs.call_onCockpitEntered();
     checkRenderModeResult( "EnterRealtime()", result );
     
     #ifdef DIRECT_THREAD_DETACH
@@ -313,7 +313,32 @@ void RFDynHUD4rf2InternalsPlugin::ExitRealtime()
     
     global.isInRealtime = false;
     
-    global.jvmConn.telemFuncs.call_onRealtimeExited();
+    global.jvmConn.telemFuncs.call_onCockpitExited();
+    
+    #ifdef DIRECT_THREAD_DETACH
+    if ( attach )
+        global.jvmConn.detachCurrentThread();
+    #endif
+}
+
+/**
+ * may be called whenever the environment changes
+ */
+void RFDynHUD4rf2InternalsPlugin::SetEnvironment( const EnvironmentInfoV01& info )
+{
+}
+
+const unsigned int PHYSICS_OPTIONS_SIZE = sizeof( PhysicsOptionsV01 );
+
+void RFDynHUD4rf2InternalsPlugin::SetPhysicsOptions( PhysicsOptionsV01 &options )
+{
+    if ( !sane )
+        return;
+    
+    bool attach = global.jvmConn.attachCurrentThread();
+    
+    char result = global.jvmConn.telemFuncs.call_onDrivingAidsUpdated( (void*)&options, PHYSICS_OPTIONS_SIZE );
+    checkRenderModeResult( "SetPhysicsOptions()", result );
     
     #ifdef DIRECT_THREAD_DETACH
     if ( attach )
@@ -424,17 +449,6 @@ bool RFDynHUD4rf2InternalsPlugin::WantsToViewVehicle( CameraControlInfoV01& camC
 bool RFDynHUD4rf2InternalsPlugin::WantsToDisplayMessage( MessageInfoV01& msgInfo )
 {
     return ( false );
-}
-
-/**
- * may be called whenever the environment changes
- */
-void RFDynHUD4rf2InternalsPlugin::SetEnvironment( const EnvironmentInfoV01& info )
-{
-}
-
-void RFDynHUD4rf2InternalsPlugin::SetPhysicsOptions( PhysicsOptionsV01 &options )
-{
 }
 
 void ensureD3DManager( void* d3dDevice, const unsigned short resX, const unsigned short resY, const unsigned char colorDepth, const bool isWindowed, const unsigned short refreshRate, const HWND hWnd )

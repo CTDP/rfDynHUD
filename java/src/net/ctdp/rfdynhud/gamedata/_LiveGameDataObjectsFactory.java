@@ -35,6 +35,8 @@ public interface _LiveGameDataObjectsFactory
     
     public abstract VehicleSetup newVehicleSetup( LiveGameData gameData );
     
+    public abstract DrivingAids newDrivingAids( LiveGameData gameData );
+    
     public abstract CommentaryRequestInfo newCommentaryRequestInfo( LiveGameData gameData );
     
     public abstract GraphicsInfo newGraphicsInfo( LiveGameData gameData );

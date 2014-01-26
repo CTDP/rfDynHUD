@@ -22,10 +22,11 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AvailableDisplayModes
 {
-    private static final HashMap<String, DisplayMode> displayModes = new HashMap<String, DisplayMode>();
+    private static final Map<String, DisplayMode> displayModes = new HashMap<String, DisplayMode>();
     static
     {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();

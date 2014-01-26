@@ -126,7 +126,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         if ( ( rfDynHUD == null ) || ( rfDynHUD.getInputMappings() == null ) )
             return;
         
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         if ( !widgetsManager.getWidgetsConfiguration().isValid() )
@@ -141,7 +141,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         {
             net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
             internalWidget.setMessage( warning );
-            __WCPrivilegedAccess.addWidget( widgetsManager.getWidgetsConfiguration(), internalWidget, true );
+            __WCPrivilegedAccess.addWidget( widgetsManager.getWidgetsConfiguration(), internalWidget, true, gameData );
             internalWidget.getSize().setEffectiveSize( 600, 200 );
             internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, ( widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportHeight() - internalWidget.getEffectiveHeight() ) / 2 );
             
@@ -395,7 +395,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         this.lastViewedVSIId = -1;
         this.lastControl = null;
         
-        if ( gameData.isInRealtimeMode() )
+        if ( gameData.isInCockpit() )
             this.cockpitLeftInRaceSession = false;
         
         byte result = 0;
@@ -514,7 +514,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * @param timestamp event timestamp in nano seconds
      * @param isEditorMode editor mode?
      */
-    protected void onRealtimeEnteredImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onCockpitEnteredImpl( Object userObject, long timestamp, boolean isEditorMode )
     {
         ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
         
@@ -522,7 +522,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         if ( gameData.getProfileInfo().isValid() )
         {
-            __GDPrivilegedAccess.setRealtimeMode( true, gameData, timestamp, isEditorMode );
+            __GDPrivilegedAccess.setInCockpit( true, gameData, timestamp, isEditorMode );
             
             if ( !isEditorMode )
             {
@@ -536,8 +536,8 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
                 }
             }
             
-            widgetsManager.onRealtimeEntered( gameData );
-            eventsDispatcher.fireOnRealtimeEntered( gameData, isEditorMode );
+            widgetsManager.onCockpitEntered( gameData );
+            eventsDispatcher.fireOnCockpitEntered( gameData, isEditorMode );
         }
     }
     
@@ -546,9 +546,9 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onRealtimeEntered( Object userObject, boolean isEditorMode )
+    public byte onCockpitEntered( Object userObject, boolean isEditorMode )
     {
-        RFDHLog.profile( "[PROFILE]: onRealtimeEntered()" );
+        RFDHLog.profile( "[PROFILE]: onCockpitEntered()" );
         byte result = 0;
         long now = System.nanoTime();
         
@@ -580,7 +580,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            onRealtimeEnteredImpl( userObject, now, isEditorMode );
+            onCockpitEnteredImpl( userObject, now, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -590,20 +590,20 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> /onRealtimeEntered(), result: " + result );
+        //Logger.log( ">>> /onCockpitEntered(), result: " + result );
         return ( result );
     }
     
     /**
-     * This method must be called when realtime mode has been entered (the user clicked on "Drive").
+     * This method must be called when the cockpit has been entered (the user clicked on "Drive").
      * 
      * @param userObject custom user object from native side
      * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onRealtimeEntered( Object userObject )
+    public final byte onCockpitEntered( Object userObject )
     {
-        return ( onRealtimeEntered( userObject, false ) );
+        return ( onCockpitEntered( userObject, false ) );
     }
     
     /**
@@ -613,13 +613,13 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * @param timestamp event timestamp in nano seconds
      * @param isEditorMode
      */
-    protected void onRealtimeExitedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onCockpitExitedImpl( Object userObject, long timestamp, boolean isEditorMode )
     {
         if ( gameData.getProfileInfo().isValid() )
         {
-            __GDPrivilegedAccess.setRealtimeMode( false, gameData, timestamp, isEditorMode );
+            __GDPrivilegedAccess.setInCockpit( false, gameData, timestamp, isEditorMode );
             
-            eventsDispatcher.fireOnRealtimeExited( gameData, isEditorMode );
+            eventsDispatcher.fireOnCockpitExited( gameData, isEditorMode );
         }
     }
     
@@ -629,9 +629,9 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * @param userObject custom user object from native side
      * @param isEditorMode
      */
-    public void onRealtimeExited( Object userObject, boolean isEditorMode )
+    public void onCockpitExited( Object userObject, boolean isEditorMode )
     {
-        RFDHLog.profile( "[PROFILE]: onRealtimeExited()" );
+        RFDHLog.profile( "[PROFILE]: onCockpitExited()" );
         RFDHLog.printlnEx( "Exited cockpit." );
         
         long now = System.nanoTime();
@@ -653,7 +653,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            onRealtimeExitedImpl( userObject, now, isEditorMode );
+            onCockpitExitedImpl( userObject, now, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -662,15 +662,15 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
+     * This method must be called when the user exited the cockpit (pressed ESCAPE in the cockpit).
      * 
      * @param userObject custom user object from native side
      * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onRealtimeExited( Object userObject )
+    public final byte onCockpitExited( Object userObject )
     {
-        onRealtimeExited( userObject, false );
+        onCockpitExited( userObject, false );
         
         //byte result = reloadConfigAndSetupTexture( false );
         __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
@@ -689,7 +689,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * 
      * @return whether re-entering the garage and showing the garage WidgetConfiguration is supported.
      */
-    protected boolean isReendetingGarageSupported()
+    protected boolean isReenteringGarageSupported()
     {
         return ( true );
     }
@@ -782,7 +782,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     {
         byte result = 1;
         
-        if ( isInGarage || isReendetingGarageSupported() )
+        if ( isInGarage || isReenteringGarageSupported() )
         {
             boolean isInGarage = checkIsInGarage();
             
@@ -867,7 +867,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         {
             __GDPrivilegedAccess.onSessionStarted2( gameData, timestamp, isEditorMode );
             
-            if ( !gameData.isInRealtimeMode() || gameData.getScoringInfo().getSessionType().isRace() )
+            if ( !gameData.isInCockpit() || gameData.getScoringInfo().getSessionType().isRace() )
             {
                 String modName = gameData.getModInfo().getName();
                 String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
@@ -952,7 +952,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
             
             result = reloadConfigAndSetupTexture( forceReload );
         }
-        else if ( gameData.isInRealtimeMode() )
+        else if ( gameData.isInCockpit() )
         {
             result = 1;
             
@@ -966,6 +966,47 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
             result = widgetsManager.getWidgetsConfiguration().isValid() ? result : (byte)0;
         }
         
+        return ( result );
+    }
+    
+    /**
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param timestamp event timestamp in nano seconds
+     * @param isEditorMode editor mode?
+     
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
+    protected byte onDrivingAidsUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    {
+        //if ( !isEditorMode )
+            gameData.getDrivingAids().updateData( userObject, System.nanoTime() );
+        
+        return ( checkWaitingData( isEditorMode, false ) );
+    }
+    
+    /**
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @return
+     */
+    public final byte onDrivingAidsUpdated( Object userObject )
+    {
+        RFDHLog.profile( "[PROFILE]: onDrivingAids()" );
+        
+        byte result = 0;
+        
+        long now = System.nanoTime();
+        
+        try
+        {
+            result = onDrivingAidsUpdatedImpl( result, userObject, now, false );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        //RFDHLog.println( ">>> /onDrivingAidsUpdated(), result: " + result );
         return ( result );
     }
     

@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.editor.properties;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
@@ -31,7 +32,7 @@ public class PropertiesEditor
 {
     private GridItemsContainer<Property> properties;
     
-    private final ArrayList<PropertyChangeListener> changeListeners = new ArrayList<PropertyChangeListener>();
+    private final List<PropertyChangeListener> changeListeners = new ArrayList<PropertyChangeListener>();
     
     public void addChangeListener( PropertyChangeListener l )
     {

@@ -29,14 +29,14 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  */
 public class __WCPrivilegedAccess
 {
-    public static final void addWidget( WidgetsConfiguration config, Widget widget, boolean isLoading )
+    public static final void addWidget( WidgetsConfiguration config, Widget widget, boolean isLoading, LiveGameData gameData )
     {
-        config.addWidget( widget, isLoading );
+        config.addWidget( widget, isLoading, gameData );
     }
     
-    public static final void removeWidget( WidgetsConfiguration config, Widget widget )
+    public static final void removeWidget( WidgetsConfiguration config, Widget widget, LiveGameData gameData )
     {
-        config.removeWidget( widget );
+        config.removeWidget( widget, gameData );
     }
     
     public static final void clear( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener )

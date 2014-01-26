@@ -482,7 +482,7 @@ public class ConfigurationLoader implements PropertyLoader
                                         else
                                             currentPart.loadProperty( ConfigurationLoader.this );
                                         
-                                        __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
+                                        __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true, gameData );
                                     }
                                 }
                             }
@@ -497,7 +497,7 @@ public class ConfigurationLoader implements PropertyLoader
                                 else
                                 {
                                     //currentPart = ( (AbstractAssembledWidget)currentWidget ).getPart( partIndexStack.get( partIndexStack.size() - 2 ) );
-                                    __WPrivilegedAccess.addPart( currentPart, (AbstractAssembledWidget)currentWidget );
+                                    __WPrivilegedAccess.addPart( currentPart, (AbstractAssembledWidget)currentWidget, gameData );
                                     partStack.set( partStack.size() - 1, currentPart );
                                     currentKey = "name";
                                     currentValue = partName;
@@ -723,7 +723,7 @@ public class ConfigurationLoader implements PropertyLoader
         {
             net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
             internalWidget.setMessage( getNoConfigFoundMessage() );
-            __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true );
+            __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true, gameData );
             internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsConfig.getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, 200 );
             
             AbstractPropertiesKeeper.attachKeeper( internalWidget, true );

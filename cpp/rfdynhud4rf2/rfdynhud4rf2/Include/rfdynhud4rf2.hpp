@@ -97,7 +97,7 @@ public:
     void PreReset( const ScreenInfoV01 &info );                    // after detecting device lost but before resetting
     void PostReset( const ScreenInfoV01 &info );                   // after resetting
     
-    virtual void SetPhysicsOptions( PhysicsOptionsV01 &options );
+    void SetPhysicsOptions( PhysicsOptionsV01 &options );
     
     virtual bool InitCustomControl( CustomControlInfoV01& info );
     

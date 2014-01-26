@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -30,8 +31,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
 
 public class LocalizationsManager
 {
-    private final HashMap<String, String> map = new HashMap<String, String>();
-    private final HashMap<String, Boolean> missingLoggedMap = new HashMap<String, Boolean>();
+    private final Map<String, String> map = new HashMap<String, String>();
+    private final Map<String, Boolean> missingLoggedMap = new HashMap<String, Boolean>();
     
     private String[] readCodepageAndLanguage( final File f )
     {

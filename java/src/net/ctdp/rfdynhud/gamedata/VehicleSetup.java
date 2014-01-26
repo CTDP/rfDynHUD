@@ -67,7 +67,7 @@ public abstract class VehicleSetup
      * 
      * @param timestamp
      */
-    void onRealtimeEntered( long timestamp )
+    void onCockpitEntered( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
@@ -76,7 +76,7 @@ public abstract class VehicleSetup
      * 
      * @param timestamp
      */
-    void onRealtimeExited( long timestamp )
+    void onCockpitExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }

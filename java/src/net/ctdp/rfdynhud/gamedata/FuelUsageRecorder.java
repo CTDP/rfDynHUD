@@ -196,7 +196,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
         oldLapsCompleted = -1;
         lapStartFuel = -1f;
@@ -211,7 +211,8 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( !scoringInfo.isInCockpit() )
+        //if ( !scoringInfo.isInCockpit() )
+        if ( !gameData.isInCockpit() )
             return;
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -274,5 +275,5 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode ) {}
 }

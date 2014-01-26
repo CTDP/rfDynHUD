@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.util.RFDHLog;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
@@ -29,10 +31,9 @@ public abstract class GraphicsInfo
 {
     private long updateTimestamp = -1L;
     private long updateId = 0L;
+    private boolean updatedInTimeScope = false;
     
     protected final LiveGameData gameData;
-    
-    private boolean updatedInRealtimeMode = false;
     
     public static interface GraphicsInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
@@ -125,6 +126,15 @@ public abstract class GraphicsInfo
     }
     
     /**
+     * Gets, whether the last update of these data has been done while in realtime mode.
+     * @return whether the last update of these data has been done while in realtime mode.
+     */
+    public final boolean isUpdatedInTimeScope()
+    {
+        return ( updatedInTimeScope );
+    }
+    
+    /**
      * 
      * @param userObject
      * @param timestamp
@@ -134,26 +144,30 @@ public abstract class GraphicsInfo
     }
     
     /**
-     * Increments the update ID.
      * 
      * @param userObject
      * @param timestamp
+     * @param isEditorMode
      */
-    protected void onDataUpdated( Object userObject, long timestamp )
-    {
-        this.updateTimestamp = timestamp;
-        this.updateId++;
-    }
-    
     protected void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
-        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
-        onDataUpdated( userObject, timestamp );
+        this.updatedInTimeScope = gameData.isInCockpit();
+        this.updateTimestamp = timestamp;
+        this.updateId++;
         
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onGraphicsInfoUpdated( gameData, isEditorMode );
+            {
+                try
+                {
+                    updateListeners[i].onGraphicsInfoUpdated( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
     }
     
@@ -175,15 +189,6 @@ public abstract class GraphicsInfo
             for ( int i = 0; i < updateListeners.length; i++ )
                 updateListeners[i].onViewportChanged( gameData, viewportX, viewportY, viewportWidth, viewportHeight );
         }
-    }
-    
-    /**
-     * Gets, whether the last update of these data has been done while in realtime mode.
-     * @return whether the last update of these data has been done while in realtime mode.
-     */
-    public final boolean isUpdatedInRealtimeMode()
-    {
-        return ( updatedInRealtimeMode );
     }
     
     /**

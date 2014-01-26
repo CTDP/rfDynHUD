@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import net.ctdp.rfdynhud.render.TransformableTexture;
 
@@ -30,7 +31,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
  */
 public class SubTextureCollector
 {
-    private final ArrayList<TransformableTexture> list = new ArrayList<TransformableTexture>();
+    private final List<TransformableTexture> list = new ArrayList<TransformableTexture>();
     
     /**
      * Adds a {@link TransformableTexture} to the end of the list.

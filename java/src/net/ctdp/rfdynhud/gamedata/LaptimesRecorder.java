@@ -25,7 +25,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     public void onSessionStarted( LiveGameData gameData, boolean isEditorMode ) {}
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     private static List<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
     {
@@ -275,7 +275,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode ) {}
     
     private LaptimesRecorder()
     {

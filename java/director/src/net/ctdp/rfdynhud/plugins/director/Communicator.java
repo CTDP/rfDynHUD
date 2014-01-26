@@ -340,7 +340,7 @@ public class Communicator implements Runnable
                 if ( passwordHash == null )
                 {
                     _writeCommand( DirectorConstants.CONNECTION_ESTEBLISHED );
-                    eventsBuffer.writeBoolean( plugin.isInRealtimeMode() );
+                    eventsBuffer.writeBoolean( plugin.isInCockpit() );
                     connected = true;
                     plugin.onConnectionEsteblished();
                 }
@@ -356,7 +356,7 @@ public class Communicator implements Runnable
                 if ( Arrays.equals( bytes, passwordHash ) )
                 {
                     _writeCommand( DirectorConstants.CONNECTION_ESTEBLISHED );
-                    eventsBuffer.writeBoolean( plugin.isInRealtimeMode() );
+                    eventsBuffer.writeBoolean( plugin.isInCockpit() );
                     connected = true;
                     plugin.onConnectionEsteblished();
                 }

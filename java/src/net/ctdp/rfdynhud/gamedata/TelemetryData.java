@@ -160,7 +160,7 @@ public abstract class TelemetryData
      * 
      * @param timestamp
      */
-    void onRealtimeEntered( long timestamp )
+    void onCockpitEntered( long timestamp )
     {
         this.updatedInTimeScope = true;
     }
@@ -169,7 +169,7 @@ public abstract class TelemetryData
      * 
      * @param timestamp
      */
-    void onRealtimeExited( long timestamp )
+    void onCockpitExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
@@ -216,14 +216,6 @@ public abstract class TelemetryData
         return ( updateId );
     }
     
-    /**
-     * Increments the update ID.
-     */
-    protected void onDataUpdated()
-    {
-        this.updateId++;
-    }
-    
     protected float clampEngineMaxRPMByPhysics( float maxRPM, VehiclePhysics.Engine engine )
     {
         return ( engine.getRevLimitRange().clampValue( maxRPM ) );
@@ -235,12 +227,12 @@ public abstract class TelemetryData
      * @param timestamp
      * @param isEditorMode
      */
-    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
         try
         {
-            this.updatedInTimeScope = gameData.isInRealtimeMode();
-            onDataUpdated();
+            this.updatedInTimeScope = gameData.isInCockpit();
+            this.updateId++;
             this.lastUpdateTimestamp = updateTimestamp;
             this.updateTimestamp = timestamp;
             
@@ -331,8 +323,8 @@ public abstract class TelemetryData
     }
     
     /**
-     * Gets, whether the last update of these data has been done while in running session resp. realtime mode.
-     * @return whether the last update of these data has been done while in running session resp. realtime mode.
+     * Gets, whether the last update of these data has been done while in running session resp. cockpit mode.
+     * @return whether the last update of these data has been done while in running session resp. cockpit mode.
      */
     public final boolean isUpdatedInTimeScope()
     {

@@ -28,6 +28,7 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -64,7 +65,7 @@ public class WidgetsEditorPanel extends JPanel
     private final WidgetsDrawingManager drawingManager;
     private final WidgetsConfiguration widgetsConfig;
     private final ByteBuffer dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
-    private final ArrayList<Boolean> dirtyFlags = new ArrayList<Boolean>();
+    private final List<Boolean> dirtyFlags = new ArrayList<Boolean>();
     private final Map<Widget, Rect2i> oldWidgetRects = new WeakHashMap<Widget, Rect2i>();
     private final Map<Widget, Rect2i[]> oldWidgetSubTexRects = new WeakHashMap<Widget, Rect2i[]>();
     
@@ -75,8 +76,8 @@ public class WidgetsEditorPanel extends JPanel
     private static final java.awt.Color SUB_SELECTION_COLOR = new java.awt.Color( 255, 64, 0, 64 );
     private static final java.awt.Color MASTER_SELECTION_COLOR = new java.awt.Color( 0, 255, 0, 127 );
     
-    private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
-    private final ArrayList<WidgetsEditorPanelListener> listeners = new ArrayList<WidgetsEditorPanelListener>();
+    private final List<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
+    private final List<WidgetsEditorPanelListener> listeners = new ArrayList<WidgetsEditorPanelListener>();
     
     private BufferedImage backgroundImage = null;
     private BufferedImage cacheImage = null;
@@ -544,7 +545,7 @@ public class WidgetsEditorPanel extends JPanel
         return ( new Rect2i( offsetX2, offsetY2, width2, height2 ) );
     }
     
-    private ArrayList<TransformableTexture[]> subTexs = new ArrayList<TransformableTexture[]>();
+    private List<TransformableTexture[]> subTexs = new ArrayList<TransformableTexture[]>();
     
     private static void drawSubTextures( Widget widget, TransformableTexture[] subTextures, AffineTransform[] affineTransforms, Rect2i[] transformedSubRects, Graphics2D g2 )
     {

@@ -143,12 +143,12 @@ public class WidgetMenuItem extends JMenuItem
         
         if ( widget != null )
         {
-            __WCPrivilegedAccess.addWidget( tempWidgetsConfig, widget, false );
+            __WCPrivilegedAccess.addWidget( tempWidgetsConfig, widget, false, editor.getGameData() );
             
             float aspect = (float)widget.getSize().getEffectiveWidth() / (float)widget.getSize().getEffectiveHeight();
             
-            __WCPrivilegedAccess.removeWidget( tempWidgetsConfig, widget );
-            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+            __WCPrivilegedAccess.removeWidget( tempWidgetsConfig, widget, editor.getGameData() );
+            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false, editor.getGameData() );
             
             if ( aspect > ICON_ASPECT )
                 widget.getSize().setEffectiveSize( ICON_WIDTH, (int)( ICON_WIDTH / aspect ) );

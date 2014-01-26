@@ -67,7 +67,7 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     private final Map<String, DirectorWidgetController> widgetControllersMap = new HashMap<String, DirectorWidgetController>();
     
     private LiveGameData lastGameData = null;
-    private boolean isInRealtimeMode = false;
+    private boolean isInCockpit = false;
     
     private byte[] configData = null;
     private int configLength = -1;
@@ -141,9 +141,9 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
         }
     }
     
-    public final boolean isInRealtimeMode()
+    public final boolean isInCockpit()
     {
-        return ( isInRealtimeMode );
+        return ( isInCockpit );
     }
     
     public void onConnectionEsteblished()
@@ -276,9 +276,9 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        isInRealtimeMode = true;
+        isInCockpit = true;
         
         if ( communicator.isConnected() )
         {
@@ -297,9 +297,9 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     }
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
-        isInRealtimeMode = false;
+        isInCockpit = false;
         
         if ( communicator.isConnected() )
         {

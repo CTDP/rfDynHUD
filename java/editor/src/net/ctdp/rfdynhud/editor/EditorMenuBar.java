@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -66,7 +67,7 @@ public class EditorMenuBar extends JMenuBar
     
     private final RFDynHUDEditor editor;
     
-    private final HashMap<String, DM> menuItemDMMap = new HashMap<String, EditorMenuBar.DM>();
+    private final Map<String, DM> menuItemDMMap = new HashMap<String, EditorMenuBar.DM>();
     
     private boolean needsDMCheck = true;
     
@@ -524,7 +525,7 @@ public class EditorMenuBar extends JMenuBar
         }
     }
     
-    private HashMap<String, Object> buildHierarchy( List<Class<?>> classes, HashMap<Class<?>, Widget> instances )
+    private Map<String, Object> buildHierarchy( List<Class<?>> classes, HashMap<Class<?>, Widget> instances )
     {
         HashMap<String, Object> hierarchy = new HashMap<String, Object>();
         

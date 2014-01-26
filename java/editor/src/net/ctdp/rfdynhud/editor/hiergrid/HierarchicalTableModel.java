@@ -22,6 +22,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTable;
@@ -45,9 +46,9 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     private final GridItemsHandler<P> gridItemsHandler;
     
     private GridItemsContainer<P> data;
-    private final ArrayList<Object> flatData = new ArrayList<Object>();
-    private final ArrayList<boolean[]> lastInGroup = new ArrayList<boolean[]>();
-    private final ArrayList<Integer> levels = new ArrayList<Integer>();
+    private final List<Object> flatData = new ArrayList<Object>();
+    private final List<boolean[]> lastInGroup = new ArrayList<boolean[]>();
+    private final List<Integer> levels = new ArrayList<Integer>();
     
     private final boolean[] ligTrace = new boolean[ 32 ];
     
@@ -103,7 +104,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         return ( false );
     }
     
-    private boolean computeFlatData( GridItemsContainer<P> items, Boolean expandFlags, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
+    private boolean computeFlatData( GridItemsContainer<P> items, Boolean expandFlags, int level, List<Object> flatData, boolean[] ligTrace, List<boolean[]> lastInGroup, List<Integer> levels )
     {
         boolean hasExpandableItems = false;
         int n = items.getNumberOfItems();

@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.util;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.render.ImageTemplate;
 
@@ -53,7 +54,7 @@ public class DefaultImageCache implements ImageCache
         }
     }
     
-    private final HashMap<String, Entry> map = new HashMap<String, Entry>();
+    private final Map<String, Entry> map = new HashMap<String, Entry>();
     
     private static final int ONE_MB = 1024 * 1024;
     

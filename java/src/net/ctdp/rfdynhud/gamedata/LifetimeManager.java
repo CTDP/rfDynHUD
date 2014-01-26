@@ -57,7 +57,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     public void onSessionStarted( LiveGameData gameData, boolean isEditorMode ) {}
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     /**
      * Reads initial values for engine lifetime and brake discs' thicknesses.
@@ -266,7 +266,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode ) {}
     
     LifetimeManager()
     {

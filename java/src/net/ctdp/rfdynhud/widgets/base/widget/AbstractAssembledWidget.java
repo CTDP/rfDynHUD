@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.widgets.base.widget;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -51,24 +52,24 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     static class AssembledGeneralStore
     {
         @SuppressWarnings( "rawtypes" )
-        private final HashMap<StatefulWidget, Object> generalStores = new HashMap<StatefulWidget, Object>();
+        private final Map<StatefulWidget, Object> generalStores = new HashMap<StatefulWidget, Object>();
     }
     
     static class AssembledLocalStore
     {
         @SuppressWarnings( "rawtypes" )
-        private final HashMap<StatefulWidget, Object> localStores = new HashMap<StatefulWidget, Object>();
+        private final Map<StatefulWidget, Object> localStores = new HashMap<StatefulWidget, Object>();
     }
     
     private boolean _initParts;
     private Widget[] initialParts;
     private Widget[] parts;
     
-    private void makeWidgetPart( Widget part )
+    private void makeWidgetPart( Widget part, LiveGameData gameData )
     {
         part.setMasterWidget( this );
         if ( getConfiguration() != null )
-            part.setConfiguration( getConfiguration() );
+            part.setConfiguration( getConfiguration(), gameData );
         
         part.getBorderProperty().setBorder( null );
         part.setPadding( 0, 0, 0, 0 );
@@ -110,14 +111,14 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
         return ( null );
     }
     
-    void addPart( Widget widget )
+    void addPart( Widget widget, LiveGameData gameData )
     {
         Widget[] tmp = new Widget[ parts.length +  1 ];
         System.arraycopy( parts, 0, tmp, 0, parts.length );
         parts = tmp;
         parts[parts.length - 1] = widget;
         
-        makeWidgetPart( widget );
+        makeWidgetPart( widget, gameData );
         
         if ( getConfiguration() != null )
             sortParts();
@@ -125,7 +126,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
         forceAndSetDirty( true );
     }
     
-    void removePart( Widget widget )
+    void removePart( Widget widget, LiveGameData gameData )
     {
         if ( parts.length == 0 )
             throw new IllegalArgumentException( "The passed Widget is not a part of this." );
@@ -136,7 +137,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
                 throw new IllegalArgumentException( "The passed Widget is not a part of this." );
             
             widget.setMasterWidget( null );
-            widget.setConfiguration( null );
+            widget.setConfiguration( null, gameData );
             parts = new Widget[ 0 ];
         }
         else
@@ -155,7 +156,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
                 throw new IllegalArgumentException( "The passed Widget is not a part of this." );
             
             widget.setMasterWidget( null );
-            widget.setConfiguration( null );
+            widget.setConfiguration( null, gameData );
             Widget[] tmp = new Widget[ parts.length - 1 ];
             
             if ( index == 0 )
@@ -365,13 +366,13 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     }
     
     @Override
-    final void setConfiguration( WidgetsConfiguration config )
+    final void setConfiguration( WidgetsConfiguration config, LiveGameData gameData )
     {
-        super.setConfiguration( config );
+        super.setConfiguration( config, gameData );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].setConfiguration( config );
+            parts[i].setConfiguration( config, gameData );
         }
     }
     
@@ -672,13 +673,13 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, isEditorMode );
+        super.onCockpitEntered( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onRealtimeEntered( gameData, isEditorMode );
+            parts[i].onCockpitEntered( gameData, isEditorMode );
         }
     }
     
@@ -784,13 +785,13 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeExited( gameData, isEditorMode );
+        super.onCockpitExited( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onRealtimeExited( gameData, isEditorMode );
+            parts[i].onCockpitExited( gameData, isEditorMode );
         }
     }
     
@@ -1013,7 +1014,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
         
         for ( int i = 0; i < getNumParts(); i++ )
         {
-            newWidget.addPart( getPart( i ).getNewInstanceForClone() );
+            newWidget.addPart( getPart( i ).getNewInstanceForClone(), null );
         }
         
         return ( newWidget );
@@ -1065,7 +1066,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            makeWidgetPart( parts[i] );
+            makeWidgetPart( parts[i], null );
         }
     }
     

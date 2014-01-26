@@ -597,14 +597,19 @@ void JVMTelemtryUpdateFunctions::call_onSessionEnded()
     env->CallVoidMethod( gameEventsManager, onSessionEnded, NULL );
 }
 
-char JVMTelemtryUpdateFunctions::call_onRealtimeEntered()
+char JVMTelemtryUpdateFunctions::call_onCockpitEntered()
 {
-    return ( env->CallByteMethod( gameEventsManager, onRealtimeEntered, NULL ) );
+    return ( env->CallByteMethod( gameEventsManager, onCockpitEntered, NULL ) );
 }
 
-char JVMTelemtryUpdateFunctions::call_onRealtimeExited()
+char JVMTelemtryUpdateFunctions::call_onCockpitExited()
 {
-    return ( env->CallByteMethod( gameEventsManager, onRealtimeExited, NULL ) );
+    return ( env->CallByteMethod( gameEventsManager, onCockpitExited, NULL ) );
+}
+
+char JVMTelemtryUpdateFunctions::call_onDrivingAidsUpdated()
+{
+    return ( env->CallByteMethod( gameEventsManager, onDrivingAidsUpdated, NULL ) );
 }
 
 char JVMTelemtryUpdateFunctions::call_onTelemetryDataUpdated( void* buffer, const unsigned int size )
@@ -614,7 +619,7 @@ char JVMTelemtryUpdateFunctions::call_onTelemetryDataUpdated( void* buffer, cons
     return ( env->CallByteMethod( gameEventsManager, onTelemetryDataUpdated, telemetryDataAddressKeeper ) );
 }
 
-JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1TelemetryData_fetchData( JNIEnv* env, jobject telemetryData, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1TelemetryData_fetchData( JNIEnv* env, jclass TelemetryData, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
 {
     void* buffer = env->GetPrimitiveArrayCritical( targetBuffer, &isCopy );
     memcpy( buffer, (void*)(long)sourceBufferAddress, (unsigned int)sourceBufferSize );
@@ -629,7 +634,7 @@ char JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated( const long numVehicl
     return ( env->CallByteMethod( gameEventsManager, onScoringInfoUpdated, (jint)numVehicles, scoringInfoAddressKeeper ) );
 }
 
-JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1ScoringInfo_fetchData( JNIEnv* env, jobject scoringInfo, jint numVehicles, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer, jlong sourceBufferAddress2, jint sourceBufferSize2, jbyteArray targetBuffer2 )
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1ScoringInfo_fetchData( JNIEnv* env, jclass ScoringInfo, jint numVehicles, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer, jlong sourceBufferAddress2, jint sourceBufferSize2, jbyteArray targetBuffer2 )
 {
     void* buffer = env->GetPrimitiveArrayCritical( targetBuffer, &isCopy );
     memcpy( buffer, (void*)(long)sourceBufferAddress, (unsigned int)sourceBufferSize );
@@ -651,7 +656,7 @@ char JVMTelemtryUpdateFunctions::call_onCommentaryRequestInfoUpdated( void* buff
     return ( env->CallByteMethod( gameEventsManager, onCommentaryRequestInfoUpdated, commentaryRequestInfoAddressKeeper ) );
 }
 
-JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1CommentaryRequestInfo_fetchData( JNIEnv* env, jobject commentaryRequestInfo, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1CommentaryRequestInfo_fetchData( JNIEnv* env, jclass CommentaryRequestInfo, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
 {
     void* buffer = env->GetPrimitiveArrayCritical( targetBuffer, &isCopy );
     memcpy( buffer, (void*)(long)sourceBufferAddress, (unsigned int)sourceBufferSize );
@@ -664,7 +669,7 @@ char JVMTelemtryUpdateFunctions::call_onGraphicsInfoUpdated( void* buffer, const
     return ( env->CallByteMethod( gameEventsManager, onGraphicsInfoUpdated, graphicsInfoAddressKeeper ) );
 }
 
-JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1GraphicsInfo_fetchData( JNIEnv* env, jobject graphicsInfo, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor1__1rf1_1GraphicsInfo_fetchData( JNIEnv* env, jclass GraphicsInfo, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
 {
     void* buffer = env->GetPrimitiveArrayCritical( targetBuffer, &isCopy );
     memcpy( buffer, (void*)(long)sourceBufferAddress, (unsigned int)sourceBufferSize );
@@ -738,19 +743,27 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    onRealtimeEntered = env->GetMethodID( GameEventsManager, "onRealtimeEntered", "(Ljava/lang/Object;)B" );
+    onCockpitEntered = env->GetMethodID( GameEventsManager, "onCockpitEntered", "(Ljava/lang/Object;)B" );
     
-    if ( onRealtimeEntered == 0 )
+    if ( onCockpitEntered == 0 )
     {
-        logg( "ERROR: Failed to find the onRealtimeEntered() method." );
+        logg( "ERROR: Failed to find the onCockpitEntered() method." );
         return ( false );
     }
 
-    onRealtimeExited = env->GetMethodID( GameEventsManager, "onRealtimeExited", "(Ljava/lang/Object;)B" );
+    onCockpitExited = env->GetMethodID( GameEventsManager, "onCockpitExited", "(Ljava/lang/Object;)B" );
     
-    if ( onRealtimeExited == 0 )
+    if ( onCockpitExited == 0 )
     {
-        logg( "ERROR: Failed to find the onRealtimeExited() method." );
+        logg( "ERROR: Failed to find the onCockpitExited() method." );
+        return ( false );
+    }
+
+    onDrivingAidsUpdated = env->GetMethodID( GameEventsManager, "onDrivingAidsUpdated", "(Ljava/lang/Object;)B" );
+    
+    if ( onDrivingAidsUpdated == 0 )
+    {
+        logg( "ERROR: Failed to find the onDrivingAidsUpdated() method." );
         return ( false );
     }
     
@@ -874,8 +887,8 @@ void JVMTelemtryUpdateFunctions::destroy()
     if ( commentaryRequestInfoAddressKeeper != NULL )
         env->DeleteLocalRef( commentaryRequestInfoAddressKeeper );
     
-    onRealtimeExited = 0;
-    onRealtimeEntered = 0;
+    onCockpitExited = 0;
+    onCockpitEntered = 0;
     onSessionEnded = 0;
     onSessionStarted = 0;
     onShutdown = 0;

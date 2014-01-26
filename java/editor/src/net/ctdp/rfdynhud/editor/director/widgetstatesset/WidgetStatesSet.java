@@ -42,7 +42,7 @@ public class WidgetStatesSet implements PropertiesKeeper, Comparable<WidgetState
 {
     private final StringProperty name = new StringProperty( "name", "" );
     
-    private final ArrayList<WidgetState> states = new ArrayList<WidgetState>();
+    private final List<WidgetState> states = new ArrayList<WidgetState>();
     
     public void setName( String name )
     {

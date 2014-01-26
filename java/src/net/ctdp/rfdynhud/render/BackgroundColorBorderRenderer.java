@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -26,7 +27,7 @@ import java.util.HashMap;
  */
 public class BackgroundColorBorderRenderer implements BorderRenderer
 {
-    private final HashMap<Color, TextureImage2D> cache = new HashMap<Color, TextureImage2D>();
+    private final Map<Color, TextureImage2D> cache = new HashMap<Color, TextureImage2D>();
     
     private TextureImage2D createBorder( Color backgroundColor )
     {

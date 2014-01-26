@@ -34,6 +34,7 @@
 package org.openmali.pooling;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simple collection used to store free objects which we need to work with
@@ -47,7 +48,7 @@ import java.util.ArrayList;
  */
 public abstract class ObjectPool<T>
 {
-    private final ArrayList<T> objects;
+    private final List<T> objects;
     private int n;
     
     public int getSize()

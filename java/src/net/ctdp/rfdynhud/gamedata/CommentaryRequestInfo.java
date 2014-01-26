@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.util.RFDHLog;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
@@ -121,17 +123,6 @@ public abstract class CommentaryRequestInfo
     }
     
     /**
-     * Increments the update ID.
-     * 
-     * @param timestamp
-     */
-    protected void onDataUpdated( long timestamp )
-    {
-        this.updateTimestamp = timestamp;
-        this.updateId++;
-    }
-    
-    /**
      * 
      * @param userObject
      * @param timestamp
@@ -145,14 +136,24 @@ public abstract class CommentaryRequestInfo
      * @param timestamp
      * @param isEditorMode
      */
-    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
-        onDataUpdated( timestamp );
+        this.updateTimestamp = timestamp;
+        this.updateId++;
         
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onCommentaryInfoUpdated( gameData, isEditorMode );
+            {
+                try
+                {
+                    updateListeners[i].onCommentaryInfoUpdated( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
     }
     

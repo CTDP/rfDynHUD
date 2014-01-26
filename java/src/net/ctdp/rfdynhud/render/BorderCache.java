@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -34,7 +35,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class BorderCache
 {
-    private static final HashMap<String, Object[]> CACHE = new HashMap<String, Object[]>();
+    private static final Map<String, Object[]> CACHE = new HashMap<String, Object[]>();
     
     private static String parseTypeFromIni( File iniFile )
     {

@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
@@ -51,7 +52,7 @@ public class ImageForDriverWidget extends ImageWidget
     private ImagePropertyWithTexture imageName2 = null;
     private String defaultImageName = null;
     
-    private final HashMap<String, String> mappings = new HashMap<String, String>();
+    private final Map<String, String> mappings = new HashMap<String, String>();
     
     private int currentViewedDriverId = -1;
     

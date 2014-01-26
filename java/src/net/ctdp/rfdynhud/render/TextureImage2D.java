@@ -46,6 +46,7 @@ import java.awt.image.Raster;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -87,7 +88,7 @@ public class TextureImage2D
     private final int pixelBytes;
     private final int pixelSize;
     
-    private final ArrayList<Rect2i> updateList;
+    private final List<Rect2i> updateList;
     
     private final Rect2i userClipRect = new Rect2i( 0, 0, 128, 128 );
     private final Rect2i clipRect = new Rect2i( 0, 0, 128, 128 );
@@ -709,7 +710,7 @@ public class TextureImage2D
         }
     }
     
-    final ArrayList<Rect2i> getUpdateList()
+    final List<Rect2i> getUpdateList()
     {
         return ( updateList );
     }

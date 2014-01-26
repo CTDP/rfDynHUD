@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
+import java.util.List;
 
 import net.ctdp.rfdynhud.util.RFDHLog;
 
@@ -57,7 +57,7 @@ public class TextureDirtyRectsManager
      */
     public static short getDirtyRects( TextureImage2D texture, ByteBuffer buffer, boolean resetBufferToStart )
     {
-        ArrayList<Rect2i> dirtyList = texture.getUpdateList();
+        List<Rect2i> dirtyList = texture.getUpdateList();
         int numDirtyRects = dirtyList.size();
         
         if ( buffer != null )
@@ -123,7 +123,7 @@ public class TextureDirtyRectsManager
      */
     public static void drawDirtyRects( TextureImage2D texture )
     {
-        ArrayList<Rect2i> dirtyList = texture.getUpdateList();
+        List<Rect2i> dirtyList = texture.getUpdateList();
         int numDirtyRects = dirtyList.size();
         
         //System.out.println( numDirtyRects );

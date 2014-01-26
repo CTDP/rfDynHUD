@@ -50,7 +50,7 @@ class _rf2_GraphicsInfo extends GraphicsInfo
     
     private final ScoringInfo scoringInfo;
     
-    private native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
+    private static native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
     
     @Override
     protected void updateDataImpl( Object userObject, long timestamp )

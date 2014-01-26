@@ -428,8 +428,33 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
         return ( result );
     }
     
-    void setConfiguration( WidgetsConfiguration config )
+    /**
+     * This event is called after this Widget was added to its {@link WidgetsConfiguration}.
+     * 
+     * @param config
+     * @param gameData
+     */
+    protected void onWidgetAttached( WidgetsConfiguration config, LiveGameData gameData )
     {
+    }
+    
+    /**
+     * This event is called after this Widget was removed from its {@link WidgetsConfiguration}.
+     * 
+     * @param config
+     * @param gameData
+     */
+    protected void onWidgetDetached( WidgetsConfiguration config, LiveGameData gameData )
+    {
+    }
+    
+    void setConfiguration( WidgetsConfiguration config, LiveGameData gameData )
+    {
+        if ( config == this.config )
+            return;
+        
+        WidgetsConfiguration oldConfig = this.config;
+        
         this.config = config;
         
         if ( this.config != null )
@@ -443,6 +468,11 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
                 AbstractPropertiesKeeper.setKeeper( pc.getList().get( i ), this );
             }
         }
+        
+        if ( config == null )
+            onWidgetDetached( oldConfig, gameData );
+        else
+            onWidgetAttached( oldConfig, gameData );
     }
     
     /**
@@ -1292,9 +1322,24 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * 
+     * @deprecated replaced by {@link #onCockpitEntered(LiveGameData, boolean)}
      */
+    @Deprecated
     public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
+    }
+    
+    /**
+     * This method is called when a the user entered  the cockpit. If your {@link Widget} needs some data
+     * to be drawn correctly, consider using {@link #onNeededDataComplete(LiveGameData, boolean)}.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     */
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
+    {
+        onRealtimeEntered( gameData, isEditorMode );
     }
     
     /**
@@ -1372,9 +1417,23 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * 
+     * @deprecated replaced by {@link #onCockpitExited(LiveGameData, boolean)}
      */
+    @Deprecated
     public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
+    }
+    
+    /**
+     * This method is called when a the user exited the cockpit.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     */
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
+    {
+        onRealtimeExited( gameData, isEditorMode );
     }
     
     /**

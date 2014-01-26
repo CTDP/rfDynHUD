@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.ctdp.rfdynhud.gamedata.GameResolution;
@@ -67,19 +68,19 @@ public class WidgetsConfiguration implements PropertiesKeeper
     
     private String name = null;
     
-    private final ArrayList<Widget> widgets = new ArrayList<Widget>();
-    private final HashMap<String, Widget> widgetsMap = new HashMap<String, Widget>();
+    private final List<Widget> widgets = new ArrayList<Widget>();
+    private final Map<String, Widget> widgetsMap = new HashMap<String, Widget>();
     
-    private final HashMap<String, Color> colorMap = new HashMap<String, Color>();
-    private final HashMap<String, Font> fontMap = new HashMap<String, Font>();
-    private final HashMap<String, String> fontStringMap = new HashMap<String, String>();
-    private final HashMap<String, Boolean> fontVirtualMap = new HashMap<String, Boolean>();
-    private final HashMap<String, String> borderMap = new HashMap<String, String>();
+    private final Map<String, Color> colorMap = new HashMap<String, Color>();
+    private final Map<String, Font> fontMap = new HashMap<String, Font>();
+    private final Map<String, String> fontStringMap = new HashMap<String, String>();
+    private final Map<String, Boolean> fontVirtualMap = new HashMap<String, Boolean>();
+    private final Map<String, String> borderMap = new HashMap<String, String>();
     
     //@SuppressWarnings( "unchecked" )
-    //private final HashMap<Class<? extends StatefulWidget>, Object> generalStores = new HashMap<Class<? extends StatefulWidget>, Object>();
-    private final HashMap<String, Object> localStores = new HashMap<String, Object>();
-    private final HashMap<String, Boolean> visibilities = new HashMap<String, Boolean>();
+    //private final Map<Class<? extends StatefulWidget>, Object> generalStores = new HashMap<Class<? extends StatefulWidget>, Object>();
+    private final Map<String, Object> localStores = new HashMap<String, Object>();
+    private final Map<String, Boolean> visibilities = new HashMap<String, Boolean>();
     
     private final BooleanProperty useClassScoring = new BooleanProperty( "useClassScoring", "useClassScoring", false, false );
     
@@ -156,12 +157,13 @@ public class WidgetsConfiguration implements PropertiesKeeper
      * 
      * @param widget
      * @param isLoading
+     * @param gameData
      */
-    void addWidget( Widget widget, boolean isLoading )
+    void addWidget( Widget widget, boolean isLoading, LiveGameData gameData )
     {
         widgets.add( widget );
         widgetsMap.put( widget.getName(), widget );
-        __WPrivilegedAccess.setConfiguration( this, widget, isLoading );
+        __WPrivilegedAccess.setConfiguration( this, widget, isLoading, gameData );
         
         sortWidgets();
     }
@@ -170,9 +172,10 @@ public class WidgetsConfiguration implements PropertiesKeeper
      * Removes a {@link Widget} from the drawing process.
      * 
      * @param widget
+     * @param gameData
      */
     @SuppressWarnings( "rawtypes" )
-    void removeWidget( Widget widget )
+    void removeWidget( Widget widget, LiveGameData gameData )
     {
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
@@ -185,7 +188,7 @@ public class WidgetsConfiguration implements PropertiesKeeper
         }
         
         if ( widget.getConfiguration() != null )
-            __WPrivilegedAccess.setConfiguration( null, widget, false );
+            __WPrivilegedAccess.setConfiguration( null, widget, false, gameData );
     }
     
     /**
@@ -216,7 +219,7 @@ public class WidgetsConfiguration implements PropertiesKeeper
                     localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
                 visibilities.put( getLocalStoreKey( widget ), widget.getInputVisibility() );
                 
-                __WPrivilegedAccess.setConfiguration( null, widget, false );
+                __WPrivilegedAccess.setConfiguration( null, widget, false, gameData );
             }
         }
         

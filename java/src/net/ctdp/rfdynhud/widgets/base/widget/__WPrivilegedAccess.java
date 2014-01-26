@@ -31,14 +31,14 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class __WPrivilegedAccess
 {
-    public static void addPart( Widget widget, AbstractAssembledWidget assWidget )
+    public static void addPart( Widget widget, AbstractAssembledWidget assWidget, LiveGameData gameData )
     {
-        assWidget.addPart( widget );
+        assWidget.addPart( widget, gameData );
     }
     
-    public static void removePart( Widget widget, AbstractAssembledWidget assWidget )
+    public static void removePart( Widget widget, AbstractAssembledWidget assWidget, LiveGameData gameData )
     {
-        assWidget.removePart( widget );
+        assWidget.removePart( widget, gameData );
     }
     
     public static final void sortWidgetParts( AbstractAssembledWidget assWidget )
@@ -46,9 +46,9 @@ public class __WPrivilegedAccess
         assWidget.sortParts();
     }
     
-    public static final void setConfiguration( WidgetsConfiguration config, Widget widget, boolean loading )
+    public static final void setConfiguration( WidgetsConfiguration config, Widget widget, boolean loading, LiveGameData gameData )
     {
-        widget.setConfiguration( config );
+        widget.setConfiguration( config, gameData );
         
         if ( !loading && ( config != null ) && ( widget instanceof AbstractAssembledWidget ) )
             ( (AbstractAssembledWidget)widget ).arrangeParts();

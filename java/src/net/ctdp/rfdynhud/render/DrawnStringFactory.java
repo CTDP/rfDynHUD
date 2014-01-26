@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.render;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -26,7 +27,7 @@ public class DrawnStringFactory
 {
     private final Widget widget;
     
-    private final HashMap<String, DrawnString> map = new HashMap<String, DrawnString>();
+    private final Map<String, DrawnString> map = new HashMap<String, DrawnString>();
     
     void onWidgetCleared()
     {

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.table.DefaultTableModel;
@@ -63,10 +64,10 @@ public class ImageTableModel extends DefaultTableModel
     
     private File folder;
     
-    private final ArrayList<String> folderNames = new ArrayList<String>();
-    private final ArrayList<String> imageNames = new ArrayList<String>();
-    private final HashMap<String, Image> thumbsCache = new HashMap<String, Image>();
-    private final HashMap<String, String> sizeCache = new HashMap<String, String>();
+    private final List<String> folderNames = new ArrayList<String>();
+    private final List<String> imageNames = new ArrayList<String>();
+    private final Map<String, Image> thumbsCache = new HashMap<String, Image>();
+    private final Map<String, String> sizeCache = new HashMap<String, String>();
     
     private static void readFoldernames( File folder, List<String> filenames )
     {

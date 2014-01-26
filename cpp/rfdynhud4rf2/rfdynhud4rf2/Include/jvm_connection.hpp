@@ -168,9 +168,9 @@ private:
     jmethodID onShutdown;
     jmethodID onSessionStarted;
     jmethodID onSessionEnded;
-    jmethodID onRealtimeEntered;
-    jmethodID onRealtimeExited;
-    jmethodID onTelemetryDataUpdated;
+    jmethodID onCockpitEntered;
+    jmethodID onCockpitExited;
+    jobject drivingAidsAddressKeeper;
     jobject telemetryDataAddressKeeper;
     jobject scoringInfoAddressKeeper;
     jobject commentaryRequestInfoAddressKeeper;
@@ -178,6 +178,8 @@ private:
     jmethodID setBufferInfo;
     jmethodID setBufferInfo1;
     jmethodID setBufferInfo2;
+    jmethodID onDrivingAidsUpdated;
+    jmethodID onTelemetryDataUpdated;
     jmethodID onScoringInfoUpdated;
     jmethodID onCommentaryRequestInfoUpdated;
     jmethodID onGraphicsInfoUpdated;
@@ -192,9 +194,11 @@ public:
     
     void call_onSessionEnded();
     
-    char call_onRealtimeEntered();
+    char call_onCockpitEntered();
     
-    char call_onRealtimeExited();
+    char call_onCockpitExited();
+    
+    char call_onDrivingAidsUpdated( void* buffer, const unsigned int size );
     
     char call_onTelemetryDataUpdated( void* buffer, const unsigned int size );
     

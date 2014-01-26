@@ -122,7 +122,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onVehiclePhysicsUpdated( LiveGameData gameData )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -138,7 +138,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -154,7 +154,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -172,7 +172,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -188,7 +188,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -204,7 +204,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onGarageEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -220,7 +220,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onGarageExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -250,7 +250,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         /*
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -268,7 +268,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -285,7 +285,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -299,9 +299,9 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -320,9 +320,9 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     }
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -365,7 +365,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -393,7 +393,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -421,7 +421,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void beforeWidgetsAreRendered( LiveGameData gameData, WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter )
     {
-        if ( !gameData.isInRealtimeMode() )
+        if ( !gameData.isInCockpit() )
             return;
         
         try
@@ -447,7 +447,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         
         eventsManager.onStartup( now );
         eventsManager.onSessionStarted( now );
-        eventsManager.onRealtimeEntered( now );
+        eventsManager.onCockpitEntered( now );
         eventsManager.onCommentaryRequestInfoUpdated( null );
         eventsManager.onGraphicsInfoUpdated( null );
         eventsManager.beforeRender( (short)0, (short)0, (short)1920, (short)1080 );

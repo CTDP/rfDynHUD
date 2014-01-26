@@ -302,9 +302,9 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, isEditorMode );
+        super.onCockpitEntered( gameData, isEditorMode );
         
         lastGear = 0;
         peakRPM = 0f;

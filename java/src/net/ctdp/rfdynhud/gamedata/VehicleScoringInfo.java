@@ -327,7 +327,7 @@ public abstract class VehicleScoringInfo
             }
         }
         
-        if ( !isPlayer() || gameData.isInRealtimeMode() )
+        if ( !isPlayer() || gameData.isInCockpit() )
             stintLength = currentLap - stintStartLap + trackPos;
         else
             stintLength = 0.0f;

@@ -25,6 +25,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
@@ -54,7 +55,7 @@ public class HierarchicalTable<P extends Object> extends JTable
     private final TableCellRendererProvider<P> rendererProvider;
     private final HierarchicalGridStyle style;
     
-    private final ArrayList<PropertySelectionListener<P>> selectionListeners = new ArrayList<PropertySelectionListener<P>>();
+    private final List<PropertySelectionListener<P>> selectionListeners = new ArrayList<PropertySelectionListener<P>>();
     
     private class TableUI extends BasicTableUI
     {

@@ -27,6 +27,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -58,7 +59,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     private final PropertiesEditor propertiesEditor = new PropertiesEditor();
     private HierarchicalTable<Property> editorTable = null;
     
-    private final HashMap<String, ChangedProperty> changed = new HashMap<String, ChangedProperty>();
+    private final Map<String, ChangedProperty> changed = new HashMap<String, ChangedProperty>();
     private int maxChangeId = 0;
     
     private JCheckBox cbxAutoApply;

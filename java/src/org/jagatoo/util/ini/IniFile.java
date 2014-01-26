@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.io.FileUtils;
@@ -47,9 +48,9 @@ import org.jagatoo.util.io.FileUtils;
  */
 public class IniFile
 {
-    private final HashMap<String, HashMap<String, String>> settings = new HashMap<String, HashMap<String, String>>();
-    private final ArrayList<String> groupsOrder = new ArrayList<String>();
-    private final HashMap<String, ArrayList<String>> settingsOrder = new HashMap<String, ArrayList<String>>();
+    private final Map<String, Map<String, String>> settings = new HashMap<String, Map<String, String>>();
+    private final List<String> groupsOrder = new ArrayList<String>();
+    private final Map<String, List<String>> settingsOrder = new HashMap<String, List<String>>();
     
     public static final boolean DEFAULT_CASE_SENSITIVITY = true;
     
@@ -154,7 +155,7 @@ public class IniFile
     public final boolean settingExists( String group, String key )
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
-        HashMap<String, String> map = settings.get( group_ );
+        Map<String, String> map = settings.get( group_ );
         
         if ( map == null )
             return ( false );
@@ -174,7 +175,7 @@ public class IniFile
     public final String getSetting( String group, String key, String defaultValue )
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
-        HashMap<String, String> map = settings.get( group_ );
+        Map<String, String> map = settings.get( group_ );
         
         if ( map == null )
             return ( defaultValue );
@@ -198,7 +199,7 @@ public class IniFile
     public final String getSetting( String group, String key )
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
-        HashMap<String, String> map = settings.get( group_ );
+        Map<String, String> map = settings.get( group_ );
         
         if ( map == null )
             return ( null );
@@ -250,7 +251,7 @@ public class IniFile
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
         
-        ArrayList<String> list = settingsOrder.get( group_ );
+        List<String> list = settingsOrder.get( group_ );
         
         if ( list == null )
             return ( -1 );
@@ -270,7 +271,7 @@ public class IniFile
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
         
-        ArrayList<String> list = settingsOrder.get( group_ );
+        List<String> list = settingsOrder.get( group_ );
         
         if ( list == null )
             return ( null );
@@ -289,7 +290,7 @@ public class IniFile
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
         
-        ArrayList<String> list = settingsOrder.get( group_ );
+        List<String> list = settingsOrder.get( group_ );
         
         if ( list == null )
             return ( null );
