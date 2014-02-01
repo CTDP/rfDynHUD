@@ -23,6 +23,8 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jagatoo.util.streams.StreamUtils;
+
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
@@ -162,6 +164,25 @@ class _rf1_ScoringInfo extends ScoringInfo
             __GDPrivilegedAccess.setVehicleClass( this, 19, classA );
             __GDPrivilegedAccess.setVehicleClass( this, 20, classA );
             __GDPrivilegedAccess.setVehicleClass( this, 21, classA );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readDefaultValues( EditorPresets editorPresets ) throws IOException
+    {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/scoring_info" );
+        
+        try
+        {
+            readFromStream( in, editorPresets );
+        }
+        finally
+        {
+            if ( in != null )
+                StreamUtils.closeStream( in );
         }
     }
     

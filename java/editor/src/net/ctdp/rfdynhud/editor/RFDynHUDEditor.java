@@ -27,7 +27,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +74,6 @@ import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
@@ -129,8 +128,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private WidgetsDrawingManager drawingManager;
     private WidgetsConfiguration widgetsConfig;
     private GameEventsManager eventsManager;
-    private final GameResolution gameResolution;
-    private final Property gameResProp = new Property( "resolution", true, PropertyEditorType.STRING )
+    private GameResolution gameResolution;
+    private Property gameResProp = new Property( "resolution", true, PropertyEditorType.STRING )
     {
         @Override
         public void setValue( Object value )
@@ -164,37 +163,37 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private boolean alwaysShowHelpOnStartup = true;
     private boolean watchedWaitFor60Seconds = false;
     
-    private final JFrame window;
+    private JFrame window;
     private int windowLeft, windowTop;
     private int windowWidth, windowHeight;
-    private final EditorMenuBar menuBar;
-    private final WidgetsEditorPanel editorPanel;
-    private final JScrollPane editorScrollPane;
+    private EditorMenuBar menuBar;
+    private WidgetsEditorPanel editorPanel;
+    private JScrollPane editorScrollPane;
     
-    private final JSplitPane mainSplit;
-    private final JSplitPane propsSplit;
+    private JSplitPane mainSplit;
+    private JSplitPane propsSplit;
     
-    private final JTabbedPane tabDirector;
+    private JTabbedPane tabDirector;
     private DirectorManager directorMgr = null;
     private File currentDirectorStatesSetsFile = null;
     private String directorConnectionStrings = null;
     
-    private final PropertiesEditor propsEditor;
-    private final HierarchicalTable<Property> editorTable;
-    private final JEditorPane docPanel;
+    private PropertiesEditor propsEditor;
+    private HierarchicalTable<Property> editorTable;
+    private JEditorPane docPanel;
     private boolean isSomethingDoced = false;
     
-    private final EditorStatusBar statusBar;
+    private EditorStatusBar statusBar;
     
-    private final EditorPresets presets = new EditorPresets();
+    private EditorPresets presets = new EditorPresets();
     
-    private final EditorRunningIndicator runningIndicator;
+    private EditorRunningIndicator runningIndicator;
     
     public static final String doc_header = StringUtils.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
     public static final String doc_footer = StringUtils.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
     
     private boolean presetsWindowVisible = false;
-    final EditorPresetsWindow presetsWindow;
+    EditorPresetsWindow presetsWindow;
     
     private boolean dirtyFlag = false;
     
@@ -205,7 +204,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private WidgetsConfiguration templateConfig = null;
     private long lastTemplateConfigModified = -1L;
     
-    private final Property templateConfigProp;
+    private Property templateConfigProp;
     
     ImportDecision lastImportDecision = ImportDecision.USE_DESTINATION_ALIASES;
     
@@ -1585,40 +1584,23 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( window, alwaysShowHelpOnStartup, false ).getAlwaysShowOnStartup();
     }
     
-    private static void initTestGameData( LiveGameData gameData, EditorPresets editorPresets )
+    private static void initTestGameData( LiveGameData gameData, EditorPresets editorPresets ) throws IOException
     {
-        try
-        {
-            ClassLoader classLoader = RFDynHUDEditor.class.getClassLoader();
-            
-            InputStream in = classLoader.getResourceAsStream( "data/game_data/commentary_info" );
-            gameData.getCommentaryRequestInfo().readFromStream( in, true );
-            in.close();
-            
-            in = classLoader.getResourceAsStream( "data/game_data/graphics_info" );
-            gameData.getGraphicsInfo().readFromStream( in, true );
-            in.close();
-            
-            in = classLoader.getResourceAsStream( "data/game_data/scoring_info" );
-            gameData.getScoringInfo().readFromStream( in, editorPresets );
-            in.close();
-            
-            in = classLoader.getResourceAsStream( "data/game_data/telemetry_data" );
-            gameData.getTelemetryData().readFromStream( in, true );
-            in.close();
-            
-            __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
-        }
-        catch ( IOException e )
-        {
-            throw new Error( e );
-        }
+        gameData.getCommentaryRequestInfo().readDefaultValues( true );
+        
+        gameData.getGraphicsInfo().readDefaultValues( true );
+        
+        gameData.getScoringInfo().readDefaultValues( editorPresets );
+        
+        gameData.getTelemetryData().readDefaultValues( true );
+        
+        gameData.getDrivingAids().readDefaultValues( true );
+        
+        __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
     }
     
-    private void initGameDataObjects()
+    private void initGameDataObjects( _LiveGameDataObjectsFactory gdFactory ) throws IOException
     {
-        _LiveGameDataObjectsFactory gdFactory = new _rf1_LiveGameDataObjectsFactory();
-        
         int[] resolution = loadResolutionFromUserSettings( gdFactory.newGameFileSystem( __UtilHelper.PLUGIN_INI ) );
         
         this.drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1] );
@@ -1651,6 +1633,33 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         eventsManager.onScoringInfoUpdated( 22, null, true );
         
         __GDPrivilegedAccess.setInCockpit( true, gameData, System.nanoTime(), true );
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    private _LiveGameDataObjectsFactory initGameDataObjectsFactory( ClassLoader classLoader, String objectFactory )
+    {
+        _LiveGameDataObjectsFactory gdFactory = null;
+        
+        if ( objectFactory != null )
+        {
+            try
+            {
+                Class<_LiveGameDataObjectsFactory> clazz = null;
+                
+                if ( classLoader == null )
+                    clazz = (Class<_LiveGameDataObjectsFactory>)Class.forName( objectFactory );
+                else
+                    clazz = (Class<_LiveGameDataObjectsFactory>)Class.forName( objectFactory, true, classLoader );
+                
+                gdFactory = clazz.newInstance();
+            }
+            catch ( Throwable t )
+            {
+                throw new Error( t );
+            }
+        }
+        
+        return ( gdFactory );
     }
     
     private WidgetsEditorPanel createEditorPanel()
@@ -1719,167 +1728,130 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( templateConfigProp );
     }
     
-    public RFDynHUDEditor()
+    public void start( _LiveGameDataObjectsFactory gdFactory )
     {
-        super();
-        
         try
         {
-            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+            initGameDataObjects( gdFactory );
+            
+            FontUtils.loadCustomFonts( gameData.getFileSystem() );
+            
+            this.window = new JFrame( BASE_WINDOW_TITLE );
+            
+            window.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
+            
+            this.menuBar = new EditorMenuBar( this );
+            window.setJMenuBar( menuBar );
+            
+            Container contentPane = window.getContentPane();
+            contentPane.setLayout( new BorderLayout() );
+            
+            this.editorPanel = createEditorPanel();
+            this.gameResolution = widgetsConfig.getGameResolution();
+            
+            templateConfigProp = createTemplateConfigProperty( gameData.getFileSystem()  );
+            
+            AbstractPropertiesKeeper.setKeeper( gameResProp, null );
+            AbstractPropertiesKeeper.setKeeper( templateConfigProp, null );
+            
+            editorScrollPane = new JScrollPane( editorPanel );
+            editorScrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
+            editorScrollPane.getVerticalScrollBar().setUnitIncrement( 20 );
+            editorScrollPane.getViewport().setScrollMode( JViewport.SIMPLE_SCROLL_MODE );
+            editorScrollPane.setPreferredSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
+            
+            mainSplit = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
+            mainSplit.setOneTouchExpandable( true );
+            mainSplit.setContinuousLayout( true );
+            mainSplit.setResizeWeight( 1 );
+            mainSplit.add( editorScrollPane );
+            
+            this.propsEditor = new PropertiesEditor();
+            this.propsEditor.addChangeListener( new WidgetPropertyChangeListener( this ) );
+            
+            propsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+            propsSplit.setContinuousLayout( true );
+            propsSplit.setResizeWeight( 0 );
+            propsSplit.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
+            propsSplit.setMinimumSize( new Dimension( 300, 10 ) );
+            
+            editorTable = PropertiesEditorTableModel.newTable( this, propsEditor );
+            
+            propsSplit.add( editorTable.createScrollPane() );
+            
+            editorTable.addPropertySelectionListener( this );
+            
+            docPanel = new JEditorPane( "text/html", "" );
+            ( (HTMLDocument)docPanel.getDocument() ).getStyleSheet().importStyleSheet( RFDynHUDEditor.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc.css" ) );
+            docPanel.setEditable( false );
+            docPanel.setAutoscrolls( false );
+            JScrollPane sp = new JScrollPane( docPanel );
+            sp.setMinimumSize( new Dimension( 300, 10 ) );
+            propsSplit.add( sp );
+            propsSplit.setDividerLocation( 450 );
+            
+            propsSplit.resetToPreferredSizes();
+            
+            mainSplit.add( propsSplit );
+            contentPane.add( mainSplit, BorderLayout.CENTER );
+            
+            mainSplit.resetToPreferredSizes();
+            
+            this.tabDirector = new JTabbedPane();
+            
+            this.runningIndicator = new EditorRunningIndicator( this );
+            
+            this.statusBar = new EditorStatusBar( runningIndicator );
+            
+            contentPane.add( statusBar, BorderLayout.SOUTH );
+            
+            this.presetsWindow = new EditorPresetsWindow( this );
+            
+            window.addWindowListener( new WindowAdapter()
+            {
+                @Override
+                public void windowClosing( WindowEvent e )
+                {
+                    onCloseRequested();
+                }
+            } );
+            
+            window.addComponentListener( new ComponentAdapter()
+            {
+                @Override    
+                public void componentMoved( ComponentEvent e )
+                {
+                    if ( getMainWindow().getExtendedState() == JFrame.NORMAL )
+                    {
+                        windowLeft = getMainWindow().getX();
+                        windowTop = getMainWindow().getY();
+                    }
+                }
+                
+                @Override
+                public void componentResized( ComponentEvent e )
+                {
+                    if ( getMainWindow().getExtendedState() == JFrame.NORMAL )
+                    {
+                        windowWidth = getMainWindow().getWidth();
+                        windowHeight = getMainWindow().getHeight();
+                    }
+                }
+            } );
+            
+            AbstractPropertiesKeeper.attachKeeper( editorPanel.getSettings() );
         }
         catch ( Throwable t )
         {
-        }
-        
-        initGameDataObjects();
-        
-        FontUtils.loadCustomFonts( gameData.getFileSystem() );
-        
-        this.window = new JFrame( BASE_WINDOW_TITLE );
-        
-        window.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
-        
-        this.menuBar = new EditorMenuBar( this );
-        window.setJMenuBar( menuBar );
-        
-        Container contentPane = window.getContentPane();
-        contentPane.setLayout( new BorderLayout() );
-        
-        this.editorPanel = createEditorPanel();
-        this.gameResolution = widgetsConfig.getGameResolution();
-        
-        templateConfigProp = createTemplateConfigProperty( gameData.getFileSystem()  );
-        
-        AbstractPropertiesKeeper.setKeeper( gameResProp, null );
-        AbstractPropertiesKeeper.setKeeper( templateConfigProp, null );
-        
-        editorScrollPane = new JScrollPane( editorPanel );
-        editorScrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
-        editorScrollPane.getVerticalScrollBar().setUnitIncrement( 20 );
-        editorScrollPane.getViewport().setScrollMode( JViewport.SIMPLE_SCROLL_MODE );
-        editorScrollPane.setPreferredSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
-        
-        mainSplit = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
-        mainSplit.setOneTouchExpandable( true );
-        mainSplit.setContinuousLayout( true );
-        mainSplit.setResizeWeight( 1 );
-        mainSplit.add( editorScrollPane );
-        
-        this.propsEditor = new PropertiesEditor();
-        this.propsEditor.addChangeListener( new WidgetPropertyChangeListener( this ) );
-        
-        propsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
-        propsSplit.setContinuousLayout( true );
-        propsSplit.setResizeWeight( 0 );
-        propsSplit.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
-        propsSplit.setMinimumSize( new Dimension( 300, 10 ) );
-        
-        editorTable = PropertiesEditorTableModel.newTable( this, propsEditor );
-        
-        propsSplit.add( editorTable.createScrollPane() );
-        
-        editorTable.addPropertySelectionListener( this );
-        
-        docPanel = new JEditorPane( "text/html", "" );
-        ( (HTMLDocument)docPanel.getDocument() ).getStyleSheet().importStyleSheet( RFDynHUDEditor.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc.css" ) );
-        docPanel.setEditable( false );
-        docPanel.setAutoscrolls( false );
-        JScrollPane sp = new JScrollPane( docPanel );
-        sp.setMinimumSize( new Dimension( 300, 10 ) );
-        propsSplit.add( sp );
-        propsSplit.setDividerLocation( 450 );
-        
-        propsSplit.resetToPreferredSizes();
-        
-        mainSplit.add( propsSplit );
-        contentPane.add( mainSplit, BorderLayout.CENTER );
-        
-        mainSplit.resetToPreferredSizes();
-        
-        this.tabDirector = new JTabbedPane();
-        
-        this.runningIndicator = new EditorRunningIndicator( this );
-        
-        this.statusBar = new EditorStatusBar( runningIndicator );
-        
-        contentPane.add( statusBar, BorderLayout.SOUTH );
-        
-        this.presetsWindow = new EditorPresetsWindow( this );
-        
-        window.addWindowListener( new WindowAdapter()
-        {
-            @Override
-            public void windowClosing( WindowEvent e )
-            {
-                onCloseRequested();
-            }
-        } );
-        
-        window.addComponentListener( new ComponentAdapter()
-        {
-            @Override    
-            public void componentMoved( ComponentEvent e )
-            {
-                if ( getMainWindow().getExtendedState() == JFrame.NORMAL )
-                {
-                    windowLeft = getMainWindow().getX();
-                    windowTop = getMainWindow().getY();
-                }
-            }
+            t.printStackTrace();
             
-            @Override
-            public void componentResized( ComponentEvent e )
-            {
-                if ( getMainWindow().getExtendedState() == JFrame.NORMAL )
-                {
-                    windowWidth = getMainWindow().getWidth();
-                    windowHeight = getMainWindow().getHeight();
-                }
-            }
-        } );
-        
-        AbstractPropertiesKeeper.attachKeeper( editorPanel.getSettings() );
-    }
-    
-    private static final EditorArguments parseCommandLine( String[] args ) throws CommandlineParsingException
-    {
-        EditorArgumentsHandler handler = new EditorArgumentsHandler();
-        
-        ArgumentsRegistry argReg = EditorArgumentsRegistry.createStandardArgumentsRegistry();
-        CommandlineParser parser = new CommandlineParser( argReg, handler );
-        parser.parseCommandline( args );
-        
-        if ( handler.helpRequested() )
-        {
-            argReg.dump();
-            System.exit( 0 );
+            System.exit( 1 );
         }
         
-        return ( handler.getArguments() );
-    }
-    
-    public static void main( String[] args )
-    {
-        EditorArguments arguments = null;
+        final RFDynHUDEditor editor = this;
         
         try
         {
-            arguments = parseCommandLine( args );
-        }
-        catch ( CommandlineParsingException e )
-        {
-            e.printStackTrace();
-            return;
-        }
-        
-        WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
-        
-        try
-        {
-            //Logger.setStdStreams();
-            
-            final RFDynHUDEditor editor = new RFDynHUDEditor();
-            
             Rectangle screenBounds = GUITools.getCurrentScreenBounds();
             
             editor.getMainWindow().setBounds( screenBounds );
@@ -1953,6 +1925,102 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 message = t.getClass().getSimpleName() + ", " + t.getStackTrace()[0] + "\n" + "Please see the editor log file for more info.";
             
             JOptionPane.showMessageDialog( null, message, "Error running the rfDynHUD Editor", JOptionPane.ERROR_MESSAGE );
+            
+            System.exit( 1 );
+        }
+    }
+    
+    public void start( ClassLoader classLoader, String objectFactory )
+    {
+        _LiveGameDataObjectsFactory gdFactory = initGameDataObjectsFactory( classLoader, objectFactory );
+        
+        start( gdFactory );
+    }
+    
+    public RFDynHUDEditor()
+    {
+        super();
+        
+        try
+        {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+        }
+        catch ( Throwable t )
+        {
+        }
+    }
+    
+    private static final EditorArguments parseCommandLine( String[] args ) throws CommandlineParsingException
+    {
+        EditorArgumentsHandler handler = new EditorArgumentsHandler();
+        
+        ArgumentsRegistry argReg = EditorArgumentsRegistry.createStandardArgumentsRegistry();
+        CommandlineParser parser = new CommandlineParser( argReg, handler );
+        parser.parseCommandline( args );
+        
+        if ( handler.helpRequested() )
+        {
+            argReg.dump();
+            System.exit( 0 );
+        }
+        
+        return ( handler.getArguments() );
+    }
+    
+    private static ClassLoader loadAdditionalJars( String[] jars ) throws Throwable
+    {
+        if ( jars == null )
+            return ( null );
+        
+        java.net.URL[] urls = new java.net.URL[ jars.length ];
+        
+        for ( int i = 0; i < jars.length; i++ )
+        {
+            urls[i] = new java.io.File( jars[i] ).toURI().toURL();
+        }
+        
+        return ( new URLClassLoader( urls ) );
+    }
+    
+    public static void main( String[] args )
+    {
+        EditorArguments arguments = null;
+        
+        try
+        {
+            arguments = parseCommandLine( args );
+        }
+        catch ( CommandlineParsingException e )
+        {
+            e.printStackTrace();
+            return;
+        }
+        
+        ClassLoader classLoader = null;
+        
+        try
+        {
+            classLoader = loadAdditionalJars( arguments.getAdditionalJars() );
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
+            return;
+        }
+        
+        WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
+        
+        //Logger.setStdStreams();
+        
+        final RFDynHUDEditor editor = new RFDynHUDEditor();
+        
+        try
+        {
+            editor.start( classLoader, arguments.getObjectFactory() );
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
         }
     }
 }

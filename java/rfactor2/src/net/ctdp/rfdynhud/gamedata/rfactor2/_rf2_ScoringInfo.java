@@ -32,6 +32,8 @@ import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
+import org.jagatoo.util.streams.StreamUtils;
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)
@@ -154,7 +156,26 @@ class _rf2_ScoringInfo extends ScoringInfo
             __GDPrivilegedAccess.setVehicleClass( this, 18, classB );
             __GDPrivilegedAccess.setVehicleClass( this, 19, classA );
             __GDPrivilegedAccess.setVehicleClass( this, 20, classA );
-            __GDPrivilegedAccess.setVehicleClass( this, 21, classA );
+            //__GDPrivilegedAccess.setVehicleClass( this, 21, classA );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readDefaultValues( EditorPresets editorPresets ) throws IOException
+    {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/scoring_info" );
+        
+        try
+        {
+            readFromStream( in, editorPresets );
+        }
+        finally
+        {
+            if ( in != null )
+                StreamUtils.closeStream( in );
         }
     }
     

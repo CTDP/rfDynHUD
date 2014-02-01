@@ -1,0 +1,19 @@
+Number=14
+Team="Red Bull Racing"
+PitGroup="Group7"
+Driver="David Coulthard"
+Description="#14 David Coulthard"
+Engine="Ferrari 056"
+Manufacturer="Red Bull"
+Classes="CTDPF1_2006,RB2"
+
+FullTeamName="Red Bull Racing"
+TeamFounded=2004
+TeamHeadquarters="Milton Keynes, United Kingdom"
+TeamStarts=37
+TeamPoles=0
+TeamWins=0
+TeamWorldChampionships=0
+
+
+Category="CTDP F1 2006"

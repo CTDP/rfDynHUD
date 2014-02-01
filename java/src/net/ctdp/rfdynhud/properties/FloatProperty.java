@@ -214,10 +214,12 @@ public class FloatProperty extends Property
      * @param minValue the minimum value
      * @param maxValue the maximum value
      * @param readonly read only property?
+     * @param pet
+     * @param initialize
      */
-    FloatProperty( String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly, boolean initialize )
+    FloatProperty( String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly, PropertyEditorType pet, boolean initialize )
     {
-        super( name, nameForDisplay, readonly, PropertyEditorType.FLOAT, null, null );
+        super( name, nameForDisplay, readonly, pet, null, null );
         
         this.defaultValue = defaultValue;
         
@@ -239,7 +241,7 @@ public class FloatProperty extends Property
      */
     public FloatProperty( String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
-        this( name, nameForDisplay, defaultValue, minValue, maxValue, readonly, true );
+        this( name, nameForDisplay, defaultValue, minValue, maxValue, readonly, PropertyEditorType.FLOAT, true );
     }
     
     /**

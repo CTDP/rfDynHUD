@@ -138,7 +138,7 @@ class _rf1_VehicleRegistry
             _rf1_VehicleInfo vi = new _rf1_VehicleInfo();
             try
             {
-                URL file = __EDPrivilegedAccess.editorClassLoader.getResource( "data/game_data/vehicles/" + filename );
+                URL file = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/vehicles/" + filename );
                 
                 new _rf1_VehicleInfoParser( filename, vi ).parse( file );
                 

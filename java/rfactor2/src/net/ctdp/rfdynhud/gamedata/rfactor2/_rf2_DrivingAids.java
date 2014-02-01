@@ -24,6 +24,8 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
+import org.jagatoo.util.streams.StreamUtils;
+
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -108,6 +110,25 @@ class _rf2_DrivingAids extends DrivingAids
         readFromStreamImpl( in );
         
         onDataUpdated( null, now, isEditorMode );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/driving_aids" );
+        
+        try
+        {
+            readFromStream( in, isEditorMode );
+        }
+        finally
+        {
+            if ( in != null )
+                StreamUtils.closeStream( in );
+        }
     }
     
     @Override
@@ -390,6 +411,101 @@ class _rf2_DrivingAids extends DrivingAids
      * {@inheritDoc}
      */
     @Override
+    public String getAidStateName( int index, int state )
+    {
+        // TODO: Translate!
+        
+        switch ( index )
+        {
+            case 0: // mTractionControl;  // 0 (off) - 3 (high)
+                switch ( state )
+                {
+                    case 0:
+                        return ( "Off" );
+                    case 1:
+                        return ( "Low" );
+                    case 2:
+                        return ( "Medium" );
+                    case 3:
+                        return ( "High" );
+                }
+            case 1: // mAntiLockBrakes;   // 0 (off) - 2 (high)
+                switch ( state )
+                {
+                    case 0:
+                        return ( "Off" );
+                    case 1:
+                        return ( "Low" );
+                    case 2:
+                        return ( "High" );
+                }
+            case 2: // mStabilityControl; // 0 (off) - 2 (high)
+                switch ( state )
+                {
+                    case 0:
+                        return ( "Off" );
+                    case 1:
+                        return ( "Low" );
+                    case 2:
+                        return ( "High" );
+                }
+            case 3: // mAutoShift;        // 0 (off), 1 (upshifts), 2 (downshifts), 3 (all)
+                switch ( state )
+                {
+                    case 0:
+                        return ( "Off" );
+                    case 1:
+                        return ( "Up" );
+                    case 2:
+                        return ( "Down" );
+                    case 3:
+                        return ( "All" );
+                }
+            case 4: // mAutoClutch;       // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+            case 5: // mInvulnerable;     // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+            case 6: // mOppositeLock;     // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+            case 7: // mSteeringHelp;     // 0 (off) - 3 (high)
+                switch ( state )
+                {
+                    case 0:
+                        return ( "Off" );
+                    case 1:
+                        return ( "Low" );
+                    case 2:
+                        return ( "Medium" );
+                    case 3:
+                        return ( "High" );
+                }
+            case 8: // mBrakingHelp;      // 0 (off) - 2 (high)
+                switch ( state )
+                {
+                    case 0:
+                        return ( "Off" );
+                    case 1:
+                        return ( "Low" );
+                    case 3:
+                        return ( "High" );
+                }
+            case 9: // mSpinRecovery;     // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+            case 10: // mAutoPit;          // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+            case 11: // mAutoLift;         // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+            case 12: // mAutoBlip;         // 0 (off), 1 (on)
+                return ( state == 0 ? "Off" : "On" );
+        }
+        
+        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public final int getMinState( int index )
     {
         switch ( index )
@@ -505,7 +621,7 @@ class _rf2_DrivingAids extends DrivingAids
     
     private static final ImageTemplate getIcon( String filename )
     {
-        java.net.URL resource = _rf2_DrivingAids.class.getClassLoader().getResource( _rf2_DrivingAids.class.getPackage().getName().replace( '.', '/' ) + "/drivingaids_images/" + filename + ".png" );
+        java.net.URL resource = _rf2_DrivingAids.class.getClassLoader().getResource( _rf2_DrivingAids.class.getPackage().getName().replace( '.', '/' ) + "/data/drivingaids_images/" + filename + ".png" );
         
         try
         {

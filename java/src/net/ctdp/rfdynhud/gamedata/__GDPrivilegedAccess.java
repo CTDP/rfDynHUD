@@ -17,10 +17,15 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
+
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+
+import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * Don't use this at home!
@@ -32,6 +37,25 @@ public class __GDPrivilegedAccess
     public static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = FuelUsageRecorder.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
     public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
     public static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = DataCache.INPUT_ACTION_RESET_LAPTIMES_CACHE;
+    
+    public static File readDevGameFolder( String game )
+    {
+        try
+        {
+            String result = AbstractIniParser.parseIniValue( "game_folders.ini", game, "game", null );
+            
+            if ( result == null )
+                return ( null );
+            
+            return ( new File( result ).getAbsoluteFile() );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+            
+            return ( null );
+        }
+    }
     
     public static final boolean updateProfileInfo( ProfileInfo profileInfo )
     {

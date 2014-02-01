@@ -25,6 +25,7 @@ import java.util.Map;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 
 /**
@@ -177,51 +178,54 @@ public abstract class VehicleScoringInfo
         }
         
         int lc = getLapsCompleted();
-        if ( ( laptimes.size() < lc ) || ( laptimes.get( lc - 1 ) == null ) || ( laptimes.get( lc - 1 ).getSector1() != editorPresets.getLastSector1Time() ) || ( laptimes.get( lc - 1 ).getSector2() != editorPresets.getLastSector2Time( false ) || ( laptimes.get( lc - 1 ).getSector3() != editorPresets.getLastSector3Time() ) ) )
+        if ( lc > 0 )
         {
-            fastestLaptime = null;
-            secondFastestLaptime = null;
-            java.util.Random rnd = new java.util.Random( System.nanoTime() );
-            
-            float ls1 = isPlayer() ? editorPresets.getLastSector1Time() : getLastSector1Impl();
-            float ls2 = isPlayer() ? editorPresets.getLastSector2Time( false ) : getLastSector2Impl() - getLastSector1Impl();
-            float ls3 = isPlayer() ? editorPresets.getLastSector3Time() : getLastLapTimeImpl() - getLastSector2Impl();
-            
-            for ( int l = 1; l <= lc; l++ )
+            if ( ( laptimes.size() < lc ) || ( laptimes.get( lc - 1 ) == null ) || ( laptimes.get( lc - 1 ).getSector1() != editorPresets.getLastSector1Time() ) || ( laptimes.get( lc - 1 ).getSector2() != editorPresets.getLastSector2Time( false ) || ( laptimes.get( lc - 1 ).getSector3() != editorPresets.getLastSector3Time() ) ) )
             {
-                float s1 = ls1 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
-                float s2 = ls2 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
-                float s3 = ls3 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                fastestLaptime = null;
+                secondFastestLaptime = null;
+                java.util.Random rnd = new java.util.Random( System.nanoTime() );
                 
-                Laptime lt;
-                if ( ( l > laptimes.size() ) || ( laptimes.get( l - 1 ) == null ) )
+                float ls1 = isPlayer() ? editorPresets.getLastSector1Time() : getLastSector1Impl();
+                float ls2 = isPlayer() ? editorPresets.getLastSector2Time( false ) : getLastSector2Impl() - getLastSector1Impl();
+                float ls3 = isPlayer() ? editorPresets.getLastSector3Time() : getLastLapTimeImpl() - getLastSector2Impl();
+                
+                for ( int l = 1; l <= lc; l++ )
                 {
-                    lt = new Laptime( getDriverId(), l, s1, s2, s3, false, l == 1, true );
-                    if ( l > laptimes.size() )
-                        laptimes.add( lt );
+                    float s1 = ls1 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                    float s2 = ls2 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                    float s3 = ls3 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                    
+                    Laptime lt;
+                    if ( ( l > laptimes.size() ) || ( laptimes.get( l - 1 ) == null ) )
+                    {
+                        lt = new Laptime( getDriverId(), l, s1, s2, s3, false, l == 1, true );
+                        if ( l > laptimes.size() )
+                            laptimes.add( lt );
+                        else
+                            laptimes.set( l - 1, lt );
+                    }
                     else
-                        laptimes.set( l - 1, lt );
-                }
-                else
-                {
-                    lt = laptimes.get( l - 1 );
-                    lt.sector1 = s1;
-                    lt.sector2 = s2;
-                    lt.sector3 = s3;
-                    lt.updateLaptimeFromSectors();
+                    {
+                        lt = laptimes.get( l - 1 );
+                        lt.sector1 = s1;
+                        lt.sector2 = s2;
+                        lt.sector3 = s3;
+                        lt.updateLaptimeFromSectors();
+                    }
+                    
+                    if ( ( l == 1 ) || ( lt.getLapTime() < fastestLaptime.getLapTime() ) )
+                    {
+                        secondFastestLaptime = fastestLaptime;
+                        fastestLaptime = lt;
+                    }
                 }
                 
-                if ( ( l == 1 ) || ( lt.getLapTime() < fastestLaptime.getLapTime() ) )
-                {
-                    secondFastestLaptime = fastestLaptime;
-                    fastestLaptime = lt;
-                }
+                editor_fastestLaptime = fastestLaptime;
+                
+                LaptimesRecorder.calcAvgLaptime( this );
+                oldAverageLaptime = averageLaptime;
             }
-            
-            editor_fastestLaptime = fastestLaptime;
-            
-            LaptimesRecorder.calcAvgLaptime( this );
-            oldAverageLaptime = averageLaptime;
         }
         
         float cs1 = isPlayer() ? editorPresets.getCurrentSector1Time() : getCurrentSector1Impl();
@@ -242,46 +246,67 @@ public abstract class VehicleScoringInfo
             lt.updateLaptimeFromSectors();
         }
         
-        editor_lastLaptime = laptimes.get( lc - 1 );
-        editor_currLaptime = laptimes.get( lc );
+        if ( lc > 0 )
+        {
+            editor_lastLaptime = laptimes.get( lc - 1 );
+            editor_currLaptime = laptimes.get( lc );
+        }
         
-        topspeed = editorPresets.getTopSpeed( getPlace( false ) - 1 );
+        if ( getPlace( false ) > 0 )
+            topspeed = editorPresets.getTopSpeed( getPlace( false ) - 1 );
     }
     
     /**
      * 
      * @param timestamp
      */
-    protected void onDataUpdated( long timestamp )
+    protected void onDataUpdatedImpl( long timestamp )
     {
-        this.originalName = getDriverNameImpl();
-        
-        place = -1;
-        lapDistance = -1f;
-        
-        vehClass = null;
-        classId = 0;
-        classID = null;
-        
-        vehicleName = null;
-        vehicleInfo = null;
-        
-        oldLap = lap;
-        lap = getLapsCompleted() + 1;
-        
-        if ( isPlayer() && gameData.getTelemetryData().isUpdatedInTimeScope() )
+    }
+    
+    /**
+     * 
+     * @param timestamp
+     */
+    protected final void onDataUpdated( long timestamp )
+    {
+        try
         {
-            engineRPM = gameData.getTelemetryData().getEngineRPM();
-            engineMaxRPM = gameData.getTelemetryData().getEngineMaxRPM();
-            engineBoostMapping = gameData.getTelemetryData().getEngineBoostMapping();
-            gear = gameData.getTelemetryData().getCurrentGear();
+            this.originalName = getDriverNameImpl();
+            
+            place = -1;
+            lapDistance = -1f;
+            
+            vehClass = null;
+            classId = 0;
+            classID = null;
+            
+            vehicleName = null;
+            vehicleInfo = null;
+            
+            oldLap = lap;
+            lap = getLapsCompleted() + 1;
+            
+            if ( isPlayer() && gameData.getTelemetryData().isUpdatedInTimeScope() )
+            {
+                engineRPM = gameData.getTelemetryData().getEngineRPM();
+                engineMaxRPM = gameData.getTelemetryData().getEngineMaxRPM();
+                engineBoostMapping = gameData.getTelemetryData().getEngineBoostMapping();
+                gear = gameData.getTelemetryData().getCurrentGear();
+            }
+            else
+            {
+                engineRPM = -1f;
+                engineMaxRPM = -1f;
+                engineBoostMapping = -1;
+                gear = -1000;
+            }
+            
+            onDataUpdatedImpl( timestamp );
         }
-        else
+        catch ( Throwable t )
         {
-            engineRPM = -1f;
-            engineMaxRPM = -1f;
-            engineBoostMapping = -1;
-            gear = -1000;
+            RFDHLog.exception( t );
         }
     }
     

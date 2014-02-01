@@ -31,6 +31,8 @@ import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
+import org.jagatoo.util.streams.StreamUtils;
+
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
  * The local vehicle coordinate system is as follows:
@@ -210,6 +212,25 @@ class _rf2_TelemetryData extends TelemetryData
         readFromStreamImpl( in );
         
         onDataUpdated( null, now, isEditorMode );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/telemetry_data" );
+        
+        try
+        {
+            readFromStream( in, isEditorMode );
+        }
+        finally
+        {
+            if ( in != null )
+                StreamUtils.closeStream( in );
+        }
     }
     
     @Override

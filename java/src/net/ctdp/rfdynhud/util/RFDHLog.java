@@ -363,7 +363,7 @@ public final class RFDHLog
     static
     {
         System.out.flush();
-        error( "Initialized logging system with log level ", LOG.getLogLevel().name(), "." );
+        println( "Initialized logging system with log level ", LOG.getLogLevel().name(), "." );
         System.err.flush();
     }
 }

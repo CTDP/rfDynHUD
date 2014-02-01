@@ -75,7 +75,7 @@ public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
         if ( index == 0 )
             return ( property.getNameForDisplay() );
         
-        return ( property.getValue() );
+        return ( property.getValueForEditor() );
     }
     
     public PropertiesEditorTableModel( RFDynHUDEditor editor, PropertiesEditor propsEditor )

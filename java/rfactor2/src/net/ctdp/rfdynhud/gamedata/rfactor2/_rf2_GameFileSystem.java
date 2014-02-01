@@ -17,19 +17,23 @@
  */
 package net.ctdp.rfdynhud.gamedata.rfactor2;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.PluginINI;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
+import org.jagatoo.util.streams.StreamUtils;
 
 class _rf2_GameFileSystem extends GameFileSystem
 {
-    private final File gameUserDataFolder;
+    private File gameUserDataFolder = null;
     
     private static boolean isRoot( File folder )
     {
@@ -61,6 +65,29 @@ class _rf2_GameFileSystem extends GameFileSystem
     
     public final File getGameUserDataFolder()
     {
+        if ( gameUserDataFolder == null )
+        {
+            BufferedReader br = null;
+            
+            try
+            {
+                File file = new File( new File( getGameFolder(), "Core" ), "data.path" );
+                
+                br = new BufferedReader( new FileReader( file ) );
+                
+                gameUserDataFolder = new File( new File( br.readLine() ), "UserData" );
+            }
+            catch ( IOException e )
+            {
+                RFDHLog.error( e );
+            }
+            finally
+            {
+                if ( br != null )
+                    StreamUtils.closeReader( br );
+            }
+        }
+        
         return ( gameUserDataFolder );
     }
     
@@ -161,10 +188,8 @@ class _rf2_GameFileSystem extends GameFileSystem
         return ( new File( getGameUserDataFolder(), "ScreenShots" ) );
     }
     
-    public _rf2_GameFileSystem( String dataPath, PluginINI pluginINI )
+    public _rf2_GameFileSystem( PluginINI pluginINI )
     {
-        super( pluginINI );
-        
-        this.gameUserDataFolder = new File( dataPath, "UserData" );
+        super( _rf2_LiveGameDataObjectsFactory.GAME_ID, pluginINI );
     }
 }

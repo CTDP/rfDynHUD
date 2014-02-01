@@ -6,6 +6,9 @@
 #include "timing.h"
 #include "util.h"
 
+//#define RFACTOR1
+#define RFACTOR2
+
 static const char* LOG_FOLDER = getLogFolder();
 static const char* LOG_FILENAME = getLogFilename();
 
@@ -193,7 +196,7 @@ char* readJavaHomeFromRegistry()
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.7", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
-        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1 );
         RegCloseKey( keyHandle );
         
         *((int*)buffer0) = 17;
@@ -204,7 +207,7 @@ char* readJavaHomeFromRegistry()
     if ( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\JavaSoft\\Java Runtime Environment\\1.6", 0, KEY_QUERY_VALUE, &keyHandle ) == ERROR_SUCCESS )
     {
         size1 = MAX_PATH - 1;
-        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1);
+        RegQueryValueEx( keyHandle, "JavaHome", NULL, &Type, (LPBYTE)buffer, &size1 );
         RegCloseKey( keyHandle );
         
         *((int*)buffer0) = 16;
@@ -362,10 +365,17 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\rfdynhud.jar", fileBuffer );
     
-    // TODO: Detect rFactor version somehow!
+    #ifdef RFACTOR1
     addPostFix( ";", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\rfdynhud_gamedata_rfactor1.jar", fileBuffer );
+    #endif
+    
+    #ifdef RFACTOR2
+    addPostFix( ";", fileBuffer );
+    addPostFix( PLUGIN_PATH, fileBuffer );
+    addPostFix( "\\rfdynhud_gamedata_rfactor2.jar", fileBuffer );
+    #endif
     
     addPostFix( ";", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
@@ -430,6 +440,48 @@ bool launchEditor( const char* PLUGIN_PATH )
 {
     createNewJavaVM( PLUGIN_PATH, &jvm, &env );
     
+    jobject liveGameDataObjectsFactory = NULL;
+    
+    #ifdef RFACTOR1
+    jclass LiveGameDataObjectsFactory = env->FindClass( "net/ctdp/rfdynhud/gamedata/rfactor1/_rf1_LiveGameDataObjectsFactory" );
+    
+    if ( LiveGameDataObjectsFactory == 0 )
+    {
+        logg( "ERROR: Failed to find the LiveGameDataObjectsFactory class." );
+        return ( false );
+    }
+    
+    jmethodID LiveGameDataObjectsFactory_constructor = env->GetMethodID( LiveGameDataObjectsFactory, "<init>", "()V" );
+    
+    if ( LiveGameDataObjectsFactory_constructor == 0 )
+    {
+        logg( "ERROR: Failed to find the LiveGameDataObjectsFactory empty constructor." );
+        return ( false );
+    }
+    
+    liveGameDataObjectsFactory = env->NewObject( LiveGameDataObjectsFactory, LiveGameDataObjectsFactory_constructor );
+    #endif
+    
+    #ifdef RFACTOR2
+    jclass LiveGameDataObjectsFactory = env->FindClass( "net/ctdp/rfdynhud/gamedata/rfactor2/_rf2_LiveGameDataObjectsFactory" );
+    
+    if ( LiveGameDataObjectsFactory == 0 )
+    {
+        logg( "ERROR: Failed to find the LiveGameDataObjectsFactory class." );
+        return ( false );
+    }
+    
+    jmethodID LiveGameDataObjectsFactory_constructor = env->GetMethodID( LiveGameDataObjectsFactory, "<init>", "()V" );
+    
+    if ( LiveGameDataObjectsFactory_constructor == 0 )
+    {
+        logg( "ERROR: Failed to find the LiveGameDataObjectsFactory empty constructor." );
+        return ( false );
+    }
+    
+    liveGameDataObjectsFactory = env->NewObject( LiveGameDataObjectsFactory, LiveGameDataObjectsFactory_constructor );
+    #endif
+    
     jclass RFDynHUDEditor = env->FindClass( "net/ctdp/rfdynhud/editor/RFDynHUDEditor" );
     
     if ( RFDynHUDEditor == NULL )
@@ -438,18 +490,25 @@ bool launchEditor( const char* PLUGIN_PATH )
         return ( false );
     }
     
-    jmethodID mainMethod = env->GetStaticMethodID( RFDynHUDEditor, "main", "([Ljava/lang/String;)V" );
+    jmethodID RFDynHUDEditor_constructor = env->GetMethodID( RFDynHUDEditor, "<init>", "()V" );
     
-    if ( mainMethod == 0 )
+    if ( RFDynHUDEditor_constructor == 0 )
     {
-        logg( "ERROR: Failed to find the main() method." );
+        logg( "ERROR: Failed to find the RFDynHUDEditor empty constructor." );
         return ( false );
     }
     
-    jobjectArray jargs = env->NewObjectArray( 0, env->FindClass( "java/lang/String" ), NULL );
+    jmethodID startMethod = env->GetMethodID( RFDynHUDEditor, "start", "(Lnet/ctdp/rfdynhud/gamedata/_LiveGameDataObjectsFactory;)V" );
+    
+    if ( startMethod == 0 )
+    {
+        logg( "ERROR: Failed to find the start() method." );
+        return ( false );
+    }
     
     logg( "Launching RFDynHUD Editor..." );
-    env->CallStaticVoidMethod( RFDynHUDEditor, mainMethod, jargs );
+    jobject rfDynHUDEditor = env->NewObject( RFDynHUDEditor, RFDynHUDEditor_constructor );
+    env->CallVoidMethod( rfDynHUDEditor, startMethod, liveGameDataObjectsFactory );
     logg( "RFDynHUD Editor quit." );
     
     return ( true );

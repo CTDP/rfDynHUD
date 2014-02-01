@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.jagatoo.util.streams.StreamUtils;
+
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
@@ -152,6 +154,25 @@ class _rf1_TelemetryData extends TelemetryData
         readFromStreamImpl( in );
         
         onDataUpdated( null, now, isEditorMode );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    {
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/telemetry_data" );
+        
+        try
+        {
+            readFromStream( in, isEditorMode );
+        }
+        finally
+        {
+            if ( in != null )
+                StreamUtils.closeStream( in );
+        }
     }
     
     @Override

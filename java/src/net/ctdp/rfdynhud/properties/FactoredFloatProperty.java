@@ -87,7 +87,7 @@ public class FactoredFloatProperty extends FloatProperty
      */
     public FactoredFloatProperty( String name, String nameForDisplay, float factor, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
-        super( name, nameForDisplay, defaultValue, minValue, maxValue, readonly, false );
+        super( name, nameForDisplay, defaultValue, minValue, maxValue, readonly, PropertyEditorType.FLOAT, false );
         
         this.factor = factor;
         

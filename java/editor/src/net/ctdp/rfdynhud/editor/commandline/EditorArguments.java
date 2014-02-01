@@ -28,6 +28,8 @@ import java.util.List;
 public class EditorArguments
 {
     private final List<String> excludedJars = new ArrayList<String>();
+    private String[] additionalJars = null;
+    private String objectFactory = null;
     
     void addExcludedJar( String excludedJar )
     {
@@ -37,5 +39,25 @@ public class EditorArguments
     public final List<String> getExcludedJars()
     {
         return ( excludedJars );
+    }
+    
+    void setAdditionalJars( String[] jars )
+    {
+        this.additionalJars = jars;
+    }
+    
+    public final String[] getAdditionalJars()
+    {
+        return ( additionalJars );
+    }
+    
+    void setObjectFactory( String objectFactory )
+    {
+        this.objectFactory = objectFactory;
+    }
+    
+    public final String getObjectFactory()
+    {
+        return ( objectFactory );
     }
 }

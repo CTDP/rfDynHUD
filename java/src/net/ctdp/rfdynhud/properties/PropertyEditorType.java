@@ -27,6 +27,7 @@ public enum PropertyEditorType
     BOOLEAN,
     INTEGER,
     FLOAT,
+    PERCENTAGE,
     STRING,
     FILENAME,
     TIME,

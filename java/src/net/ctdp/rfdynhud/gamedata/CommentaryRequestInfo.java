@@ -100,6 +100,15 @@ public abstract class CommentaryRequestInfo
     
     public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
     
+    /**
+     * Read default values. This is usually done in editor mode.
+     * 
+     * @param isEditorMode
+     * 
+     * @throws IOException
+     */
+    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
+    
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
     /**
@@ -136,7 +145,16 @@ public abstract class CommentaryRequestInfo
      * @param timestamp
      * @param isEditorMode
      */
-    protected void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+    }
+    
+    /**
+     * @param userObject
+     * @param timestamp
+     * @param isEditorMode
+     */
+    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
         this.updateTimestamp = timestamp;
         this.updateId++;
@@ -154,6 +172,15 @@ public abstract class CommentaryRequestInfo
                     RFDHLog.exception( t );
                 }
             }
+        }
+        
+        try
+        {
+            onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
         }
     }
     

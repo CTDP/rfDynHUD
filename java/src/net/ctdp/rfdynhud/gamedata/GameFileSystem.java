@@ -17,12 +17,9 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 
 import net.ctdp.rfdynhud.util.PluginINI;
-import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ResourceManager;
 import net.ctdp.rfdynhud.util.__UtilHelper;
 
@@ -61,24 +58,6 @@ public abstract class GameFileSystem
     private final String editorPath;
     private final File gameScreenshotsFolder;
     
-    private static File readDevGameFolder()
-    {
-        try
-        {
-            BufferedReader br = new BufferedReader( new FileReader( new File( "game_folder.txt" ) ) );
-            String line = br.readLine();
-            br.close();
-            
-            return ( new File( line ).getAbsoluteFile() );
-        }
-        catch ( Throwable t )
-        {
-            RFDHLog.exception( t );
-            
-            return ( null );
-        }
-    }
-    
     /**
      * Called once at instantiation time to initialize the game's root folder.
      * 
@@ -92,14 +71,15 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the game's root folder.
      * 
+     * @param gameId
      * @param ini the plugin's main config file
      * 
      * @return the game's root folder.
      */
-    protected final File findGameFolder( PluginINI ini )
+    protected final File findGameFolder( String gameId, PluginINI ini )
     {
         if ( ResourceManager.isCompleteIDEMode() )
-            return ( readDevGameFolder() );
+            return ( __GDPrivilegedAccess.readDevGameFolder( gameId ) );
         
         return ( findGameFolderImpl( ini, __UtilHelper.PLUGIN_FOLDER ) );
     }
@@ -420,11 +400,11 @@ public abstract class GameFileSystem
         return ( gameScreenshotsFolder );
     }
     
-    protected GameFileSystem( PluginINI pluginINI )
+    protected GameFileSystem( String gameId, PluginINI pluginINI )
     {
         this.pluginINI = pluginINI;
         
-        this.gameFolder = findGameFolder( pluginINI );
+        this.gameFolder = findGameFolder( gameId, pluginINI );
         
         this.gamePath = gameFolder.getAbsolutePath();
         

@@ -135,6 +135,15 @@ public abstract class TelemetryData
     
     public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
     
+    /**
+     * Read default values. This is usually done in editor mode.
+     * 
+     * @param isEditorMode
+     * 
+     * @throws IOException
+     */
+    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
+    
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
     /**
@@ -227,7 +236,17 @@ public abstract class TelemetryData
      * @param timestamp
      * @param isEditorMode
      */
-    protected void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+    }
+    
+    /**
+     * 
+     * @param userObject
+     * @param timestamp
+     * @param isEditorMode
+     */
+    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
         try
         {
@@ -268,6 +287,8 @@ public abstract class TelemetryData
                 playerVSI.engineBoostMapping = getEngineBoostMapping();
                 playerVSI.gear = getCurrentGear();
             }
+            
+            onDataUpdatedImpl( userObject, timestamp, isEditorMode );
         }
         catch ( Throwable t )
         {

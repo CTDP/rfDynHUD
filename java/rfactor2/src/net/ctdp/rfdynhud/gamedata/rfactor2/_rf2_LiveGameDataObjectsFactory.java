@@ -58,8 +58,6 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     
     public static final String GAME_ID = "rFactor2";
     
-    private final String dataPath;
-    
     /**
      * {@inheritDoc}
      */
@@ -93,7 +91,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     @Override
     public GameFileSystem newGameFileSystem( PluginINI pluginIni )
     {
-        return ( new _rf2_GameFileSystem( dataPath, pluginIni ) );
+        return ( new _rf2_GameFileSystem( pluginIni ) );
     }
     
     /**
@@ -248,8 +246,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
         return ( _rf2_VehicleSetupParser.loadSetupIfChanged( gameData ) );
     }
     
-    public _rf2_LiveGameDataObjectsFactory( byte[] dataPath, int dataPathLength )
+    public _rf2_LiveGameDataObjectsFactory()
     {
-        this.dataPath = new String( dataPath, 0, dataPathLength );
     }
 }

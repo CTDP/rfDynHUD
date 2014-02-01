@@ -17,7 +17,9 @@
  */
 package net.ctdp.rfdynhud.editor.commandline;
 
+import net.ctdp.rfdynhud.editor.commandline.arguments.AdditionalClassPathArgument;
 import net.ctdp.rfdynhud.editor.commandline.arguments.ExcludeJarArgument;
+import net.ctdp.rfdynhud.editor.commandline.arguments.ObjectFactoryArgument;
 
 import org.jagatoo.commandline.Argument;
 import org.jagatoo.commandline.ArgumentsHandler;
@@ -58,6 +60,10 @@ public class EditorArgumentsHandler extends ArgumentsHandler
     {
         if ( arg == ExcludeJarArgument.INSTANCE )
             arguments.addExcludedJar( (String)value );
+        else if ( arg == AdditionalClassPathArgument.INSTANCE )
+            arguments.setAdditionalJars( (String[])value );
+        else if ( arg == ObjectFactoryArgument.INSTANCE )
+            arguments.setObjectFactory( (String)value );
         else if ( arg == HelpArgument.INSTANCE )
             this.helpRequested = true;
     }
@@ -68,5 +74,7 @@ public class EditorArgumentsHandler extends ArgumentsHandler
     @Override
     protected void validate( int numArguments ) throws CommandlineParsingException
     {
+        if ( arguments.getObjectFactory() == null )
+            throw new CommandlineParsingException( "No object factory defined in command line." );
     }
 }

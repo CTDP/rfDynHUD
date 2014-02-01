@@ -1,0 +1,19 @@
+Number=9
+Team="Williams F1 2006"
+PitGroup="Group5"
+Driver="Mark Webber"
+Description="#09 Mark Webber"
+Engine="Cosworth CA2006"
+Manufacturer="Cosworth"
+Classes="CTDPF1_2006,FW28"
+
+FullTeamName="Williams F1"
+TeamFounded=1969
+TeamHeadquarters="Grove, UK"
+TeamStarts=483
+TeamPoles=125
+TeamWins=133
+TeamWorldChampionships=9
+
+
+Category="CTDP F1 2006"

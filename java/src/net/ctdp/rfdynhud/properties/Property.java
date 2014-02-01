@@ -202,6 +202,16 @@ public abstract class Property
     public abstract Object getValue();
     
     /**
+     * Gets the value to feed into the editor.
+     * 
+     * @return the value to feed into the editor.
+     */
+    public Object getValueForEditor()
+    {
+        return ( getValue() );
+    }
+    
+    /**
      * Gets the default (initial) value fo this property.
      * 
      * @return the default value fo this property.

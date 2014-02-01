@@ -1905,6 +1905,18 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     }
     
     /**
+     * This method is called instead of {@link #loadProperty(PropertyLoader)} to load the property for compatiblity reasons.
+     * It simply forwards the call to {@link #loadProperty(PropertyLoader)}. So override this method, if you need game data.
+     * 
+     * @param loader
+     * @param gameData
+     */
+    public void loadProperty( PropertyLoader loader, LiveGameData gameData )
+    {
+        loadProperty( loader );
+    }
+    
+    /**
      * Gets an {@link Iterator} to iterate all properties, defined in this class.
      * 
      * @return an {@link Iterator} to iterate all properties, defined in this class.

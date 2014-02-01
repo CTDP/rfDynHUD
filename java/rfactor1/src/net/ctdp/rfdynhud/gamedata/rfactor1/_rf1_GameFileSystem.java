@@ -188,9 +188,9 @@ class _rf1_GameFileSystem extends GameFileSystem
     
     public _rf1_GameFileSystem( PluginINI pluginINI )
     {
-        super( pluginINI );
+        super( _rf1_LiveGameDataObjectsFactory.GAME_ID, pluginINI );
         
-        File gameFolder = findGameFolder( pluginINI );
+        File gameFolder = findGameFolder( _rf1_LiveGameDataObjectsFactory.GAME_ID, pluginINI );
         
         this.locationsFolder = findLocationsFolder( pluginINI, gameFolder );
         this.locationsPath = locationsFolder.getAbsolutePath();

@@ -43,6 +43,14 @@ class _rf1_DrivingAids extends DrivingAids
     {
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    {
+    }
+    
     @Override
     public void writeToStream( OutputStream out ) throws IOException
     {
@@ -109,6 +117,15 @@ class _rf1_DrivingAids extends DrivingAids
     public final int getAidState( int index )
     {
         return ( -1 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAidStateName( int index, int state )
+    {
+        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
     }
     
     /**

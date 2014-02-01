@@ -507,7 +507,7 @@ void RFDynHUD4rf2InternalsPlugin::UninitScreen( const ScreenInfoV01& info )
  */
 void RFDynHUD4rf2InternalsPlugin::DeactivateScreen( const ScreenInfoV01& info )
 {
-logg( ">>>>DeactivateScreen" );
+//logg( ">>>>DeactivateScreen" );
     // This function is called at application start. This is unexpected and must be suppressed.
     if ( !appRunning )
         return;

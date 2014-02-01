@@ -1,0 +1,19 @@
+Number=7
+Team="Panasonic Toyota Racing 2006"
+PitGroup="Group4"
+Driver="Ralf Schumacher"
+Description="#07 Ralf Schumacher"
+Engine="Toyota RVX-06"
+Manufacturer="Toyota"
+Classes="CTDPF1_2006,TF106"
+
+FullTeamName="Panasonic Toyota Racing"
+TeamFounded=1999
+TeamHeadquarters="Cologne, Germany"
+TeamStarts=86
+TeamPoles=2
+TeamWins=0
+TeamWorldChampionships=0
+
+
+Category="CTDP F1 2006"

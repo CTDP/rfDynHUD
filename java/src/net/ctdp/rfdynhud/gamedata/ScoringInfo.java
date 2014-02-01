@@ -140,6 +140,15 @@ public abstract class ScoringInfo
     
     public abstract void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException;
     
+    /**
+     * Read default values. This is usually done in editor mode.
+     * 
+     * @param editorPresets
+     * 
+     * @throws IOException
+     */
+    public abstract void readDefaultValues( EditorPresets editorPresets ) throws IOException;
+    
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
     private VehicleScoringInfo[] vehicleScoringInfoCache = null;
@@ -264,6 +273,13 @@ public abstract class ScoringInfo
                 }
                 
                 //changedVSIs.add( new Object[] { -1, leftVSI.getValue().getDriverID() } );
+            }
+            
+            for ( int i = 0; i < n; i++ )
+            {
+                VehicleScoringInfo vsi = vehicleScoringInfo[i];
+                
+                oldIdVSIMap.put( vsi.getDriverID(), vsi );
             }
             
             
@@ -551,7 +567,17 @@ public abstract class ScoringInfo
      * @param timestamp
      * @param editorPresets
      */
-    protected void onDataUpdated( int numVehicles, Object userObject, long timestamp, EditorPresets editorPresets )
+    protected void onDataUpdatedImpl( int numVehicles, Object userObject, long timestamp, EditorPresets editorPresets )
+    {
+    }
+    
+    /**
+     * @param numVehicles
+     * @param userObject
+     * @param timestamp
+     * @param editorPresets
+     */
+    protected final void onDataUpdated( int numVehicles, Object userObject, long timestamp, EditorPresets editorPresets )
     {
         try
         {
@@ -618,6 +644,8 @@ public abstract class ScoringInfo
                     }
                 }
             }
+            
+            onDataUpdatedImpl( numVehicles, userObject, timestamp, editorPresets );
         }
         catch ( Throwable t )
         {

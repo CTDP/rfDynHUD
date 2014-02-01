@@ -111,7 +111,8 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         
         try
         {
-            os.close();
+            if ( os != null )
+                os.close();
         }
         catch ( IOException e )
         {

@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.editor.properties.editors.FontCellEditor;
 import net.ctdp.rfdynhud.editor.properties.editors.ImageNameCellEditor;
 import net.ctdp.rfdynhud.editor.properties.editors.IntegerCellEditor;
 import net.ctdp.rfdynhud.editor.properties.editors.ListCellEditor;
+import net.ctdp.rfdynhud.editor.properties.editors.PercentageCellEditor;
 import net.ctdp.rfdynhud.editor.properties.editors.PosSizeCellEditor;
 import net.ctdp.rfdynhud.editor.properties.editors.ReadonlyCellEditor;
 import net.ctdp.rfdynhud.editor.properties.editors.StringCellEditor;
@@ -96,6 +97,10 @@ public class TableCellRendererProviderImpl implements TableCellRendererProvider<
                 case FLOAT:
                     //result = floatEditor;
                     result = new FloatCellEditor();
+                    break;
+                case PERCENTAGE:
+                    //result = percentageEditor;
+                    result = new PercentageCellEditor();
                     break;
                 case STRING:
                     //result = stringEditor;
@@ -182,6 +187,10 @@ public class TableCellRendererProviderImpl implements TableCellRendererProvider<
                 case FLOAT:
                     //result = floatEditor;
                     result = new FloatCellEditor();
+                    break;
+                case PERCENTAGE:
+                    //result = percentageEditor;
+                    result = new PercentageCellEditor();
                     break;
                 case STRING:
                     //result = stringEditor;

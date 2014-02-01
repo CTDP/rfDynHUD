@@ -48,6 +48,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.FontUtils;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
@@ -690,6 +691,18 @@ public abstract class NeedleMeterWidget extends Widget
         int minValue = (int)getMinValue( gameData, isEditorMode );
         int maxValue = (int)getMaxValue( gameData, isEditorMode );
         float range = ( maxValue - minValue );
+        
+        if ( minValue < 0 )
+        {
+            RFDHLog.error( "Wrong data: min RPM is less than 0. Assuming 0." );
+            minValue = 0;
+        }
+        
+        if ( maxValue > 100000 )
+        {
+            RFDHLog.error( "Wrong data: max RPM is greater than 100.000. Assuming 100.000." );
+            maxValue = 100000;
+        }
         
         final float centerX = offsetX + getNeedleMountX( width );
         final float centerY = offsetY + getNeedleMountY( height );

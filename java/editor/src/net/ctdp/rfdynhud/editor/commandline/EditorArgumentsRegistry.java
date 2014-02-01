@@ -17,7 +17,9 @@
  */
 package net.ctdp.rfdynhud.editor.commandline;
 
+import net.ctdp.rfdynhud.editor.commandline.arguments.AdditionalClassPathArgument;
 import net.ctdp.rfdynhud.editor.commandline.arguments.ExcludeJarArgument;
+import net.ctdp.rfdynhud.editor.commandline.arguments.ObjectFactoryArgument;
 
 import org.jagatoo.commandline.ArgumentsRegistry;
 import org.jagatoo.commandline.arguments.HelpArgument;
@@ -37,6 +39,8 @@ public class EditorArgumentsRegistry
     public static void addStandardArguments( ArgumentsRegistry argReg )
     {
         argReg.addArgument( ExcludeJarArgument.INSTANCE );
+        argReg.addArgument( AdditionalClassPathArgument.INSTANCE );
+        argReg.addArgument( ObjectFactoryArgument.INSTANCE );
         
         argReg.addArgument( HelpArgument.INSTANCE );
     }

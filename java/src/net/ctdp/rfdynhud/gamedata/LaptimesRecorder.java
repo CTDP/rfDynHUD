@@ -127,7 +127,8 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        for ( int i = 0; i < scoringInfo.getNumVehicles(); i++ )
+        int n = scoringInfo.getNumVehicles();
+        for ( int i = 0; i < n; i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             int lapsCompleted = vsi.getLapsCompleted();

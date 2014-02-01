@@ -182,6 +182,15 @@ public abstract class DrivingAids
      * @param timestamp
      * @param isEditorMode
      */
+    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+    }
+    
+    /**
+     * @param userObject
+     * @param timestamp
+     * @param isEditorMode
+     */
     protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
     {
         try
@@ -229,6 +238,8 @@ public abstract class DrivingAids
                         oldStates[i] = getAidState( i );
                     }
                 }
+                
+                onDataUpdatedImpl( userObject, timestamp, isEditorMode );
             }
         }
         catch ( Throwable t )
@@ -249,6 +260,15 @@ public abstract class DrivingAids
     }
     
     public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    
+    /**
+     * Read default values. This is usually done in editor mode.
+     * 
+     * @param isEditorMode
+     * 
+     * @throws IOException
+     */
+    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
     
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
@@ -323,6 +343,32 @@ public abstract class DrivingAids
     public boolean isAidEnabled( int index )
     {
         return ( getAidState( index ) != 0 );
+    }
+    
+    /**
+     * Gets a display name for the requested state.
+     * 
+     * @param index the index into the aids array
+     * @param state the requested state
+     * 
+     * @return a display name for the requested state.
+     * 
+     * @see #getNumAids()
+     */
+    public abstract String getAidStateName( int index, int state );
+    
+    /**
+     * Gets a display name for the current state.
+     * 
+     * @param index the index into the aids array
+     * 
+     * @return a display name for the requested state.
+     * 
+     * @see #getNumAids()
+     */
+    public String getAidStateName( int index )
+    {
+        return ( getAidStateName( index, getAidState( index ) ) );
     }
     
     /**

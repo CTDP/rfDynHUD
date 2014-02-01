@@ -324,9 +324,9 @@ public class ConfigurationLoader implements PropertyLoader
                     setKeyPrefix( keyPrefix );
                     
                     if ( currentPart == null )
-                        currentWidget.loadProperty( ConfigurationLoader.this );
+                        currentWidget.loadProperty( ConfigurationLoader.this, gameData );
                     else
-                        currentPart.loadProperty( ConfigurationLoader.this );
+                        currentPart.loadProperty( ConfigurationLoader.this, gameData );
                     
                     //__WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                     currentWidget = null;
@@ -478,9 +478,9 @@ public class ConfigurationLoader implements PropertyLoader
                                         widgetName = null;
                                         
                                         if ( currentPart == null )
-                                            currentWidget.loadProperty( ConfigurationLoader.this );
+                                            currentWidget.loadProperty( ConfigurationLoader.this, gameData );
                                         else
-                                            currentPart.loadProperty( ConfigurationLoader.this );
+                                            currentPart.loadProperty( ConfigurationLoader.this, gameData );
                                         
                                         __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true, gameData );
                                     }
@@ -505,9 +505,9 @@ public class ConfigurationLoader implements PropertyLoader
                                     partName = null;
                                     
                                     if ( currentPart == null )
-                                        currentWidget.loadProperty( ConfigurationLoader.this );
+                                        currentWidget.loadProperty( ConfigurationLoader.this, gameData );
                                     else
-                                        currentPart.loadProperty( ConfigurationLoader.this );
+                                        currentPart.loadProperty( ConfigurationLoader.this, gameData );
                                 }
                             }
                             else
@@ -561,9 +561,9 @@ public class ConfigurationLoader implements PropertyLoader
                                 setKeyPrefix( keyPrefix );
                                 
                                 if ( currentPart == null )
-                                    currentWidget.loadProperty( ConfigurationLoader.this );
+                                    currentWidget.loadProperty( ConfigurationLoader.this, gameData );
                                 else
-                                    currentPart.loadProperty( ConfigurationLoader.this );
+                                    currentPart.loadProperty( ConfigurationLoader.this, gameData );
                                 
                                 partStack.pop();
                                 partIndexStack.pop();
@@ -579,9 +579,9 @@ public class ConfigurationLoader implements PropertyLoader
                             try
                             {
                                 if ( currentPart == null )
-                                    currentWidget.loadProperty( ConfigurationLoader.this );
+                                    currentWidget.loadProperty( ConfigurationLoader.this, gameData );
                                 else
-                                    currentPart.loadProperty( ConfigurationLoader.this );
+                                    currentPart.loadProperty( ConfigurationLoader.this, gameData );
                             }
                             catch ( Throwable t )
                             {

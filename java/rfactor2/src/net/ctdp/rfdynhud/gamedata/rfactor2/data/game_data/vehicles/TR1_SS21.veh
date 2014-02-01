@@ -1,0 +1,19 @@
+Number=21
+Team="Scuderia Toro Rosso 2006"
+PitGroup="Group10"
+Driver="Scott Speed"
+Description="#21 Scott Speed"
+Engine="Cosworth TJ2005"
+Manufacturer="Cosworth"
+Classes="CTDPF1_2006,STR1"
+
+FullTeamName="Scuderia Toro Rosso"
+TeamFounded=2005
+TeamHeadquarters="Faenza, Italy"
+TeamStarts=18
+TeamPoles=0
+TeamWins=0
+TeamWorldChampionships=0
+
+
+Category="CTDP F1 2006"

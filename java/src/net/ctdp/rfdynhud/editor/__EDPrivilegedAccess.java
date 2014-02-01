@@ -19,8 +19,8 @@ package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 
 /**
