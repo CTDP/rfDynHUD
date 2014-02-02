@@ -403,7 +403,8 @@ bool RFDynHUD4rf2InternalsPlugin::RequestCommentary( CommentaryRequestInfoV01& i
     
     bool attach = global.jvmConn.attachCurrentThread();
     
-    global.jvmConn.telemFuncs.call_onCommentaryRequestInfoUpdated( (void*)&info, COMMENTARY_INFO_SIZE );
+    char result = global.jvmConn.telemFuncs.call_onCommentaryRequestInfoUpdated( (void*)&info, COMMENTARY_INFO_SIZE );
+    checkRenderModeResult( "RequestCommentary()", result );
     
     #ifdef DIRECT_THREAD_DETACH
     if ( attach )
@@ -425,7 +426,8 @@ void RFDynHUD4rf2InternalsPlugin::UpdateGraphics( const GraphicsInfoV02& info )
     
     bool attach = global.jvmConn.attachCurrentThread();
     
-    global.jvmConn.telemFuncs.call_onGraphicsInfoUpdated( (void*)&info, GRAPHICS_INFO_SIZE );
+    char result = global.jvmConn.telemFuncs.call_onGraphicsInfoUpdated( (void*)&info, GRAPHICS_INFO_SIZE );
+    checkRenderModeResult( "UpdateGraphics()", result );
     
     #ifdef DIRECT_THREAD_DETACH
     if ( attach )
