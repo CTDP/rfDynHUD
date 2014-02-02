@@ -324,11 +324,26 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
         if ( stateChanged != null )
             stateChanged[aidIndex] = true;
         
-        if ( ( stateVisibilities_ != null ) && ( stateVisibilities_.length == gameData.getDrivingAids().getNumAids() ) )
+        //if ( ( stateVisibilities_ != null ) && ( stateVisibilities_.length == gameData.getDrivingAids().getNumAids() ) )
         {
-            if ( ( stateVisibilities_[aidIndex].getValue() != AidStateValue.never ) && ( stateVisibilities_[aidIndex].getValue() != AidStateValue.always ) )
+            //if ( ( stateVisibilities_[aidIndex].getValue() != AidStateValue.never ) && ( stateVisibilities_[aidIndex].getValue() != AidStateValue.always ) )
                 forceCompleteRedraw( false );
         }
+        
+        /*
+        StringBuilder sb = new StringBuilder();
+        for ( int i = 0; i < gameData.getDrivingAids().getNumAids(); i++ )
+        {
+            if ( i > 0 )
+                sb.append( ", " );
+            
+            sb.append( gameData.getDrivingAids().getAidName( i ) );
+            sb.append( ": " );
+            sb.append( gameData.getDrivingAids().getAidState( i ) + " - " + gameData.getDrivingAids().getAidStateName( i ) );
+        }
+        
+        log( sb.toString() );
+        */
     }
     
     @Override
@@ -354,7 +369,7 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
                     continue;
             }
             
-            if ( stateChanged[i] || isEditorMode )
+            if ( stateChanged[i] || needsCompleteRedraw || isEditorMode )
             {
                 int x2 = x;
                 int y2 = y;
