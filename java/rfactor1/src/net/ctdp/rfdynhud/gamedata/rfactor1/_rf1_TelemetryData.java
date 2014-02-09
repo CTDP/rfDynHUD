@@ -26,6 +26,8 @@ import org.jagatoo.util.streams.StreamUtils;
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
+import net.ctdp.rfdynhud.gamedata.DeviceLegalStatus;
+import net.ctdp.rfdynhud.gamedata.IgnitionStatus;
 import net.ctdp.rfdynhud.gamedata.SurfaceType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
@@ -616,6 +618,60 @@ class _rf1_TelemetryData extends TelemetryData
         ByteUtil.readVectorF( buffer, OFFSET_LAST_IMPACT_POSITION, lastImpactPos );
         
         return ( lastImpactPos );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isSpeedLimiterOn()
+    {
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isFrontFlapActivated()
+    {
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isRearFlapActivated()
+    {
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final DeviceLegalStatus getFrontFlapLegalStatus()
+    {
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final DeviceLegalStatus getRearFlapLegalStatus()
+    {
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final IgnitionStatus getIgnitionStatus()
+    {
+        return ( null );
     }
     
     /**

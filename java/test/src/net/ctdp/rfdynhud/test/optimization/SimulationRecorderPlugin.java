@@ -439,7 +439,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     {
         final long now = System.nanoTime();
         
-        DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( "D:\\rfdynhud_data2" ) ) );
+        DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( "D:\\rfdynhud_data" ) ) );
         
         RFDynHUD rfDynHUD = RFDynHUD.createInstance( new net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory(), 1920, 1200 );
         LiveGameData gameData = rfDynHUD.getGameData();

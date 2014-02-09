@@ -462,10 +462,12 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
             FlatPropertiesContainer pc = new FlatPropertiesContainer();
             
             getProperties( pc, true );
+            List<Property> list = pc.getList();
             
-            for ( int i = 0; i < pc.getList().size(); i++ )
+            for ( int i = 0; i < list.size(); i++ )
             {
-                AbstractPropertiesKeeper.setKeeper( pc.getList().get( i ), this );
+                if ( list.get( i ) != null )
+                    AbstractPropertiesKeeper.setKeeper( list.get( i ), this );
             }
         }
         
@@ -1041,6 +1043,16 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
         paddingLeft.setIntValue( left );
         paddingRight.setIntValue( right );
         paddingBottom.setIntValue( bottom );
+    }
+    
+    /**
+     * Sets padding for this Widget.
+     * 
+     * @param padding top, left, right and bottom padding value
+     */
+    protected final void setPadding( int padding )
+    {
+        setPadding( padding, padding, padding, padding );
     }
     
     /**

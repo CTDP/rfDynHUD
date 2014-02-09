@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.properties;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.ctdp.rfdynhud.util.PropertyWriter;
 
@@ -75,10 +76,12 @@ public abstract class AbstractPropertiesKeeper implements PropertiesKeeper
         FlatPropertiesContainer pc = new FlatPropertiesContainer();
         
         keeper.getProperties( pc, true );
+        List<Property> list = pc.getList();
         
-        for ( int i = 0; i < pc.getList().size(); i++ )
+        for ( int i = 0; i < list.size(); i++ )
         {
-            pc.getList().get( i ).setKeeper( keeper, force );
+            if ( list.get( i ) != null )
+                list.get( i ).setKeeper( keeper, force );
         }
     }
     

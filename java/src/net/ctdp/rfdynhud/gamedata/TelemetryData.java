@@ -300,7 +300,7 @@ public abstract class TelemetryData
     
     protected void updateData( Object userObject, long timestamp )
     {
-        if ( gameData.getProfileInfo().isValid() )
+        //if ( gameData.getProfileInfo().isValid() )
         {
             prepareDataUpdate( userObject, timestamp );
             
@@ -1038,6 +1038,48 @@ public abstract class TelemetryData
      * @return the output buffer back again.
      */
     public abstract TelemVect3 getLastImpactPosition( TelemVect3 lastImpactPos );
+    
+    /**
+     * Gets whether speed limiter is on.
+     * 
+     * @return whether speed limiter is on.
+     */
+    public abstract boolean isSpeedLimiterOn();
+    
+    /**
+     * Gets whether front flap is activated.
+     * 
+     * @return whether front flap is activated.
+     */
+    public abstract boolean isFrontFlapActivated();
+    
+    /**
+     * Gets whether rear flap is activated.
+     * 
+     * @return whether rear flap is activated.
+     */
+    public abstract boolean isRearFlapActivated();
+    
+    /**
+     * Gets the current {@link DeviceLegalStatus} for the front flap device.
+     * 
+     * @return the current {@link DeviceLegalStatus} for the front flap device or <code>null</code>, if unknown.
+     */
+    public abstract DeviceLegalStatus getFrontFlapLegalStatus();
+    
+    /**
+     * Gets the current {@link DeviceLegalStatus} for the rear flap device.
+     * 
+     * @return the current {@link DeviceLegalStatus} for the rear flap device or <code>null</code>, if unknown.
+     */
+    public abstract DeviceLegalStatus getRearFlapLegalStatus();
+    
+    /**
+     * Gets the {@link IgnitionStatus} for the inigition device.
+     * 
+     * @return the {@link IgnitionStatus} for the inigition device or <code>null</code>, if unknown.
+     */
+    public abstract IgnitionStatus getIgnitionStatus();
     
     /**
      * Gets the curent wheel rotation in radians/sec.

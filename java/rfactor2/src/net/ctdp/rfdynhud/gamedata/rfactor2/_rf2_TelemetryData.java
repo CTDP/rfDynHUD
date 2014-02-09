@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata.DeviceLegalStatus;
+import net.ctdp.rfdynhud.gamedata.IgnitionStatus;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SurfaceType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
@@ -107,27 +109,25 @@ class _rf2_TelemetryData extends TelemetryData
     private static final int OFFSET_LAST_IMPACT_MAGNITUDE = OFFSET_LAST_IMPACT_TIME + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_LAST_IMPACT_POSITION = OFFSET_LAST_IMPACT_MAGNITUDE + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_EXPANSION = OFFSET_LAST_IMPACT_POSITION + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_ENGINE_TORQUE = OFFSET_LAST_IMPACT_POSITION + ByteUtil.SIZE_VECTOR3D;
+    private static final int OFFSET_CURRENT_SECTOR = OFFSET_ENGINE_TORQUE + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_SPEED_LIMITER = OFFSET_CURRENT_SECTOR + ByteUtil.SIZE_LONG;
+    private static final int OFFSET_MAX_GEARS = OFFSET_SPEED_LIMITER + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_FRONT_TIRE_COMPOUND_INDEX = OFFSET_MAX_GEARS + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_REAR_TIRE_COMPOUND_INDEX = OFFSET_FRONT_TIRE_COMPOUND_INDEX + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_FUEL_CAPACITY = OFFSET_REAR_TIRE_COMPOUND_INDEX + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_FRONT_FLAP_ACTIVATED = OFFSET_FUEL_CAPACITY + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_REAR_FLAP_ACTIVATED = OFFSET_FRONT_FLAP_ACTIVATED + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_REAR_FLAP_LEGAL_STATUS = OFFSET_REAR_FLAP_ACTIVATED + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_IGNITION_STARTER = OFFSET_REAR_FLAP_LEGAL_STATUS + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_FRONT_TIRE_COMPOUND_NAME = OFFSET_IGNITION_STARTER + ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_REAR_TIRE_COMPOUND_NAME = OFFSET_FRONT_TIRE_COMPOUND_NAME + ByteUtil.SIZE_CHAR * 18;
     
-    /*
-    double mEngineTq;              // current engine torque (including additive torque)
-    long mCurrentSector;           // the current sector (zero-based) with the pitlane stored in the sign bit (example: entering pits from third sector gives 0x80000002)
-    unsigned char mSpeedLimiter;   // whether speed limiter is on
-    unsigned char mMaxGears;       // maximum forward gears
-    unsigned char mFrontTireCompoundIndex;   // index within brand
-    unsigned char mRearTireCompoundIndex;    // index within brand
-    double mFuelCapacity;          // capacity in liters
-    unsigned char mFrontFlapActivated;       // whether front flap is activated
-    unsigned char mRearFlapActivated;        // whether rear flap is activated
-    unsigned char mRearFlapLegalStatus;      // 0=disallowed, 1=criteria detected but not allowed quite yet, 2=allowed
-    unsigned char mIgnitionStarter;          // 0=off 1=ignition 2=ignition+starter
-    char mFrontTireCompoundName[18];         // name of front tire compound
-    char mRearTireCompoundName[18];          // name of rear tire compound
-    */
+    private static final int OFFSET_EXPANSION = OFFSET_REAR_TIRE_COMPOUND_NAME + ByteUtil.SIZE_CHAR * 18;
     
-    private static final int OFFSET_WHEEL_DATA = OFFSET_EXPANSION + 256 * ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_WHEEL_DATA = OFFSET_EXPANSION + 192 * ByteUtil.SIZE_CHAR;
     
-    private static final int OFFSET_WHEEL_SUSPENSION_DEFLECTION = 1;
+    private static final int OFFSET_WHEEL_SUSPENSION_DEFLECTION = 0;
     private static final int OFFSET_RIDE_HEIGHT = OFFSET_WHEEL_SUSPENSION_DEFLECTION + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_WHEEL_SUSPENSION_FORCE = OFFSET_RIDE_HEIGHT + ByteUtil.SIZE_DOUBLE;
     private static final int OFFSET_BRAKE_TEMP = OFFSET_WHEEL_SUSPENSION_FORCE + ByteUtil.SIZE_DOUBLE;
@@ -153,12 +153,13 @@ class _rf2_TelemetryData extends TelemetryData
     private static final int OFFSET_IS_WHEEL_FLAT = OFFSET_SURFACE_TYPE + ByteUtil.SIZE_CHAR;
     private static final int OFFSET_IS_WHEEL_DETACHED = OFFSET_IS_WHEEL_FLAT + ByteUtil.SIZE_BOOL;
     
-    private static final int OFFSET_VERTICAL_TIRE_DEFLECTION = OFFSET_IS_WHEEL_DETACHED + ByteUtil.SIZE_BOOL;
+    private static final int OFFSET_VERTICAL_TIRE_DEFLECTION = OFFSET_IS_WHEEL_DETACHED + ByteUtil.SIZE_BOOL + 1; // +1 byte because of silly packing!
     private static final int OFFSET_WHEEL_Y_LOCATION = OFFSET_VERTICAL_TIRE_DEFLECTION + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_WHEEL_TOE = OFFSET_WHEEL_Y_LOCATION + ByteUtil.SIZE_DOUBLE;
     
-    private static final int OFFSET_WHEEL_DATA_EXPENSION = OFFSET_WHEEL_Y_LOCATION + ByteUtil.SIZE_DOUBLE;
+    private static final int OFFSET_WHEEL_DATA_EXPENSION = OFFSET_WHEEL_TOE + ByteUtil.SIZE_DOUBLE;
     
-    private static final int WHEEL_DATA_SIZE = OFFSET_WHEEL_DATA_EXPENSION + 64 * ByteUtil.SIZE_CHAR;
+    private static final int WHEEL_DATA_SIZE = OFFSET_WHEEL_DATA_EXPENSION + 56 * ByteUtil.SIZE_CHAR;
     
     private static final int BUFFER_SIZE = OFFSET_WHEEL_DATA + ( 4 * WHEEL_DATA_SIZE );
     
@@ -172,6 +173,14 @@ class _rf2_TelemetryData extends TelemetryData
         _rf2_DataAddressKeeper ak = (_rf2_DataAddressKeeper)userObject;
         
         fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+    }
+    
+    @Override
+    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    {
+        super.onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+        
+        ( (_rf2_VehiclePhysics)gameData.getPhysics() ).applyFuelTankSize( getFuelTankCapacity() );
     }
     
     @Override
@@ -853,6 +862,154 @@ class _rf2_TelemetryData extends TelemetryData
         return ( lastImpactPos );
     }
     
+    public final double getEngineTorque()
+    {
+        // double mEngineTq;              // current engine torque (including additive torque)
+        
+        return ( ByteUtil.readDouble( buffer, OFFSET_ENGINE_TORQUE ) );
+    }
+    
+    public final int getCurrentSector()
+    {
+        // long mCurrentSector;           // the current sector (zero-based) with the pitlane stored in the sign bit (example: entering pits from third sector gives 0x80000002)
+        
+        return ( (int)ByteUtil.readLong( buffer, OFFSET_CURRENT_SECTOR ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isSpeedLimiterOn()
+    {
+        // unsigned char mSpeedLimiter;   // whether speed limiter is on
+        
+        return ( ByteUtil.readBoolean( buffer, OFFSET_SPEED_LIMITER ) );
+    }
+    
+    public final short getMaxGears()
+    {
+        // unsigned char mMaxGears;       // maximum forward gears
+        
+        return ( ByteUtil.readByte( buffer, OFFSET_MAX_GEARS ) );
+    }
+    
+    public final int getFrontTireCompoundIndex()
+    {
+        // unsigned char mFrontTireCompoundIndex;   // index within brand
+        
+        return ( ByteUtil.readByte( buffer, OFFSET_FRONT_TIRE_COMPOUND_INDEX ) );
+    }
+    
+    public final int getRearTireCompoundIndex()
+    {
+        // unsigned char mRearTireCompoundIndex;    // index within brand
+        
+        return ( ByteUtil.readByte( buffer, OFFSET_REAR_TIRE_COMPOUND_INDEX ) );
+    }
+    
+    public final float getFuelTankCapacity()
+    {
+        // double mFuelCapacity;          // capacity in liters
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_FUEL_CAPACITY ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isFrontFlapActivated()
+    {
+        // unsigned char mFrontFlapActivated;       // whether front flap is activated
+        
+        return ( ByteUtil.readBoolean( buffer, OFFSET_FRONT_FLAP_ACTIVATED ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isRearFlapActivated()
+    {
+        // unsigned char mRearFlapActivated;       // whether rear flap is activated
+        
+        // Override rf2 bug, that can notify the rear flap being activated, even if not allowed (or installed). TODO: Remove this!
+        if ( ByteUtil.readByte( buffer, OFFSET_REAR_FLAP_LEGAL_STATUS ) != 2 )
+            return ( false );
+        
+        return ( ByteUtil.readBoolean( buffer, OFFSET_REAR_FLAP_ACTIVATED ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final DeviceLegalStatus getFrontFlapLegalStatus()
+    {
+        return ( DeviceLegalStatus.ALLOWED );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final DeviceLegalStatus getRearFlapLegalStatus()
+    {
+        // unsigned char mRearFlapLegalStatus;      // 0=disallowed, 1=criteria detected but not allowed quite yet, 2=allowed
+        
+        byte status = ByteUtil.readByte( buffer, OFFSET_REAR_FLAP_LEGAL_STATUS );
+        
+        switch ( status )
+        {
+            case 0:
+                return ( DeviceLegalStatus.DISALLOWED );
+            case 1:
+                return ( DeviceLegalStatus.CRITERIA_MET_BUT_NOT_YET_ALLOWED );
+            case 2:
+                return ( DeviceLegalStatus.ALLOWED );
+        }
+        
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final IgnitionStatus getIgnitionStatus()
+    {
+        // unsigned char mIgnitionStarter;          // 0=off 1=ignition 2=ignition+starter
+        
+        byte status = ByteUtil.readByte( buffer, OFFSET_IGNITION_STARTER );
+        
+        switch ( status )
+        {
+            case 0:
+                return ( IgnitionStatus.OFF );
+            case 1:
+                return ( IgnitionStatus.IGNITION );
+            case 2:
+                return ( IgnitionStatus.IGNITION_STARTER );
+        }
+        
+        return ( null );
+    }
+    
+    public final String getFrontTireCompoundName()
+    {
+        // char mFrontTireCompoundName[18];         // name of front tire compound
+        
+        return ( ByteUtil.readString( buffer, OFFSET_FRONT_TIRE_COMPOUND_NAME, 18 ) );
+    }
+    
+    public final String getRearTireCompoundName()
+    {
+        // char mRearTireCompoundName[18];          // name of rear tire compound
+        
+        return ( ByteUtil.readString( buffer, OFFSET_REAR_TIRE_COMPOUND_NAME, 18 ) );
+    }
+    
     /*
      * ################################
      * TelemWheelV01
@@ -1449,6 +1606,32 @@ class _rf2_TelemetryData extends TelemetryData
                 return ( (float)ByteUtil.readDouble( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_WHEEL_Y_LOCATION ) );
             case REAR_RIGHT:
                 return ( (float)ByteUtil.readDouble( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_WHEEL_Y_LOCATION ) );
+        }
+        
+        // Unreachable code!
+        return ( 0f );
+    }
+    
+    /**
+     * @return wheel's current toe angle w.r.t. the vehicle
+     * 
+     * @param wheel
+     */
+    //@Override
+    public final float getWheelToe( Wheel wheel )
+    {
+        // double mToe;                   // current toe angle w.r.t. the vehicle
+        
+        switch ( wheel )
+        {
+            case FRONT_LEFT:
+                return ( (float)ByteUtil.readDouble( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_WHEEL_TOE ) );
+            case FRONT_RIGHT:
+                return ( (float)ByteUtil.readDouble( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_WHEEL_TOE ) );
+            case REAR_LEFT:
+                return ( (float)ByteUtil.readDouble( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_WHEEL_TOE ) );
+            case REAR_RIGHT:
+                return ( (float)ByteUtil.readDouble( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_WHEEL_TOE ) );
         }
         
         // Unreachable code!

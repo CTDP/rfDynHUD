@@ -34,6 +34,10 @@ public abstract class VehiclePhysics
      */
     public static class PhysicsSetting
     {
+        private static long nextUpdateId = 1;
+        
+        private long updateId = nextUpdateId++;
+        
         private final float factor;
         private final float baseOffset;
         private float baseValue = 0f;
@@ -42,6 +46,8 @@ public abstract class VehiclePhysics
         
         protected void set( float baseValue, float stepSize, int numSteps )
         {
+            this.updateId = nextUpdateId++;
+            
             this.baseValue = baseOffset + baseValue;
             this.stepSize = stepSize;
             this.numSteps = numSteps;
@@ -49,6 +55,8 @@ public abstract class VehiclePhysics
         
         protected void set( PhysicsSetting source )
         {
+            this.updateId = nextUpdateId++;
+            
             this.baseValue = source.baseValue;
             this.stepSize = source.stepSize;
             this.numSteps = source.numSteps;
@@ -194,6 +202,9 @@ public abstract class VehiclePhysics
         }
     }
     
+    private PhysicsSetting fuelRange = new PhysicsSetting( 1f, 0f );
+    private long fuelRangeLUpdateId = -1L;
+    
     protected final void set( float baseValue, float stepSize, int numSteps, PhysicsSetting target )
     {
         target.set( baseValue, stepSize, numSteps );
@@ -205,18 +216,27 @@ public abstract class VehiclePhysics
     }
     
     /**
-     * Gets the phyiscs setting for fule range in liters.
+     * Gets the phyiscs setting for fuel range in liters.
      * 
-     * @return the phyiscs setting for fule range in liters.
+     * @return the phyiscs setting for fuel range in liters.
      */
     public abstract PhysicsSetting getFuelRangeL();
     
     /**
-     * Gets the phyiscs setting for fule range in the selected units.
+     * Gets the phyiscs setting for fuel range in the selected units.
      * 
-     * @return the phyiscs setting for fule range in the selected units.
+     * @return the phyiscs setting for fuel range in the selected units.
      */
-    public abstract PhysicsSetting getFuelRange();
+    public final PhysicsSetting getFuelRange()
+    {
+        if ( fuelRangeLUpdateId != getFuelRangeL().updateId )
+        {
+            fuelRange.set( getFuelRangeL() );
+            fuelRangeLUpdateId = getFuelRangeL().updateId;
+        }
+        
+        return ( fuelRange );
+    }
     
     /**
      * Gets the weight of one liter of fuel in kg.
@@ -1516,7 +1536,16 @@ public abstract class VehiclePhysics
         getBrakes().finish();
     }
     
-    protected abstract void applyMeasurementUnits( MeasurementUnits measurementUnits );
+    protected abstract void applyMeasurementUnitsImpl( MeasurementUnits measurementUnits );
+    
+    protected final void applyMeasurementUnits( MeasurementUnits measurementUnits )
+    {
+        this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? Convert.LITERS_TO_GALONS : 1f, 0f );
+        this.fuelRange.set( this.getFuelRangeL() );
+        this.fuelRangeLUpdateId = this.getFuelRangeL().updateId;
+        
+        applyMeasurementUnitsImpl( measurementUnits );
+    }
     
     protected VehiclePhysics()
     {

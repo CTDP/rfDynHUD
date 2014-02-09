@@ -33,7 +33,6 @@ import net.ctdp.rfdynhud.util.RFDHLog;
 class _rf2_VehiclePhysics extends VehiclePhysics
 {
     private final PhysicsSetting fuelRangeL = new PhysicsSetting( 1f, 0f );
-    private PhysicsSetting fuelRange = new PhysicsSetting( 1f, 0f );;
     private float weightOfOneLiter = 0.742f; // weight of one liter of fuel in kg
     private final PhysicsSetting frontWingRange = new PhysicsSetting();
     
@@ -44,15 +43,6 @@ class _rf2_VehiclePhysics extends VehiclePhysics
     public final PhysicsSetting getFuelRangeL()
     {
         return ( fuelRangeL );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final PhysicsSetting getFuelRange()
-    {
-        return ( fuelRange );
     }
     
     /**
@@ -1516,7 +1506,7 @@ class _rf2_VehiclePhysics extends VehiclePhysics
      * {@inheritDoc}
      */
     @Override
-    protected void applyMeasurementUnits( MeasurementUnits measurementUnits )
+    protected void applyMeasurementUnitsImpl( MeasurementUnits measurementUnits )
     {
         this.engine.measurementUnits = measurementUnits;
         this.brakes.brakeFrontLeft.measurementUnits = measurementUnits;
@@ -1534,9 +1524,11 @@ class _rf2_VehiclePhysics extends VehiclePhysics
                 tireCompounds[i].rearRight.measurementUnits = measurementUnits;
             }
         }
-        
-        this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? Convert.LITERS_TO_GALONS : 1f, 0f );
-        set( this.fuelRangeL, this.fuelRange );
+    }
+    
+    void applyFuelTankSize( float tankSize )
+    {
+        set( 1.0f + tankSize - (int)tankSize, 1.0f, (int)tankSize - 1, fuelRangeL );
     }
     
     void loadDefaults()
@@ -1547,7 +1539,6 @@ class _rf2_VehiclePhysics extends VehiclePhysics
             numForwardGears = 7;
             
             set( 6.0f, 1.0f, 127, fuelRangeL );
-            set( 6.0f, 1.0f, 127, fuelRange );
             set( 14.0f, 0.25f, 65, frontWingRange );
             
             set( 20000.0f, -250f, 9, engine.revLimitRange );

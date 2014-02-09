@@ -31,6 +31,13 @@ import org.jagatoo.util.Tools;
  */
 public class ListProperty<E extends Object, L extends Collection<E>> extends Property
 {
+    public static interface ListPropertyValue
+    {
+        public String getForConfigFile();
+        
+        public boolean parse( String valueFromConfigFile );
+    }
+    
     private final E defaultValue;
     
     private L list;
@@ -157,11 +164,34 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
      * {@inheritDoc}
      */
     @Override
+    public Object getValueForConfigurationFile()
+    {
+        Object value = super.getValueForConfigurationFile();
+        
+        if ( value instanceof ListPropertyValue )
+            return ( ( (ListPropertyValue)value ).getForConfigFile() );
+        
+        return ( value );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void loadValue( PropertyLoader loader, String value )
     {
         for ( E e : this.list )
         {
-            if ( Tools.objectsEqual( value, e ) )
+            if ( e instanceof ListPropertyValue )
+            {
+                if ( ( (ListPropertyValue)e ).parse( value ) )
+                {
+                    setValue( e );
+                    
+                    return;
+                }
+            }
+            else if ( Tools.objectsEqual( value, e ) )
             {
                 setValue( e );
                 

@@ -25,7 +25,7 @@ import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
-import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
@@ -72,29 +72,27 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
     
     private static enum Alignment
     {
-        LEFT,
-        RIGHT,
+        TOP_LEFT,
+        CENTER,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT,
         ;
     }
     
     private final FloatProperty columns = new FloatProperty( "columns", 2, 1, Integer.MAX_VALUE );
     private final IntProperty gap = new IntProperty( "gap", 5 );
-    private final EnumProperty<Alignment> alignment = new EnumProperty<Alignment>( "alignment", Alignment.LEFT );
+    private final EnumProperty<Alignment> alignment = new EnumProperty<Alignment>( "alignment", Alignment.TOP_LEFT );
     
     private final StringProperty stateVisibilities = new StringProperty( "stateVisibilities", "" );
     
     private ListProperty<AidStateValue, List<AidStateValue>>[] stateVisibilities_ = null;
     private String stateVisibilitiesToParse = null;
     
-    private final ImageProperty imageBackgroundImageOff = new ImageProperty( "iconBackgroundOff", null, "standard/drivingaid_background_off.png", false, true );
-    private final ImageProperty imageBackgroundImageLow = new ImageProperty( "iconBackgroundLow", null, "standard/drivingaid_background_low.png", false, true );
-    private final ImageProperty imageBackgroundImageMedium = new ImageProperty( "iconBackgroundMedium", null, "standard/drivingaid_background_medium.png", false, true );
-    private final ImageProperty imageBackgroundImageHigh = new ImageProperty( "iconBackgroundHigh", null, "standard/drivingaid_background_high.png", false, true );
-    
-    private TextureImage2D iconBackgroundImageOff = null;
-    private TextureImage2D iconBackgroundImageLow = null;
-    private TextureImage2D iconBackgroundImageMedium = null;
-    private TextureImage2D iconBackgroundImageHigh = null;
+    private final ImagePropertyWithTexture imageBackgroundImageOff = new ImagePropertyWithTexture( "iconBackgroundOff", null, "standard/drivingaid_background_off.png", false, true );
+    private final ImagePropertyWithTexture imageBackgroundImageLow = new ImagePropertyWithTexture( "iconBackgroundLow", null, "standard/drivingaid_background_low.png", false, true );
+    private final ImagePropertyWithTexture imageBackgroundImageMedium = new ImagePropertyWithTexture( "iconBackgroundMedium", null, "standard/drivingaid_background_medium.png", false, true );
+    private final ImagePropertyWithTexture imageBackgroundImageHigh = new ImagePropertyWithTexture( "iconBackgroundHigh", null, "standard/drivingaid_background_high.png", false, true );
     
     private TextureImage2D[][] icons = null;
     private int iconSize = 0;
@@ -102,11 +100,15 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
     private int innerIconOffset = 0;
     private boolean[] stateChanged = null;
     
+    private int numRows = -1;
+    
     public DrivingAidsWidget()
     {
         super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 8.125f, 34.417f );
         
-        setPadding( 3, 3, 3, 3 );
+        getBorderProperty().setBorder( null );
+        getBackgroundProperty().setColorValue( "#00000000" );
+        setPadding( 0 );
     }
     
     /**
@@ -136,6 +138,11 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
             stateVisibilities.setValue( sb.toString() );
             writer.writeProperty( stateVisibilities, "Aid state visibilities" );
         }
+        
+        writer.writeProperty( imageBackgroundImageOff, "Background image for an aid's 'off' state" );
+        writer.writeProperty( imageBackgroundImageLow, "Background image for an aid's 'low' state" );
+        writer.writeProperty( imageBackgroundImageMedium, "Background image for an aid's 'medium' state" );
+        writer.writeProperty( imageBackgroundImageHigh, "Background image for an aid's 'high' state" );
     }
     
     private void parseStateVisibilities()
@@ -178,6 +185,10 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
             if ( stateVisibilities_ != null )
                 parseStateVisibilities();
         }
+        else if ( loader.loadProperty( imageBackgroundImageOff ) );
+        else if ( loader.loadProperty( imageBackgroundImageLow ) );
+        else if ( loader.loadProperty( imageBackgroundImageMedium ) );
+        else if ( loader.loadProperty( imageBackgroundImageHigh ) );
     }
     
     @Override
@@ -193,6 +204,11 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
     public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
+        
+        propsCont.addProperty( imageBackgroundImageOff );
+        propsCont.addProperty( imageBackgroundImageLow );
+        propsCont.addProperty( imageBackgroundImageMedium );
+        propsCont.addProperty( imageBackgroundImageHigh );
         
         propsCont.addGroup( "Misc" );
         
@@ -223,10 +239,10 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
         innerIconSize = iconSize * 3 / 4;
         innerIconOffset = ( iconSize - innerIconSize ) / 2;
         
-        iconBackgroundImageOff = imageBackgroundImageOff.getImage().getScaledTextureImage( iconSize, iconSize, iconBackgroundImageOff, isEditorMode );
-        iconBackgroundImageLow = imageBackgroundImageLow.getImage().getScaledTextureImage( iconSize, iconSize, iconBackgroundImageLow, isEditorMode );
-        iconBackgroundImageMedium = imageBackgroundImageMedium.getImage().getScaledTextureImage( iconSize, iconSize, iconBackgroundImageMedium, isEditorMode );
-        iconBackgroundImageHigh = imageBackgroundImageHigh.getImage().getScaledTextureImage( iconSize, iconSize, iconBackgroundImageHigh, isEditorMode );
+        imageBackgroundImageOff.updateSize( iconSize, iconSize, isEditorMode );
+        imageBackgroundImageLow.updateSize( iconSize, iconSize, isEditorMode );
+        imageBackgroundImageMedium.updateSize( iconSize, iconSize, isEditorMode );
+        imageBackgroundImageHigh.updateSize( iconSize, iconSize, isEditorMode );
         
         if ( icons == null )
             icons = new TextureImage2D[ numAids ][];
@@ -318,6 +334,44 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
     {
     }
     
+    private void countRows( DrivingAids drivingAids, boolean isEditorMode )
+    {
+        numRows = -1;
+        
+        if ( alignment.getValue() == Alignment.CENTER )
+        {
+            numRows = 0;
+            int column = 0;
+            
+            int numAids = drivingAids.getNumAids();
+            
+            for ( int i = 0; i < numAids; i++ )
+            {
+                AidStateValue asv = stateVisibilities_[i].getValue();
+                
+                if ( asv == AidStateValue.never )
+                    continue;
+                
+                if ( !isEditorMode && ( asv != AidStateValue.always ) )
+                {
+                    if ( asv.state.intValue() == drivingAids.getAidState( i ) )
+                        continue;
+                }
+                
+                if ( numRows == 0 )
+                    numRows = 1;
+                
+                column++;
+                
+                if ( column >= columns.getIntValue() )
+                {
+                    column = 0;
+                    numRows++;
+                }
+            }
+        }
+    }
+    
     @Override
     public void onDrivingAidStateChanged( LiveGameData gameData, int aidIndex, int oldState, int newState )
     {
@@ -329,6 +383,8 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
             //if ( ( stateVisibilities_[aidIndex].getValue() != AidStateValue.never ) && ( stateVisibilities_[aidIndex].getValue() != AidStateValue.always ) )
                 forceCompleteRedraw( false );
         }
+        
+        countRows( gameData.getDrivingAids(), false );
         
         /*
         StringBuilder sb = new StringBuilder();
@@ -346,15 +402,36 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
         */
     }
     
+    private TextureImage2D getIconBackground( int state )
+    {
+        switch ( state )
+        {
+            case 0:
+                return ( imageBackgroundImageOff.getTexture() );
+            case 1:
+                return ( imageBackgroundImageLow.getTexture() );
+            case 2:
+                return ( imageBackgroundImageMedium.getTexture() );
+            case 3:
+            default:
+                return ( imageBackgroundImageHigh.getTexture() );
+        }
+    }
+    
     @Override
     protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final DrivingAids drivingAids = gameData.getDrivingAids();
         int numAids = drivingAids.getNumAids();
         
+        Alignment align = alignment.getValue();
+        
         int x = 0;
         int y = 0;
         int column = 0;
+        
+        if ( ( align == Alignment.CENTER ) && ( ( numRows < 0 ) || isEditorMode ) )
+            countRows( drivingAids, isEditorMode );
         
         for ( int i = 0; i < numAids; i++ )
         {
@@ -369,7 +446,7 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
                     continue;
             }
             
-            if ( stateChanged[i] || needsCompleteRedraw || isEditorMode )
+            if ( stateChanged[i] || needsCompleteRedraw )
             {
                 int x2 = x;
                 int y2 = y;
@@ -381,11 +458,27 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
                 }
                 
                 int x3 = x2;
-                if ( alignment.getValue() == Alignment.RIGHT )
-                    x3 = getInnerSize().getEffectiveWidth() - x2 - iconSize;
                 int y3 = y2;
+                if ( align == Alignment.CENTER )
+                {
+                    if ( getInnerSize().getEffectiveWidth() > getInnerSize().getEffectiveHeight() )
+                        x3 = ( getInnerSize().getEffectiveWidth() - ( numRows * iconSize ) - ( numRows * gap.getIntValue() - gap.getIntValue() ) ) / 2 + x2;
+                    else
+                        y3 = ( getInnerSize().getEffectiveHeight() - ( numRows * iconSize ) - ( numRows * gap.getIntValue() - gap.getIntValue() ) ) / 2 + y2;
+                }
+                else if ( ( align == Alignment.TOP_RIGHT ) || ( align == Alignment.BOTTOM_RIGHT ) )
+                {
+                    x3 = getInnerSize().getEffectiveWidth() - x2 - iconSize;
+                }
                 
-                clearBackgroundRegion( texture, offsetX, offsetY, x3, y3, iconSize, iconSize, true, null );
+                int x4 = x3;
+                int y4 = y3;
+                if ( ( align == Alignment.BOTTOM_LEFT ) || ( align == Alignment.BOTTOM_RIGHT ) )
+                {
+                    y4 = getInnerSize().getEffectiveHeight() - y3 - iconSize;
+                }
+                
+                clearBackgroundRegion( texture, offsetX, offsetY, x4, y4, iconSize, iconSize, true, null );
                 
                 int state = drivingAids.getAidState( i );
                 int state2 = state;
@@ -395,24 +488,12 @@ public class DrivingAidsWidget extends Widget implements DrivingAids.DrivingAidS
                 else if ( numStates == 3 )
                     state2 = ( state == 0 ) ? 0 : ( ( state == 1 ) ? 1 : 3 );
                 
-                switch ( state2 )
-                {
-                    case 0:
-                        texture.drawImage( iconBackgroundImageOff, offsetX + x3, offsetY + y3, false, null );
-                        break;
-                    case 1:
-                        texture.drawImage( iconBackgroundImageLow, offsetX + x3, offsetY + y3, false, null );
-                        break;
-                    case 2:
-                        texture.drawImage( iconBackgroundImageMedium, offsetX + x3, offsetY + y3, false, null );
-                        break;
-                    case 3:
-                    default:
-                        texture.drawImage( iconBackgroundImageHigh, offsetX + x3, offsetY + y3, false, null );
-                        break;
-                }
+                TextureImage2D background = getIconBackground( state2 );
                 
-                texture.drawImage( icons[i][state], offsetX + x3 + innerIconOffset, offsetY + y3 + innerIconOffset, false, null );
+                if ( background != null )
+                    texture.drawImage( background, offsetX + x4, offsetY + y4, false, null );
+                
+                texture.drawImage( icons[i][state], offsetX + x4 + innerIconOffset, offsetY + y4 + innerIconOffset, false, null );
                 
                 stateChanged[i] = false;
             }
