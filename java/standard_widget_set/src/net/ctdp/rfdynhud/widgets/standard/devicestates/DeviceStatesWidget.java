@@ -25,6 +25,8 @@ import net.ctdp.rfdynhud.gamedata.DeviceLegalStatus;
 import net.ctdp.rfdynhud.gamedata.IgnitionStatus;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
@@ -47,7 +49,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 /**
  * The {@link DeviceStatesWidget} displays icons for the current states of different devices.
  * 
- * TODO: Blink speed limiter when in pitlane with speed limiter disabled.
+ * TODO: Check, whether the used car actually has a speed limiter.
  * 
  * @author Marvin Froehlich (CTDP)
  */
@@ -103,6 +105,7 @@ public class DeviceStatesWidget extends Widget
     private final EnumProperty<Alignment> alignment = new EnumProperty<Alignment>( "alignment", Alignment.TOP_LEFT );
     
     private ListProperty<DeviceStateValue, List<DeviceStateValue>> speedLimiterVisibility = null;
+    private final BooleanProperty blinkSpeedLimiter = new BooleanProperty( "blinkSpeedLimiter", true );
     private ListProperty<DeviceStateValue, List<DeviceStateValue>> ignitionVisibility = null;
     private ListProperty<DeviceStateValue, List<DeviceStateValue>> frontFlapVisibility = null;
     private ListProperty<DeviceStateValue, List<DeviceStateValue>> rearFlapVisibility = null;
@@ -131,11 +134,18 @@ public class DeviceStatesWidget extends Widget
     private int innerIconOffset = 0;
     
     private final BoolValue speedLimiterValue = new BoolValue();
+    private final BoolValue speedLimiterDspValue = new BoolValue();
     private final EnumValue<IgnitionStatus> ignitionValue = new EnumValue<IgnitionStatus>();
     private final IntValue frontFlapValue = new IntValue();
     private final IntValue rearFlapValue = new IntValue();
     
     private int numRows = -1;
+    
+    private static final long BLINK_DELAY = 500000000L; // 500 ms, 2 Hz
+    private static final long BLINK_INIT_VALUE = -( Long.MAX_VALUE / 2L );
+    
+    private long nextBlinkTime = BLINK_INIT_VALUE;
+    private boolean nextBlinkVis = true;
     
     public DeviceStatesWidget()
     {
@@ -160,6 +170,7 @@ public class DeviceStatesWidget extends Widget
         
         if ( speedLimiterVisibility != null )
             writer.writeProperty( speedLimiterVisibility, "Speed limiter visibility" );
+        writer.writeProperty( blinkSpeedLimiter, "Whether the speed limiter icon will blink, if it should be enabled/disabled." );
         if ( ignitionVisibility != null )
             writer.writeProperty( ignitionVisibility, "Ignition visibility" );
         if ( frontFlapVisibility != null )
@@ -201,6 +212,7 @@ public class DeviceStatesWidget extends Widget
         else if ( loader.loadProperty( gap ) );
         else if ( loader.loadProperty( alignment ) );
         else if ( ( speedLimiterVisibility != null ) && loader.loadProperty( speedLimiterVisibility ) );
+        else if ( loader.loadProperty( blinkSpeedLimiter ) );
         else if ( ( ignitionVisibility != null ) && loader.loadProperty( ignitionVisibility ) );
         else if ( ( frontFlapVisibility != null ) && loader.loadProperty( frontFlapVisibility ) );
         else if ( ( rearFlapVisibility != null ) && loader.loadProperty( rearFlapVisibility ) );
@@ -269,6 +281,7 @@ public class DeviceStatesWidget extends Widget
         propsCont.addGroup( "Device visibilities" );
         
         propsCont.addProperty( speedLimiterVisibility );
+        propsCont.addProperty( blinkSpeedLimiter );
         propsCont.addProperty( ignitionVisibility );
         propsCont.addProperty( frontFlapVisibility );
         propsCont.addProperty( rearFlapVisibility );
@@ -410,9 +423,27 @@ public class DeviceStatesWidget extends Widget
         super.onCockpitEntered( gameData, isEditorMode );
         
         speedLimiterValue.reset( true );
+        speedLimiterDspValue.reset( true );
         ignitionValue.reset( true );
         frontFlapValue.reset( true );
         rearFlapValue.reset( true );
+        
+        nextBlinkTime = BLINK_INIT_VALUE;
+        nextBlinkVis = true;
+    }
+    
+    @Override
+    public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
+    {
+        nextBlinkTime = BLINK_INIT_VALUE;
+        nextBlinkVis = true;
+    }
+    
+    @Override
+    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
+    {
+        nextBlinkTime = BLINK_INIT_VALUE;
+        nextBlinkVis = true;
     }
     
     private class RowCounter
@@ -455,7 +486,7 @@ public class DeviceStatesWidget extends Widget
     
     private final RowCounter rowCounter = new RowCounter();
     
-    private void countRows( TelemetryData telemData, boolean isEditorMode )
+    private void countRows( TelemetryData telemData, VehicleScoringInfo vsi, boolean isEditorMode )
     {
         numRows = -1;
         
@@ -468,7 +499,7 @@ public class DeviceStatesWidget extends Widget
                 
                 if ( dsv != DeviceStateValue.never )
                 {
-                    if ( isEditorMode || ( dsv == DeviceStateValue.always ) || ( ( dsv.state.intValue() == 1 ) != telemData.isSpeedLimiterOn() ) )
+                    if ( isEditorMode || ( dsv == DeviceStateValue.always ) || ( blinkSpeedLimiter.getBooleanValue() && ( ( vsi.isInPits() && !telemData.isSpeedLimiterOn() ) || ( !vsi.isInPits() && telemData.isSpeedLimiterOn() ) ) ) || ( ( dsv.state.intValue() == 1 ) != telemData.isSpeedLimiterOn() ) )
                     {
                         rowCounter.incColumn();
                     }
@@ -604,11 +635,12 @@ public class DeviceStatesWidget extends Widget
     protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final TelemetryData telemData = gameData.getTelemetryData();
+        final boolean isInPitLane = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
         
         Alignment align = alignment.getValue();
         
         if ( ( align == Alignment.CENTER ) && ( ( numRows < 0 ) || isEditorMode ) )
-            countRows( telemData, isEditorMode );
+            countRows( telemData, gameData.getScoringInfo().getPlayersVehicleScoringInfo(), isEditorMode );
         
         int numRows = this.numRows;
         rowCounter.reset();
@@ -627,7 +659,35 @@ public class DeviceStatesWidget extends Widget
                 
                 if ( dsv != DeviceStateValue.never )
                 {
-                    if ( speedLimiterValue.update( telemData.isSpeedLimiterOn() ) || allCleared || needsCompleteRedraw )
+                    if ( speedLimiterValue.update( telemData.isSpeedLimiterOn() ) )
+                    {
+                        nextBlinkTime = BLINK_INIT_VALUE;
+                        nextBlinkVis = true;
+                    }
+                    
+                    boolean dsp = isEditorMode || telemData.isSpeedLimiterOn();
+                    boolean blink = blinkSpeedLimiter.getBooleanValue() && ( ( isInPitLane && !telemData.isSpeedLimiterOn() ) || ( !isInPitLane && telemData.isSpeedLimiterOn() ) );
+                    if ( blink && !isEditorMode )
+                    {
+                        if ( nextBlinkTime == BLINK_INIT_VALUE )
+                        {
+                            nextBlinkTime = gameData.getScoringInfo().getSessionNanos() + BLINK_DELAY;
+                            
+                            if ( speedLimiterDspValue.getValue() == speedLimiterDspValue.getResetValue() )
+                                nextBlinkVis = false;
+                            else
+                                nextBlinkVis = speedLimiterDspValue.getValue();
+                        }
+                        else if ( gameData.getScoringInfo().getSessionNanos() >= nextBlinkTime )
+                        {
+                            nextBlinkTime = gameData.getScoringInfo().getSessionNanos() + BLINK_DELAY;
+                            nextBlinkVis = !nextBlinkVis;
+                        }
+                        
+                        dsp = !nextBlinkVis;
+                    }
+                    
+                    if ( ( speedLimiterValue.hasChanged( false ) | speedLimiterDspValue.update( dsp ) ) || allCleared || needsCompleteRedraw )
                     {
                         if ( !allCleared )
                         {
@@ -637,12 +697,15 @@ public class DeviceStatesWidget extends Widget
                             continue;
                         }
                         
-                        if ( isEditorMode || ( dsv == DeviceStateValue.always ) || ( ( dsv.state.intValue() == 1 ) != telemData.isSpeedLimiterOn() ) )
+                        if ( isEditorMode || ( dsv == DeviceStateValue.always ) || blink || ( ( dsv.state.intValue() == 1 ) != telemData.isSpeedLimiterOn() ) )
                         {
-                            TextureImage2D background = getIconBackground( telemData.isSpeedLimiterOn() ? 3 : 0 );
-                            TextureImage2D icon = telemData.isSpeedLimiterOn() ? imageSpeedLimiterOn.getTexture() : imageSpeedLimiterOff.getTexture();
-                            
-                            renderIcon( background, icon, texture, offsetX, offsetY, rowCounter.x, rowCounter.y, numRows );
+                            if ( dsp )
+                            {
+                                TextureImage2D background = getIconBackground( telemData.isSpeedLimiterOn() ? 3 : 0 );
+                                TextureImage2D icon = telemData.isSpeedLimiterOn() ? imageSpeedLimiterOn.getTexture() : imageSpeedLimiterOff.getTexture();
+                                
+                                renderIcon( background, icon, texture, offsetX, offsetY, rowCounter.x, rowCounter.y, numRows );
+                            }
                             
                             rowCounter.incColumn();
                             
@@ -651,6 +714,7 @@ public class DeviceStatesWidget extends Widget
                         }
                         
                         speedLimiterValue.setUnchanged();
+                        speedLimiterDspValue.setUnchanged();
                     }
                 }
                 

@@ -1,0 +1,19 @@
+<p>
+The <strong>blinkSpeedLimiter</strong> property defines, whether the speed limiter icon will be forced visible and blink,
+if it is disabled, but should be enabled or vice versa.<br />
+The following conditions must be met.
+</p>
+<ul>
+    <li>If the speed limiter device is installed for the current vehicle</li>
+    <li>If the <strong>speedLimiterVisibility</strong> property is not set to <i>Never</i></li>
+    <li>
+        One of:
+        <ul style="margin-top: 0;">
+            <li>If the vehicle is in the pitlane AND the speed limiter is currently disabled</li>
+            <li>If the vehicle is NOT in the pitlane AND the speed limiter is currently enabled</li>
+        </ul>
+    </li>
+</ul>
+<p>
+Note, that this property may override the <strong>speedLimiterVisibility</strong> property, if it is not set to <i>Always</i> or <i>Never</i>.
+</p>
