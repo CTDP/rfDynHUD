@@ -24,13 +24,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.ctdp.rfdynhud.gamedata.GameEventsListener;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
-import net.ctdp.rfdynhud.gamedata.GameEventsPlugin;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
-import net.ctdp.rfdynhud.gamedata.ScoringInfo.ScoringInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.plugins.AbstractDataSenderPlugin;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
@@ -45,17 +43,12 @@ import org.jagatoo.util.streams.LimitedInputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorPlugin extends GameEventsPlugin implements GameEventsListener, ScoringInfoUpdateListener, WidgetsRenderListener
+public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsRenderListener
 {
     private static final String INI_FILENAME = "director.ini";
     private static final String DEFAULT_NO_CONFIG_RECEIVED_MESSAGE = "No configuration received so far.";
     private static final String CONFIGURATION_NAME = "DIRECTOR_CONFIGURATION";
     
-    private final File iniFile;
-    private boolean isEditorMode = false;
-    
-    private boolean enabled = false;
-    private Communicator communicator = null;
     private String noConfigFoundMessage = "No configuration received so far.";
     private String originalNoConfigFoundMessage = null;
     
@@ -67,36 +60,48 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     private final Map<String, DirectorWidgetController> widgetControllersMap = new HashMap<String, DirectorWidgetController>();
     
     private LiveGameData lastGameData = null;
-    private boolean isInCockpit = false;
     
     private byte[] configData = null;
     private int configLength = -1;
     
     public DirectorPlugin( File baseFolder )
     {
-        super( "Director", baseFolder );
-        
-        iniFile = new File( baseFolder, INI_FILENAME );
+        super( "Director", baseFolder, new File( baseFolder, INI_FILENAME ) );
     }
     
     @Override
     public void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
+        super.onPluginStarted( eventsManager, gameData, isEditorMode, widgetsManager );
+        
         this.eventsManager = eventsManager;
         
-        this.isEditorMode = isEditorMode;
+        if ( !isEnabled() )
+            return;
+        
+        widgetsManager.registerListener( this );
+        
+        this.loader = widgetsManager.getConfigurationLoader();
+        this.defaultCandidatesIterator = eventsManager.getConfigurationCandidatesIterator();
+        this.originalNoConfigFoundMessage = loader.getNoConfigFoundMessage();
+    }
+    
+    @Override
+    protected void parseIniFile( File iniFile, GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        this.eventsManager = eventsManager;
         
         if ( iniFile.exists() )
         {
             String enabled = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", "enabled", null );
             
             if ( enabled != null )
-                this.enabled = Boolean.parseBoolean( enabled );
+                setEnabled( Boolean.parseBoolean( enabled ) );
             
             String port = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", isEditorMode ? "offlinePort" : "port", null );
             
             if ( ( port == null ) || ( port.length() == 0 ) )
-                this.enabled = false;
+                setEnabled( false );
             
             String password = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", "password", "" );
             
@@ -107,7 +112,7 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
             catch ( Throwable t )
             {
                 log( t );
-                this.enabled = false;
+                setEnabled( false );
             }
             
             String noConfigFoundMessage = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", "noConfigMessage", DEFAULT_NO_CONFIG_RECEIVED_MESSAGE );
@@ -116,39 +121,18 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
             else
                 this.noConfigFoundMessage = "Director: " + noConfigFoundMessage;
         }
-        
-        if ( !enabled )
-            return;
-        
-        gameData.registerGameEventsListener( this );
-        gameData.registerDataUpdateListener( this );
-        gameData.getScoringInfo().registerListener( this );
-        widgetsManager.registerListener( this );
-        
-        this.loader = widgetsManager.getConfigurationLoader();
-        this.defaultCandidatesIterator = eventsManager.getConfigurationCandidatesIterator();
-        this.originalNoConfigFoundMessage = loader.getNoConfigFoundMessage();
-        
-        communicator.connect();
     }
     
     @Override
     public void onPluginShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
-        if ( enabled && ( communicator != null ) )
-        {
-            communicator.close( false );
-        }
+        super.onPluginShutdown( eventsManager, gameData, isEditorMode, widgetsManager );
     }
     
-    public final boolean isInCockpit()
+    @Override
+    protected void onConnectionEsteblished()
     {
-        return ( isInCockpit );
-    }
-    
-    public void onConnectionEsteblished()
-    {
-        debug( "Connection esteblished" );
+        super.onConnectionEsteblished();
         
         eventsManager.setConfigurationCandidatesIterator( null );
         loader.setNoConfigFoundMessage( noConfigFoundMessage );
@@ -159,92 +143,13 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
         }
     }
     
-    public void onConnectionClosed()
+    @Override
+    protected void onConnectionClosed()
     {
+        super.onConnectionClosed();
+        
         loader.setNoConfigFoundMessage( originalNoConfigFoundMessage );
         eventsManager.setConfigurationCandidatesIterator( defaultCandidatesIterator );
-    }
-    
-    @Override
-    public void onVehiclePhysicsUpdated( LiveGameData gameData )
-    {
-    }
-    
-    @Override
-    public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
-    {
-    }
-    
-    @Override
-    public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
-    {
-    }
-    
-    @Override
-    public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_PITS_ENTERED );
-        }
-    }
-    
-    @Override
-    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_PITS_EXITED );
-        }
-    }
-    
-    @Override
-    public void onGarageEntered( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_GARAGE_ENTERED );
-        }
-    }
-    
-    @Override
-    public void onGarageExited( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_GARAGE_EXITED );
-        }
-    }
-    
-    @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_VEHICLE_CONTROL_CHANGED );
-            communicator.writeInt( viewedVSI.getDriverId() );
-            communicator.writeByte( viewedVSI.getVehicleControl().ordinal() );
-        }
-    }
-    
-    @Override
-    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_LAP_STARTED );
-            communicator.writeInt( vsi.getDriverId() );
-            communicator.writeShort( vsi.getCurrentLap() );
-        }
-    }
-    
-    private void sendDriversName( VehicleScoringInfo vsi, boolean andPlace )
-    {
-        communicator.writeInt( vsi.getDriverId() );
-        if ( andPlace )
-            communicator.writeShort( vsi.getPlace( false ) );
-        communicator.writeByte( vsi.getDriverName().length() );
-        communicator.write( vsi.getDriverName().getBytes() );
     }
     
     private void sendDriversList( LiveGameData gameData )
@@ -267,10 +172,10 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     {
         lastGameData = gameData;
         
+        super.onSessionStarted( gameData, isEditorMode );
+        
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( DirectorConstants.ON_SESSION_STARTED );
-            communicator.writeByte( gameData.getScoringInfo().getSessionType().ordinal() );
             sendDriversList( gameData );
         }
     }
@@ -278,53 +183,13 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     @Override
     public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        isInCockpit = true;
-        
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_REALTIME_ENTERED );
-        }
-    }
-    
-    @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_GAME_PAUSE_STATE_CHANGED );
-            communicator.writeBoolean( isPaused );
-        }
+        super.onCockpitEntered( gameData, isEditorMode );
     }
     
     @Override
     public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
-        isInCockpit = false;
-        
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_REALTIME_EXITED );
-        }
-    }
-    
-    @Override
-    public void onPlayerJoined( LiveGameData gameData, VehicleScoringInfo joinedVSI, boolean rejoined )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_PLAYER_JOINED );
-            sendDriversName( joinedVSI, true );
-        }
-    }
-    
-    @Override
-    public void onPlayerLeft( LiveGameData gameData, Integer vsiID )
-    {
-        if ( communicator.isConnected() )
-        {
-            communicator.writeCommand( DirectorConstants.ON_PLAYER_LEFT );
-            communicator.writeInt( vsiID.intValue() );
-        }
+        super.onCockpitExited( gameData, isEditorMode );
     }
     
     private void sendDriversPositions( LiveGameData gameData )
@@ -348,11 +213,10 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     @Override
     public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
+        super.onScoringInfoUpdated( gameData, isEditorMode );
+        
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( DirectorConstants.SESSION_TIME );
-            communicator.writeLong( gameData.getScoringInfo().getSessionNanos() );
-            
             sendDriversPositions( gameData );
         }
     }
@@ -364,7 +228,7 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     
     public void onWidgetsConfigReceived( byte[] configData, int length )
     {
-        if ( isEditorMode )
+        if ( isEditorMode() )
             return;
         
         //debug( "Widgets config received. length: ", length );
@@ -375,7 +239,7 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     @Override
     public void afterWidgetsConfigurationLoaded( LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
-        if ( isEditorMode )
+        if ( isEditorMode() )
             return;
         
         if ( widgetsConfig.getName() == CONFIGURATION_NAME )
@@ -434,7 +298,7 @@ public class DirectorPlugin extends GameEventsPlugin implements GameEventsListen
     
     public void onWidgetStateReceived( String widgetName, long visibleStart, long visibleEnd, short posX, short posY, int viewedVSIid, int compareVSIId )
     {
-        if ( isEditorMode )
+        if ( isEditorMode() )
             return;
         
         DirectorWidgetController controller = widgetControllersMap.get( widgetName );

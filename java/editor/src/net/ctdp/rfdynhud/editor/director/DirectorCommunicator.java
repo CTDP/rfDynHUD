@@ -448,10 +448,10 @@ public class DirectorCommunicator implements Runnable
                 short lap = in.readShort();
                 manager.onLapStarted( driverID, lap );
                 break;
-            case DirectorConstants.ON_REALTIME_ENTERED:
+            case DirectorConstants.ON_COCKPIT_ENTERED:
                 manager.onCockpitEntered();
                 break;
-            case DirectorConstants.ON_REALTIME_EXITED:
+            case DirectorConstants.ON_COCKPIT_EXITED:
                 manager.onCockpitExited();
                 break;
             case DirectorConstants.ON_GAME_PAUSE_STATE_CHANGED:

@@ -22,35 +22,11 @@ package net.ctdp.rfdynhud.editor.director;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorConstants
+public class DirectorConstants extends net.ctdp.rfdynhud.plugins.CommunicatorConstants
 {
-    public static final int OFFSET = 0xFFFF;
-    
-    public static final int CONNECTION_REQUEST = OFFSET + 1;
-    public static final int REQUEST_PASSWORD = OFFSET + 2;
-    public static final int PASSWORD_HASH = OFFSET + 3;
-    public static final int PASSWORD_MISMATCH = OFFSET + 4;
-    public static final int CONNECTION_REFUSED = OFFSET + 5;
-    public static final int CONNECTION_ESTEBLISHED = OFFSET + 6;
-    public static final int CONNECTION_CLOSED = OFFSET + 7;
-    
-    public static final int WIDGETS_CONFIGURATION = OFFSET + 100;
-    public static final int RESET_WIDGET_STATES = OFFSET + 101;
-    public static final int WIDGET_STATE = OFFSET + 102;
-    public static final int DRIVERS_LIST = OFFSET + 103;
-    public static final int DRIVERS_POSITIONS = OFFSET + 104;
-    public static final int SESSION_TIME = OFFSET + 105;
-    
-    public static final int ON_PITS_ENTERED = OFFSET + 1000;
-    public static final int ON_PITS_EXITED = OFFSET + 1001;
-    public static final int ON_GARAGE_ENTERED = OFFSET + 1002;
-    public static final int ON_GARAGE_EXITED = OFFSET + 1003;
-    public static final int ON_VEHICLE_CONTROL_CHANGED = OFFSET + 1004;
-    public static final int ON_LAP_STARTED = OFFSET + 1005;
-    public static final int ON_SESSION_STARTED = OFFSET + 1006;
-    public static final int ON_REALTIME_ENTERED = OFFSET + 1007;
-    public static final int ON_GAME_PAUSE_STATE_CHANGED = OFFSET + 1008;
-    public static final int ON_REALTIME_EXITED = OFFSET + 1009;
-    public static final int ON_PLAYER_JOINED = OFFSET + 1010;
-    public static final int ON_PLAYER_LEFT = OFFSET + 1011;
+    public static final int WIDGETS_CONFIGURATION = OFFSET + 10000;
+    public static final int RESET_WIDGET_STATES = OFFSET + 10001;
+    public static final int WIDGET_STATE = OFFSET + 10002;
+    public static final int DRIVERS_LIST = OFFSET + 10003;
+    public static final int DRIVERS_POSITIONS = OFFSET + 10004;
 }
