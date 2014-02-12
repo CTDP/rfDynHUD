@@ -45,11 +45,15 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     
     static
     {
-        if ( __EDPrivilegedAccess.editorClassLoader == null )
+        if ( ( __EDPrivilegedAccess.editorClassLoader == null ) && !GameEventsManager.simulationMode )
         {
             try
             {
                 System.loadLibrary( "rfdynhud4rf1" );
+            }
+            catch ( UnsatisfiedLinkError e )
+            {
+                RFDHLog.error( "[ERROR] Couldn't find rfdynhud4rf1.dll" );
             }
             catch ( Throwable t )
             {

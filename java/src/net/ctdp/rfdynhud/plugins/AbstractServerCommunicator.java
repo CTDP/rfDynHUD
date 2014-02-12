@@ -31,11 +31,11 @@ import java.util.Arrays;
 import org.jagatoo.util.strings.MD5Util;
 
 /**
- * Connects to the editor via a socket and sends/receives data.
+ * Connects to the editor via a socket and sends/receives data (server side).
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class AbstractCommunicator implements Runnable
+public abstract class AbstractServerCommunicator implements Runnable
 {
     private final AbstractDataSenderPlugin plugin;
     private final int port;
@@ -43,12 +43,12 @@ public abstract class AbstractCommunicator implements Runnable
     
     private ServerSocket serverSocket = null;
     
-    private boolean running = false;
-    private boolean connected = false;
-    private boolean restart = true;
-    private boolean closeRequested = false;
+    private volatile boolean running = false;
+    private volatile boolean connected = false;
+    private volatile boolean restart = true;
+    private volatile boolean closeRequested = false;
     
-    private boolean waitingForConnection = false;
+    private volatile boolean waitingForConnection = false;
     
     private final ByteArrayOutputStream eventsBuffer0 = new ByteArrayOutputStream();
     private final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
@@ -61,6 +61,14 @@ public abstract class AbstractCommunicator implements Runnable
     public final boolean isConnected()
     {
         return ( connected );
+    }
+    
+    public final DataOutputStream getOutputStream()
+    {
+        if ( !isConnected() )
+            return ( null );
+        
+        return ( eventsBuffer );
     }
     
     public void write( int b )
@@ -520,7 +528,7 @@ public abstract class AbstractCommunicator implements Runnable
         }
     }
     
-    public AbstractCommunicator( AbstractDataSenderPlugin plugin, int port, String password )
+    public AbstractServerCommunicator( AbstractDataSenderPlugin plugin, int port, String password )
     {
         this.plugin = plugin;
         this.port = port;

@@ -51,6 +51,10 @@ public class DirectInputConnection
                 
                 RFDHLog.printlnEx( "Library loaded." );
             }
+            catch ( UnsatisfiedLinkError e )
+            {
+                RFDHLog.error( "[ERROR] Couldn't find direct_input_connection.dll" );
+            }
             catch ( Throwable t )
             {
                 RFDHLog.exception( t );

@@ -38,6 +38,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -56,6 +57,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
+import net.ctdp.rfdynhud.editor.live.LiveCommunicator;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
@@ -170,6 +172,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private WidgetsEditorPanel editorPanel;
     private JScrollPane editorScrollPane;
     
+    JPanel fullscreenPanel = null;
+    
     private JSplitPane mainSplit;
     private JSplitPane propsSplit;
     
@@ -177,6 +181,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private DirectorManager directorMgr = null;
     private File currentDirectorStatesSetsFile = null;
     private String directorConnectionStrings = null;
+    
+    private LiveCommunicator liveMgr = null;
     
     private PropertiesEditor propsEditor;
     private HierarchicalTable<Property> editorTable;
@@ -283,6 +289,14 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     public final WidgetsEditorPanel getEditorPanel()
     {
         return ( editorPanel );
+    }
+    
+    public void repaintEditorPanel()
+    {
+        if ( fullscreenPanel == null )
+            editorPanel.repaint();
+        else
+            fullscreenPanel.repaint();
     }
     
     public final TextureImage2D getOverlayTexture()
@@ -450,7 +464,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
      */
     public void onWidgetChanged( Widget widget, String propertyName, boolean isPosSize )
     {
-        editorPanel.repaint();
+        repaintEditorPanel();
         
         setDirtyFlag();
         
@@ -1010,7 +1024,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         getOverlayTexture().clear( true, null );
         editorPanel.setSelectedWidget( null, false );
-        getEditorPanel().repaint();
+        repaintEditorPanel();
     }
     
     public void openConfig( File configFile )
@@ -1029,7 +1043,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             
             getOverlayTexture().clear( true, null );
             editorPanel.setSelectedWidget( null, false );
-            getEditorPanel().repaint();
+            repaintEditorPanel();
         }
         catch ( Throwable t )
         {
@@ -1173,7 +1187,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             {
                 widgetsConfig.getWidget( i ).forceReinitialization();
             }
-            editorPanel.repaint();
+            repaintEditorPanel();
         }
         catch ( Throwable t )
         {
@@ -1551,6 +1565,21 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( true );
     }
     
+    public boolean switchToLiveMode()
+    {
+        if ( liveMgr == null )
+            liveMgr = new LiveCommunicator( this, eventsManager );
+        
+        if ( !liveMgr.startLiveMode( directorConnectionStrings ) )
+        {
+            switchToEditorMode();
+            
+            return ( false );
+        }
+        
+        return ( true );
+    }
+    
     public boolean switchToEditorMode()
     {
         if ( directorMgr != null )
@@ -1561,9 +1590,18 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             directorMgr.close();
             //directorMgr = null;
             
-            int divLoc = mainSplit.getDividerLocation();
-            mainSplit.setRightComponent( propsSplit );
-            mainSplit.setDividerLocation( divLoc );
+            if ( mainSplit.getRightComponent() != propsSplit )
+            {
+                int divLoc = mainSplit.getDividerLocation();
+                mainSplit.setRightComponent( propsSplit );
+                mainSplit.setDividerLocation( divLoc );
+            }
+        }
+        
+        if ( liveMgr != null )
+        {
+            if ( liveMgr.isConnected() )
+                liveMgr.stop();
         }
         
         return ( true );
@@ -1584,22 +1622,16 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( window, alwaysShowHelpOnStartup, false ).getAlwaysShowOnStartup();
     }
     
-    private static void initTestGameData( LiveGameData gameData, EditorPresets editorPresets ) throws IOException
+    private void initTestGameData()
     {
-        gameData.getCommentaryRequestInfo().readDefaultValues( true );
-        
-        gameData.getGraphicsInfo().readDefaultValues( true );
-        
-        gameData.getScoringInfo().readDefaultValues( editorPresets );
-        
-        gameData.getTelemetryData().readDefaultValues( true );
-        
-        gameData.getDrivingAids().readDefaultValues( true );
-        
-        __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
+        eventsManager.onDrivingAidsUpdated( presets );
+        eventsManager.onScoringInfoUpdated( -1, presets );
+        eventsManager.onTelemetryDataUpdated( presets );
+        eventsManager.onCommentaryRequestInfoUpdated( presets );
+        eventsManager.onGraphicsInfoUpdated( presets );
     }
     
-    private void initGameDataObjects( _LiveGameDataObjectsFactory gdFactory ) throws IOException
+    private void initGameDataObjects( _LiveGameDataObjectsFactory gdFactory )
     {
         int[] resolution = loadResolutionFromUserSettings( gdFactory.newGameFileSystem( __UtilHelper.PLUGIN_INI ) );
         
@@ -1623,14 +1655,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
         __GDPrivilegedAccess.updateInfo( gameData );
         
-        eventsManager.onStartup( null, true );
-        eventsManager.onSessionStarted( null, true );
+        eventsManager.onStartup( presets );
+        eventsManager.onSessionStarted( presets );
         
         loadEditorPresets();
-        initTestGameData( gameData, presets );
-        
-        eventsManager.onTelemetryDataUpdated( null, true );
-        eventsManager.onScoringInfoUpdated( 22, null, true );
+        initTestGameData();
         
         __GDPrivilegedAccess.setInCockpit( true, gameData, System.nanoTime(), true );
     }
@@ -1881,6 +1910,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             }
             
             editor.eventsManager.onCockpitEntered( true );
+            
+            __GDPrivilegedAccess.applyEditorPresets( presets, gameData );
             
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
             

@@ -57,6 +57,8 @@ public class WidgetsEditorPanel extends JPanel
 {
     private static final long serialVersionUID = -4217992603083635127L;
     
+    private final RFDynHUDEditor editor;
+    
     private final WidgetsEditorPanelSettings settings;
     
     private final LiveGameData gameData;
@@ -87,6 +89,18 @@ public class WidgetsEditorPanel extends JPanel
     private float recipScaleFactor = 1.0f;
     
     private int repaintCounter = 0;
+    
+    private final Object drawSyncMonitor = new Object();
+    
+    public final RFDynHUDEditor getEditor()
+    {
+        return ( editor );
+    }
+    
+    public final Object getDrawSyncMonitor()
+    {
+        return ( drawSyncMonitor );
+    }
     
     public final WidgetsEditorPanelSettings getSettings()
     {
@@ -783,7 +797,7 @@ public class WidgetsEditorPanel extends JPanel
             
             while ( checkOverlappingWidgetsAndTransferDirtyFlags( transformedSubRects, oldWidgetRects, oldWidgetSubTexRects ) );
             
-            drawingManager.drawWidgets( gameData, true, false, true );
+            drawingManager.drawWidgets( gameData, !liveMode, false, !liveMode );
             
             for ( int i = 0; i < n; i++ )
             {
@@ -920,6 +934,8 @@ public class WidgetsEditorPanel extends JPanel
         }
     }
     
+    public boolean liveMode = false;
+    
     @Override
     public void paintComponent( Graphics g )
     {
@@ -936,12 +952,17 @@ public class WidgetsEditorPanel extends JPanel
         
         //System.out.println( "paintComponent()" );
         
-        drawWidgets( (Graphics2D)g, false, scaleFactor, true );
+        synchronized ( drawSyncMonitor )
+        {
+            drawWidgets( (Graphics2D)g, liveMode, scaleFactor, !liveMode );
+        }
     }
     
     public WidgetsEditorPanel( WidgetsEditorPanelSettings settings, RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )
     {
         super();
+        
+        this.editor = editor;
         
         this.settings = ( settings == null ) ? new WidgetsEditorPanelSettings( drawingManager.getWidgetsConfiguration(), editor, this ) : settings;
         

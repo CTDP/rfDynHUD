@@ -25,10 +25,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.swing.JOptionPane;
+import java.io.InputStream;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo.CommentaryInfoUpdateListener;
+import net.ctdp.rfdynhud.gamedata.DrivingAids.DrivingAidsUpdateListener;
+import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.GameEventsListener;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GraphicsInfo.GraphicsInfoUpdateListener;
@@ -42,14 +44,16 @@ import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
+import org.jagatoo.util.ini.AbstractIniParser;
+
 /**
  * Insert class comment here.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEventsListener, GraphicsInfoUpdateListener, TelemetryDataUpdateListener, ScoringInfoUpdateListener, WidgetsRenderListener
+public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEventsListener, GraphicsInfoUpdateListener, TelemetryDataUpdateListener, ScoringInfoUpdateListener, DrivingAidsUpdateListener, CommentaryInfoUpdateListener, WidgetsRenderListener
 {
-    private DataOutputStream os = null;
+    public static final String INI_FILENAME = "sim_recorder.ini";
     
     public static final char ON_PHYSICS = 'p';
     public static final char ON_SETUP = 'u';
@@ -62,13 +66,25 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     public static final char ON_LAP = 'l';
     public static final char ON_SESSION_STARTED = 'S';
     public static final char ON_SESSION_ENDED = 's';
-    public static final char ON_REALTIME_ENTERED = 'R';
-    public static final char ON_REALTIME_EXITED = 'r';
+    public static final char ON_COCKPIT_ENTERED = 'R';
+    public static final char ON_COCKPIT_EXITED = 'r';
     public static final char ON_VIEWPORT_CHANGED = 'v';
-    public static final char ON_DATA_UPDATED = 'D';
+    public static final char ON_DATA_UPDATED_GRAPHICS = 'I';
     public static final char ON_DATA_UPDATED_TELEMETRY = 'T';
-    public static final char ON_DATA_SCORING = 'S';
+    public static final char ON_DATA_UPDATED_SCORING = 'D';
+    public static final char ON_DATA_UPDATED_DRIVING_AIDS = 'A';
+    public static final char ON_DATA_UPDATED_COMMENTARY = 'O';
     public static final char BEFORE_RENDERED = 'W';
+    
+    private final File iniFile;
+    
+    private boolean enabled = false;
+    
+    private boolean onlyRecordInCockpit = true;
+    
+    private DataOutputStream os = null;
+    
+    private long t0 = -1L;
     
     /**
      * 
@@ -77,6 +93,8 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     public SimulationRecorderPlugin( File baseFolder )
     {
         super( "Simulation", baseFolder );
+        
+        iniFile = new File( baseFolder, INI_FILENAME );
     }
     
     @Override
@@ -85,9 +103,35 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         if ( isEditorMode )
             return;
         
+        File dataFile = null;
+        
+        if ( iniFile.exists() )
+        {
+            String enabled = AbstractIniParser.parseIniValue( iniFile, "SIMRECORDER", "enabled", null );
+            
+            if ( enabled != null )
+                this.enabled = Boolean.parseBoolean( enabled );
+            
+            if ( !this.enabled )
+                return;
+            
+            this.onlyRecordInCockpit = Boolean.parseBoolean( AbstractIniParser.parseIniValue( iniFile, "SIMRECORDER", "onlyRecordInCockpit", "true" ) );
+            
+            String file = AbstractIniParser.parseIniValue( iniFile, "SIMRECORDER", "file", "D:\\rfdynhud_data" );
+            
+            dataFile = new File( file );
+        }
+        else
+        {
+            dataFile = new File( "D:\\rfdynhud_data" );
+        }
+        
+        if ( !dataFile.isAbsolute() )
+            dataFile = new File( iniFile.getParentFile(), dataFile.getPath() );
+        
         try
         {
-            os = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( "D:\\rfdynhud_data" ) ) );
+            os = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( dataFile ) ) );
         }
         catch ( IOException e )
         {
@@ -96,18 +140,28 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         
         gameData.registerGameEventsListener( this );
         gameData.registerDataUpdateListener( this );
-        //gameData.getCommentaryRequestInfo().registerListener( this );
+        gameData.getCommentaryRequestInfo().registerListener( this );
         gameData.getGraphicsInfo().registerListener( this );
         gameData.getTelemetryData().registerListener( this );
         gameData.getScoringInfo().registerListener( this );
+        gameData.getDrivingAids().registerListener( this );
         widgetsManager.registerListener( this );
     }
     
     @Override
     public void onPluginShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
-        if ( isEditorMode )
+        if ( isEditorMode || !enabled )
             return;
+        
+        gameData.unregisterGameEventsListener( this );
+        gameData.unregisterDataUpdateListener( this );
+        gameData.getCommentaryRequestInfo().unregisterListener( this );
+        gameData.getGraphicsInfo().unregisterListener( this );
+        gameData.getTelemetryData().unregisterListener( this );
+        gameData.getScoringInfo().unregisterListener( this );
+        gameData.getDrivingAids().unregisterListener( this );
+        widgetsManager.unregisterListener( this );
         
         try
         {
@@ -120,15 +174,26 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         }
     }
     
+    private void writeTimecode() throws IOException
+    {
+        if ( t0 == -1L )
+            t0 = System.nanoTime() / 1000000L;
+        
+        long t = ( System.nanoTime() / 1000000L ) - t0;
+        
+        os.writeLong( t );
+    }
+    
     @Override
     public void onVehiclePhysicsUpdated( LiveGameData gameData )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_PHYSICS );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -139,12 +204,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_SETUP );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -155,12 +221,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_TRACK );
+            writeTimecode();
             os.writeShort( trackname.length() );
             os.writeChars( trackname );
         }
@@ -173,12 +240,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_PITS_ENTERED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -189,12 +257,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_PITS_EXITED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -205,12 +274,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onGarageEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_GARAGE_ENTERED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -221,12 +291,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onGarageExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_GARAGE_EXITED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -251,12 +322,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         /*
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_CONTROL );
+            writeTimecode();
             os.writeShort( getVSIIndex( viewedVSI, gameData.getScoringInfo() ) );
         }
         catch ( IOException e )
@@ -269,12 +341,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( ON_LAP );
+            writeTimecode();
             os.writeShort( getVSIIndex( vsi, gameData.getScoringInfo() ) );
         }
         catch ( IOException e )
@@ -286,12 +359,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
-            return;
+        //if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+        //    return;
         
         try
         {
             os.write( ON_SESSION_STARTED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -302,12 +376,10 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
-            return;
-        
         try
         {
-            os.write( ON_REALTIME_ENTERED );
+            os.write( ON_COCKPIT_ENTERED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -323,12 +395,10 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
-            return;
-        
         try
         {
-            os.write( ON_REALTIME_EXITED );
+            os.write( ON_COCKPIT_EXITED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -340,12 +410,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     public void onViewportChanged( LiveGameData gameData, int viewportX, int viewportY, int viewportWidth, int viewportHeight )
     {
         /*
-        if ( !gameData.isInRealtimeMode() )
+        if ( onlyRecordInCockpit && !gameData.isInRealtimeMode() )
             return;
         
         try
         {
             os.write( ON_VIEWPORT_CHANGED );
+            writeTimecode();
             os.writeShort( viewportX );
             os.writeShort( viewportY );
             os.writeShort( viewportWidth );
@@ -361,18 +432,31 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onGraphicsInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+            return;
+        
+        try
+        {
+            os.write( ON_DATA_UPDATED_GRAPHICS );
+            writeTimecode();
+            gameData.getGraphicsInfo().writeToStream( os );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
     }
     
     @Override
     public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
-            os.write( ON_DATA_UPDATED );
             os.write( ON_DATA_UPDATED_TELEMETRY );
+            writeTimecode();
             gameData.getTelemetryData().writeToStream( os );
         }
         catch ( IOException e )
@@ -394,14 +478,54 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+            return;
+        
+        if ( gameData.getScoringInfo().getNumVehicles() == 0 )
             return;
         
         try
         {
-            os.write( ON_DATA_UPDATED );
-            os.write( ON_DATA_SCORING );
+            os.write( ON_DATA_UPDATED_SCORING );
+            writeTimecode();
+            os.writeInt( gameData.getScoringInfo().getNumVehicles() );
             gameData.getScoringInfo().writeToStream( os );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onDrivingAidsUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+            return;
+        
+        try
+        {
+            os.write( ON_DATA_UPDATED_DRIVING_AIDS );
+            writeTimecode();
+            gameData.getDrivingAids().writeToStream( os );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onCommentaryInfoUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+            return;
+        
+        try
+        {
+            os.write( ON_DATA_UPDATED_COMMENTARY );
+            writeTimecode();
+            gameData.getCommentaryRequestInfo().writeToStream( os );
         }
         catch ( IOException e )
         {
@@ -422,12 +546,13 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
     @Override
     public void beforeWidgetsAreRendered( LiveGameData gameData, WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter )
     {
-        if ( !gameData.isInCockpit() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
             os.write( BEFORE_RENDERED );
+            writeTimecode();
         }
         catch ( IOException e )
         {
@@ -435,117 +560,240 @@ public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEv
         }
     }
     
-    public static void main( String[] args ) throws Throwable
+    private static long waitForTimeCode( long t0, long t, boolean ignoreTiming ) throws InterruptedException
     {
-        final long now = System.nanoTime();
+        if ( !ignoreTiming && ( t0 != -1L ) )
+        {
+            Thread.sleep( t - t0 );
+        }
         
-        DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( "D:\\rfdynhud_data" ) ) );
+        return ( t );
+    }
+    
+    private static interface PlaybackUpdateInterface
+    {
+        public void update( boolean firstTime );
+    }
+    
+    public static class SimUserObject implements GameDataStreamSource
+    {
+        private final InputStream in;
         
-        RFDynHUD rfDynHUD = RFDynHUD.createInstance( new net.ctdp.rfdynhud.gamedata.rfactor1._rf1_LiveGameDataObjectsFactory(), 1920, 1200 );
-        LiveGameData gameData = rfDynHUD.getGameData();
-        GameEventsManager eventsManager = rfDynHUD.getEventsManager();
+        @Override
+        public InputStream getInputStreamForGraphicsInfo()
+        {
+            return ( in );
+        }
+        
+        @Override
+        public InputStream getInputStreamForTelemetryData()
+        {
+            return ( in );
+        }
+        
+        @Override
+        public InputStream getInputStreamForScoringInfo()
+        {
+            return ( in );
+        }
+        
+        @Override
+        public InputStream getInputStreamForDrivingAids()
+        {
+            return ( in );
+        }
+        
+        @Override
+        public InputStream getInputStreamForCommentaryRequestInfo()
+        {
+            return ( in );
+        }
+        
+        public SimUserObject( InputStream in )
+        {
+            this.in = in;
+        }
+    };
+    
+    public static void playback( GameEventsManager eventsManager, File file, boolean ignoreTiming, PlaybackUpdateInterface updateInterface ) throws Throwable
+    {
+        boolean oldSimMode = GameEventsManager.simulationMode;
         GameEventsManager.simulationMode = true;
-        
-        eventsManager.onStartup( now );
-        eventsManager.onSessionStarted( now );
-        eventsManager.onCockpitEntered( now );
-        eventsManager.onCommentaryRequestInfoUpdated( null );
-        eventsManager.onGraphicsInfoUpdated( null );
-        eventsManager.beforeRender( (short)0, (short)0, (short)1920, (short)1080 );
-        
-        boolean isReady1 = false;
-        boolean isReady2 = false;
-        boolean isFirstReady = true;
         
         try
         {
-            int len = 0;
-            int type = 0;
+            DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( file ) ) );
+            SimUserObject simUserObject = new SimUserObject( in );
             
-            int b = 0;
-            while ( ( b = in.read() ) != -1 )
+            //LiveGameData gameData = eventsManager.getGameData();
+            
+            boolean isGraphicsReady = false;
+            boolean isTelementryReady = false;
+            boolean isScoringReady = false;
+            boolean isFirstReady = true;
+            
+            long t0 = -1L;
+            
+            try
             {
-                switch ( b )
+                int len = 0;
+                
+                int b = 0;
+                while ( ( b = in.read() ) != -1 )
                 {
-                    case ON_PHYSICS:
-                        break;
-                    case ON_SETUP:
-                        break;
-                    case ON_TRACK:
-                        len = in.readShort();
-                        for ( int i = 0; i < len; i++ )
-                            in.readChar();
-                        break;
-                    case ON_PITS_ENTERED:
-                        break;
-                    case ON_PITS_EXITED:
-                        break;
-                    case ON_GARAGE_ENTERED:
-                        break;
-                    case ON_GARAGE_EXITED:
-                        break;
-                    case ON_CONTROL:
-                        in.readShort();
-                        break;
-                    case ON_LAP:
-                        //System.out.println( "lap" );
-                        in.readShort();
-                        in.readShort(); // TODO: remove
-                        break;
-                    case ON_SESSION_STARTED:
-                        break;
-                    case ON_SESSION_ENDED:
-                        break;
-                    case ON_REALTIME_ENTERED:
-                        break;
-                    case ON_REALTIME_EXITED:
-                        break;
-                    case ON_VIEWPORT_CHANGED:
-                        in.readShort();
-                        in.readShort();
-                        in.readShort();
-                        in.readShort();
-                        break;
-                    case ON_DATA_UPDATED:
-                        type = in.read();
-                        switch ( type )
-                        {
-                            case ON_DATA_UPDATED_TELEMETRY:
-                                //System.out.println( "telemetry" );
-                                gameData.getTelemetryData().readFromStream( in, false );
-                                eventsManager.onTelemetryDataUpdated( null );
-                                isReady1 = true;
-                                break;
-                            case ON_DATA_SCORING:
-                                //System.out.println( "scoring" );
-                                gameData.getScoringInfo().readFromStream( in, null );
-                                eventsManager.onScoringInfoUpdated( 22, null );
-                                isReady2 = true;
-                                break;
-                        }
-                        break;
-                    case BEFORE_RENDERED:
-                        //System.out.println( "render" );
-                        if ( isReady1 && isReady2 )
-                        {
-                            if ( isFirstReady )
+                    switch ( b )
+                    {
+                        case ON_PHYSICS:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_SETUP:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_TRACK:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            len = in.readShort();
+                            for ( int i = 0; i < len; i++ )
+                                in.readChar();
+                            break;
+                        case ON_PITS_ENTERED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_PITS_EXITED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_GARAGE_ENTERED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_GARAGE_EXITED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_CONTROL:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            in.readShort();
+                            break;
+                        case ON_LAP:
+                            //System.out.println( "lap" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            in.readShort();
+                            in.readShort(); // TODO: remove
+                            break;
+                        case ON_SESSION_STARTED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_SESSION_ENDED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_COCKPIT_ENTERED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            t0 = -1L; // Avoid mysterious wait time!
+                            break;
+                        case ON_COCKPIT_EXITED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            break;
+                        case ON_VIEWPORT_CHANGED:
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            in.readShort();
+                            in.readShort();
+                            in.readShort();
+                            in.readShort();
+                            break;
+                        case ON_DATA_UPDATED_GRAPHICS:
+                            //System.out.println( "graphics" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            //gameData.getGraphicsInfo().readFromStream( in, null );
+                            eventsManager.onGraphicsInfoUpdated( simUserObject );
+                            isGraphicsReady = true;
+                            break;
+                        case ON_DATA_UPDATED_TELEMETRY:
+                            //System.out.println( "telemetry" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            //gameData.getTelemetryData().readFromStream( in, null );
+                            eventsManager.onTelemetryDataUpdated( simUserObject );
+                            isTelementryReady = true;
+                            break;
+                        case ON_DATA_UPDATED_SCORING:
+                            //System.out.println( "scoring" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            int numVehicles = in.readInt();
+                            //gameData.getScoringInfo().readFromStream( in, null );
+                            eventsManager.onScoringInfoUpdated( numVehicles, simUserObject );
+                            isScoringReady = true;
+                            break;
+                        case ON_DATA_UPDATED_DRIVING_AIDS:
+                            //System.out.println( "driving_aids" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            //gameData.getDrivingAids().readFromStream( in, null );
+                            eventsManager.onDrivingAidsUpdated( simUserObject );
+                            break;
+                        case ON_DATA_UPDATED_COMMENTARY:
+                            //System.out.println( "commentary" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            //gameData.getCommentaryRequestInfo().readFromStream( in, null );
+                            eventsManager.onCommentaryRequestInfoUpdated( simUserObject );
+                            break;
+                        case BEFORE_RENDERED:
+                            //System.out.println( "render" );
+                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming );
+                            if ( isGraphicsReady && isTelementryReady && isScoringReady )
                             {
-                                JOptionPane.showMessageDialog( null, "start" );
-                                
+                                updateInterface.update( isFirstReady );
                                 isFirstReady = false;
                             }
-                            
-                            rfDynHUD.update();
-                        }
-                        break;
+                            break;
+                    }
                 }
+            }
+            finally
+            {
+                in.close();
             }
         }
         finally
         {
-            in.close();
+            GameEventsManager.simulationMode = oldSimMode;
         }
+    }
+    
+    public static void main( String[] args ) throws Throwable
+    {
+        boolean oldSimMode = GameEventsManager.simulationMode;
+        GameEventsManager.simulationMode = true;
         
-        eventsManager.onShutdown( now );
+        try
+        {
+            final RFDynHUD rfDynHUD = RFDynHUD.createInstance( new net.ctdp.rfdynhud.gamedata.rfactor2._rf2_LiveGameDataObjectsFactory(), 1920, 1080 );
+            final GameEventsManager eventsManager = rfDynHUD.getEventsManager();
+            
+            final long now = System.nanoTime();
+            eventsManager.onStartup( now );
+            eventsManager.onSessionStarted( now );
+            eventsManager.onCockpitEntered( now );
+            eventsManager.onCommentaryRequestInfoUpdated( null );
+            eventsManager.onGraphicsInfoUpdated( null );
+            eventsManager.beforeRender( (short)0, (short)0, (short)1920, (short)1080 );
+            
+            //String file = "D:\\rfdynhud_data";
+            String file = "c:\\Spiele\\rFactor2\\Plugins\\rfDynHUD\\plugins\\simulation\\simdata";
+            
+            PlaybackUpdateInterface updateInterfce = new PlaybackUpdateInterface()
+            {
+                @Override
+                public void update( boolean firstTime )
+                {
+                    if ( firstTime )
+                        //javax.swing.JOptionPane.showMessageDialog( null, "start" );
+                    
+                    rfDynHUD.update();
+                }
+            };
+            
+            playback( eventsManager, new File( file ), true, updateInterfce );
+            
+            eventsManager.onShutdown( System.nanoTime() );
+        }
+        finally
+        {
+            GameEventsManager.simulationMode = oldSimMode;
+        }
     }
 }

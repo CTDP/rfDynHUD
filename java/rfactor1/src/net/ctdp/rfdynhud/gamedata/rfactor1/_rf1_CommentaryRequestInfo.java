@@ -23,9 +23,12 @@ import java.io.OutputStream;
 
 import org.jagatoo.util.streams.StreamUtils;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo;
+import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * 
@@ -43,14 +46,54 @@ class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
+    private static final java.net.URL DEFAULT_VALUES = _rf1_CommentaryRequestInfo.class.getClassLoader().getResource( _rf1_CommentaryRequestInfo.class.getPackage().getName().replace( '.', '/' ) + "/data/game_data/commentary_info" );
+    
     private static native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
     
     @Override
     protected void updateDataImpl( Object userObject, long timestamp )
     {
-        _rf1_DataAddressKeeper ak = (_rf1_DataAddressKeeper)userObject;
-        
-        fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+        if ( userObject instanceof _rf1_DataAddressKeeper )
+        {
+            _rf1_DataAddressKeeper ak = (_rf1_DataAddressKeeper)userObject;
+            
+            fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+        }
+        else if ( userObject instanceof GameDataStreamSource )
+        {
+            InputStream in = ( (GameDataStreamSource)userObject ).getInputStreamForCommentaryRequestInfo();
+            
+            if ( in != null )
+            {
+                try
+                {
+                    readFromStreamImpl( in );
+                }
+                catch ( IOException e )
+                {
+                    RFDHLog.exception( e );
+                }
+            }
+        }
+        else if ( userObject instanceof EditorPresets )
+        {
+            InputStream in = null;
+            
+            try
+            {
+                in = DEFAULT_VALUES.openStream();
+                
+                readFromStreamImpl( in );
+            }
+            catch ( IOException e )
+            {
+                RFDHLog.exception( e );
+            }
+            finally
+            {
+                StreamUtils.closeStream( in );
+            }
+        }
     }
     
     private void readFromStreamImpl( InputStream in ) throws IOException
@@ -71,7 +114,7 @@ class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
     }
     
     @Override
-    public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
+    public void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         final long now = System.nanoTime();
         
@@ -79,25 +122,30 @@ class _rf1_CommentaryRequestInfo extends CommentaryRequestInfo
         
         readFromStreamImpl( in );
         
-        onDataUpdated( null, now, isEditorMode );
+        onDataUpdated( editorPresets, now );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    public void loadDefaultValues( EditorPresets editorPresets )
     {
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/commentary_info" );
+        InputStream in = null;
         
         try
         {
-            readFromStream( in, isEditorMode );
+            in = DEFAULT_VALUES.openStream();
+            
+            readFromStream( in, editorPresets );
+        }
+        catch ( IOException e )
+        {
+            RFDHLog.exception( e );
         }
         finally
         {
-            if ( in != null )
-                StreamUtils.closeStream( in );
+            StreamUtils.closeStream( in );
         }
     }
     

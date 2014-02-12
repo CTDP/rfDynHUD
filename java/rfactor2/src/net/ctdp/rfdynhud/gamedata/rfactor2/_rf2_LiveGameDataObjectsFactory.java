@@ -43,11 +43,15 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
 {
     static
     {
-        if ( __EDPrivilegedAccess.editorClassLoader == null )
+        if ( ( __EDPrivilegedAccess.editorClassLoader == null ) && !GameEventsManager.simulationMode )
         {
             try
             {
                 System.loadLibrary( "rfdynhud4rf2" );
+            }
+            catch ( UnsatisfiedLinkError e )
+            {
+                RFDHLog.error( "[ERROR] Couldn't find rfdynhud4rf2.dll" );
             }
             catch ( Throwable t )
             {

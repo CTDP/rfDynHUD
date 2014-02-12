@@ -143,11 +143,9 @@ public abstract class ScoringInfo
     /**
      * Read default values. This is usually done in editor mode.
      * 
-     * @param editorPresets
-     * 
-     * @throws IOException
+     * @param editorPresets <code>null</code> in non editor mode
      */
-    public abstract void readDefaultValues( EditorPresets editorPresets ) throws IOException;
+    public abstract void loadDefaultValues( EditorPresets editorPresets );
     
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
@@ -174,16 +172,18 @@ public abstract class ScoringInfo
     private final Map<Integer, VehicleScoringInfo> oldIdVSIMap = new HashMap<Integer, VehicleScoringInfo>();
     
     /**
-     * Gets the first (unsorted) {@link VehicleScoringInfo} instance in this {@link ScoringInfo}.
+     * Gets the i-th (unsorted) {@link VehicleScoringInfo} instance in this {@link ScoringInfo}.
      * 
-     * @return the first (unsorted) {@link VehicleScoringInfo} instance in this {@link ScoringInfo}.
+     * @param i
+     * 
+     * @return the i-th (unsorted) {@link VehicleScoringInfo} instance in this {@link ScoringInfo}.
      */
-    protected VehicleScoringInfo getFirstVehicleScoringInfo()
+    protected final VehicleScoringInfo getCachedVehicleScoringInfo( int i )
     {
         if ( ( vehicleScoringInfoCache == null ) || ( vehicleScoringInfoCache.length == 0 ) )
             return ( null );
         
-        return ( vehicleScoringInfoCache[0] );
+        return ( vehicleScoringInfoCache[i] );
     }
     
     private void initVehicleScoringInfo( int numVehicles )
@@ -470,7 +470,7 @@ public abstract class ScoringInfo
     /**
      * 
      * @param numVehicles
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
      */
     protected void prepareDataUpdate( int numVehicles, Object userObject, long timestamp )
@@ -480,6 +480,12 @@ public abstract class ScoringInfo
         initVehicleScoringInfo( numVehicles );
     }
     
+    /**
+     * 
+     * @param numVehicles
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
+     * @param timestamp
+     */
     protected abstract void updateDataImpl( int numVehicles, Object userObject, long timestamp );
     
     protected void applyEditorPresets( EditorPresets editorPresets )
@@ -496,7 +502,7 @@ public abstract class ScoringInfo
     
     private void updateRaceLengthPercentage( boolean isEditorMode )
     {
-        if ( getSessionType().isRace() )
+        if ( ( getSessionType() != null ) && getSessionType().isRace() )
         {
             double trackRaceLaps = gameData.getTrackInfo().getRaceLaps();
             if ( isEditorMode )
@@ -563,21 +569,19 @@ public abstract class ScoringInfo
     
     /**
      * @param numVehicles
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param editorPresets
      */
-    protected void onDataUpdatedImpl( int numVehicles, Object userObject, long timestamp, EditorPresets editorPresets )
+    protected void onDataUpdatedImpl( int numVehicles, Object userObject, long timestamp )
     {
     }
     
     /**
      * @param numVehicles
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param editorPresets
      */
-    protected final void onDataUpdated( int numVehicles, Object userObject, long timestamp, EditorPresets editorPresets )
+    protected final void onDataUpdated( int numVehicles, Object userObject, long timestamp )
     {
         try
         {
@@ -600,13 +604,11 @@ public abstract class ScoringInfo
             for ( int i = 0; i < numVehicles; i++ )
                 vehicleScoringInfo[i].updateSomeData();
             
-            applyEditorPresets( editorPresets );
-            
             boolean rlpUpdated = false;
             
             if ( sessionJustStarted > 0 )
             {
-                updateRaceLengthPercentage( editorPresets != null );
+                updateRaceLengthPercentage( userObject instanceof EditorPresets );
                 rlpUpdated = true;
                 
                 for ( int i = 0; i < numVehicles; i++ )
@@ -616,16 +618,19 @@ public abstract class ScoringInfo
                 lastGamePhase = null;
             }
             
+            if ( userObject instanceof EditorPresets )
+                applyEditorPresets( (EditorPresets)userObject );
+            
             if ( ( numVehicles > 0 ) && getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
             {
-                updateRaceLengthPercentage( editorPresets != null );
+                updateRaceLengthPercentage( userObject instanceof EditorPresets );
                 rlpUpdated = true;
             }
             
             GamePhase gamePhase = getGamePhase();
             if ( ( gamePhase != lastGamePhase ) && !rlpUpdated )
             {
-                updateRaceLengthPercentage( editorPresets != null );
+                updateRaceLengthPercentage( userObject instanceof EditorPresets );
                 rlpUpdated = true;
             }
             lastGamePhase = gamePhase;
@@ -636,7 +641,7 @@ public abstract class ScoringInfo
                 {
                     try
                     {
-                        updateListeners[i].onScoringInfoUpdated( gameData, editorPresets != null );
+                        updateListeners[i].onScoringInfoUpdated( gameData, userObject instanceof EditorPresets );
                     }
                     catch ( Throwable t )
                     {
@@ -645,7 +650,7 @@ public abstract class ScoringInfo
                 }
             }
             
-            onDataUpdatedImpl( numVehicles, userObject, timestamp, editorPresets );
+            onDataUpdatedImpl( numVehicles, userObject, timestamp );
         }
         catch ( Throwable t )
         {
@@ -655,13 +660,26 @@ public abstract class ScoringInfo
     
     protected void updateData( int numVehicles, Object userObject, long timestamp )
     {
+        //if ( gameData.getProfileInfo().isValid() && !( userObject instanceof EditorPresets ) )
         if ( gameData.getProfileInfo().isValid() )
         {
+            if ( userObject instanceof EditorPresets )
+                numVehicles = 64; // Just to have enough.
+            
             prepareDataUpdate( numVehicles, userObject, timestamp );
             
             updateDataImpl( numVehicles, userObject, timestamp );
             
-            onDataUpdated( numVehicles, userObject, timestamp, null );
+            if ( userObject instanceof EditorPresets )
+            {
+                numVehicles = getNumVehiclesImpl();
+                
+                prepareDataUpdate( numVehicles, userObject, timestamp );
+                
+                updateDataImpl( numVehicles, userObject, timestamp );
+            }
+            
+            onDataUpdated( numVehicles, userObject, timestamp );
         }
     }
     
@@ -1040,7 +1058,7 @@ public abstract class ScoringInfo
      */
     public final int getEstimatedMaxLaps( VehicleScoringInfo vsi )
     {
-        if ( getSessionType().isRace() )
+        if ( ( getSessionType() != null ) && getSessionType().isRace() )
             return ( getLeadersVehicleScoringInfo().getEstimatedMaxLaps() );
         
         return ( vsi.getEstimatedMaxLaps() );
@@ -1657,7 +1675,7 @@ public abstract class ScoringInfo
         {
             secondFastestLapVSI = null;
             
-            if ( !getSessionType().isRace() )
+            if ( ( getSessionType() != null ) && !getSessionType().isRace() )
             {
                 // VehicleScoringInfos are sorted by place, which is the same as by laptime in non-race sessions.
                 

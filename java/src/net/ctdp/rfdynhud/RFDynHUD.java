@@ -226,7 +226,7 @@ public class RFDynHUD
     {
         //Logger.setStdStreams();
         
-        RFDHLog.exception( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
+        RFDHLog.println( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
         
         RFDHLog.println( "    Detected game \"" + gdFactory.getGameId() + "\" (supported)." );
         

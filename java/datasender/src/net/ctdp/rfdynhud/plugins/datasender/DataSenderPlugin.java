@@ -18,9 +18,15 @@
 package net.ctdp.rfdynhud.plugins.datasender;
 
 import java.io.File;
+import java.io.IOException;
 
+import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo;
+import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
+import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
+import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.plugins.AbstractDataSenderPlugin;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 
@@ -31,9 +37,11 @@ import org.jagatoo.util.ini.AbstractIniParser;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DataSenderPlugin extends AbstractDataSenderPlugin
+public class DataSenderPlugin extends AbstractDataSenderPlugin implements GraphicsInfo.GraphicsInfoUpdateListener, TelemetryData.TelemetryDataUpdateListener, DrivingAids.DrivingAidStateChangeListener, CommentaryRequestInfo.CommentaryInfoUpdateListener
 {
     private static final String INI_FILENAME = "datasender.ini";
+    
+    private LiveGameData startGameData = null;
     
     public DataSenderPlugin( File baseFolder )
     {
@@ -44,6 +52,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin
     public void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         super.onPluginStarted( eventsManager, gameData, isEditorMode, widgetsManager );
+        
+        this.startGameData = gameData;
     }
     
     @Override
@@ -76,20 +86,223 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin
     }
     
     @Override
+    protected void registerListeners( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        super.registerListeners( eventsManager, gameData, isEditorMode, widgetsManager );
+        
+        gameData.getGraphicsInfo().registerListener( this );
+        gameData.getTelemetryData().registerListener( this );
+        gameData.getDrivingAids().registerListener( this );
+        gameData.getCommentaryRequestInfo().registerListener( this );
+    }
+    
+    @Override
+    protected void unregisterListeners( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        super.unregisterListeners( eventsManager, gameData, isEditorMode, widgetsManager );
+        
+        gameData.getGraphicsInfo().unregisterListener( this );
+        gameData.getTelemetryData().unregisterListener( this );
+        gameData.getDrivingAids().unregisterListener( this );
+        gameData.getCommentaryRequestInfo().unregisterListener( this );
+    }
+    
+    @Override
     public void onPluginShutdown( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         super.onPluginShutdown( eventsManager, gameData, isEditorMode, widgetsManager );
+        
+        this.startGameData = null;
     }
     
     @Override
     protected void onConnectionEsteblished()
     {
         super.onConnectionEsteblished();
+        
+        if ( startGameData.getGraphicsInfo().isUpdatedInTimeScope() )
+            sendGraphicsInfo( startGameData.getGraphicsInfo() );
+        
+        if ( startGameData.getTelemetryData().isUpdatedInTimeScope() )
+            sendTelemetryData( startGameData.getTelemetryData() );
+        
+        if ( startGameData.getScoringInfo().isUpdatedInTimeScope() )
+            sendScoringInfo( startGameData.getScoringInfo() );
+        
+        if ( startGameData.getDrivingAids().isUpdatedInTimeScope() )
+            sendDrivingAids( startGameData.getDrivingAids() );
+        
+        if ( startGameData.getCommentaryRequestInfo().isUpdatedInTimeScope() )
+            sendCommentaryRequestInfo( startGameData.getCommentaryRequestInfo() );
     }
     
     @Override
     protected void onConnectionClosed()
     {
         super.onConnectionClosed();
+    }
+    
+    private void sendGraphicsInfo( GraphicsInfo graphicsInfo )
+    {
+        communicator.writeCommand( DataSenderConstants.GRAPHICS_INFO );
+        
+        try
+        {
+            graphicsInfo.writeToStream( communicator.getOutputStream() );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    private long nextGraphicsInfoSendTime = -( Long.MAX_VALUE / 2L );
+    //private int graphicsInfoCounter = 0;
+    
+    @Override
+    public void onGraphicsInfoUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( communicator.isConnected() )
+        {
+            long now = System.nanoTime();
+            if ( now >= nextGraphicsInfoSendTime )
+            {
+                sendGraphicsInfo( gameData.getGraphicsInfo() );
+                
+                nextGraphicsInfoSendTime = now + 500000000L;
+            }
+        }
+    }
+    
+    @Override
+    public void onViewportChanged( LiveGameData gameData, int viewportX, int viewportY, int viewportWidth, int viewportHeight )
+    {
+    }
+    
+    @SuppressWarnings( "unused" )
+    private long nextTelemDataSendTime = -( Long.MAX_VALUE / 2L );
+    @SuppressWarnings( "unused" )
+    private int telemDataCounter = 0;
+    
+    private void sendTelemetryData( TelemetryData telemData )
+    {
+        communicator.writeCommand( DataSenderConstants.TELEMETRY_DATA );
+        
+        try
+        {
+            long now = System.nanoTime();
+            //if ( ( ( telemDataCounter % 5 ) == 0 ) || ( now >= nextTelemDataSendTime ) )
+            {
+                telemData.writeToStream( communicator.getOutputStream() );
+                
+                telemDataCounter = 1;
+                
+                nextTelemDataSendTime = now + 100000000L;
+            }
+            /*
+            else
+            {
+                telemDataCounter++;
+            }
+            */
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( communicator.isConnected() )
+        {
+            //sendTelemetryData( gameData.getTelemetryData() );
+        }
+    }
+    
+    private void sendScoringInfo( ScoringInfo scoringInfo )
+    {
+        communicator.writeCommand( DataSenderConstants.SCORING_INFO );
+        
+        communicator.writeInt( scoringInfo.getNumVehicles() );
+        
+        try
+        {
+            scoringInfo.writeToStream( communicator.getOutputStream() );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        super.onScoringInfoUpdated( gameData, isEditorMode );
+        
+        if ( communicator.isConnected() )
+        {
+            sendScoringInfo( gameData.getScoringInfo() );
+        }
+    }
+    
+    private void sendDrivingAids( DrivingAids drivingAids )
+    {
+        communicator.writeCommand( DataSenderConstants.DRIVING_AIDS );
+        
+        try
+        {
+            drivingAids.writeToStream( communicator.getOutputStream() );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onDrivingAidsUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( communicator.isConnected() )
+        {
+            sendDrivingAids( gameData.getDrivingAids() );
+        }
+    }
+    
+    @Override
+    public void onDrivingAidStateChanged( LiveGameData gameData, int aidIndex, int oldState, int newState )
+    {
+        if ( communicator.isConnected() )
+        {
+            communicator.writeCommand( DataSenderConstants.DRIVING_AIDS_STATE_CHANGED );
+            communicator.writeInt( aidIndex );
+            communicator.writeInt( oldState );
+            communicator.writeInt( newState );
+        }
+    }
+    
+    private void sendCommentaryRequestInfo( CommentaryRequestInfo commentaryRequestInfo )
+    {
+        communicator.writeCommand( DataSenderConstants.COMMENTARY_REQUEST_INFO );
+        
+        try
+        {
+            commentaryRequestInfo.writeToStream( communicator.getOutputStream() );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onCommentaryInfoUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( communicator.isConnected() )
+        {
+            sendCommentaryRequestInfo( gameData.getCommentaryRequestInfo() );
+        }
     }
 }

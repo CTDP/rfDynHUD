@@ -127,6 +127,8 @@ public class PreviewAndScreenshotManager
         };
         p.setBackground( Color.BLACK );
         
+        editorPanel.getEditor().fullscreenPanel = p;
+        
         //boolean isSameMode = dm.equals( desktopDM );
         boolean isSameMode = ( ( dm.getWidth() == desktopDM.getWidth() ) && ( dm.getHeight() == desktopDM.getHeight() ) );
         java.awt.Window w;
@@ -219,6 +221,8 @@ public class PreviewAndScreenshotManager
                 {
                     editorPanel.getSettings().setDrawGrid( true );
                 }
+                
+                editorPanel.getEditor().fullscreenPanel = null;
                 
                 editorPanel.repaint();
                 editorPanel.setSelectedWidget( editorPanel.getSelectedWidget(), false );

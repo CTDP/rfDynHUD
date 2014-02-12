@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
@@ -151,9 +152,9 @@ public abstract class DrivingAids
     }
     
     /**
-     * Gets, whether these DrivingAids have at least been updated once.
+     * Gets, whether these {@link DrivingAids} have at least been updated once.
      * 
-     * @return whether these DrivingAids have at least been updated once.
+     * @return whether these {@link DrivingAids} have at least been updated once.
      */
     public final boolean isValid()
     {
@@ -178,20 +179,18 @@ public abstract class DrivingAids
     }
     
     /**
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp )
     {
     }
     
     /**
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected final void onDataUpdated( Object userObject, long timestamp )
     {
         try
         {
@@ -210,7 +209,7 @@ public abstract class DrivingAids
                 {
                     try
                     {
-                        updateListeners[i].onDrivingAidsUpdated( gameData, isEditorMode );
+                        updateListeners[i].onDrivingAidsUpdated( gameData, userObject instanceof EditorPresets );
                         
                         if ( ( oldStates != null ) && ( updateListeners[i] instanceof DrivingAidStateChangeListener ) )
                         {
@@ -239,7 +238,7 @@ public abstract class DrivingAids
                     }
                 }
                 
-                onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+                onDataUpdatedImpl( userObject, timestamp );
             }
         }
         catch ( Throwable t )
@@ -256,19 +255,17 @@ public abstract class DrivingAids
         
         updateDataImpl( userObject, timestamp );
         
-        onDataUpdated( userObject, timestamp, false );
+        onDataUpdated( userObject, timestamp );
     }
     
-    public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    public abstract void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException;
     
     /**
      * Read default values. This is usually done in editor mode.
      * 
-     * @param isEditorMode
-     * 
-     * @throws IOException
+     * @param editorPresets <code>null</code> in non editor mode
      */
-    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
+    public abstract void loadDefaultValues( EditorPresets editorPresets );
     
     public abstract void writeToStream( OutputStream out ) throws IOException;
     

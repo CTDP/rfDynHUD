@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
@@ -101,16 +102,14 @@ public abstract class GraphicsInfo
         gameData.unregisterDataUpdateListener( l );
     }
     
-    public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    public abstract void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException;
     
     /**
      * Read default values. This is usually done in editor mode.
      * 
-     * @param isEditorMode
-     * 
-     * @throws IOException
+     * @param editorPresets <code>null</code> in non editor mode
      */
-    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
+    public abstract void loadDefaultValues( EditorPresets editorPresets );
     
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
@@ -154,21 +153,19 @@ public abstract class GraphicsInfo
     
     /**
      * 
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp )
     {
     }
     
     /**
      * 
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected final void onDataUpdated( Object userObject, long timestamp )
     {
         this.updatedInTimeScope = gameData.isInCockpit();
         this.updateTimestamp = timestamp;
@@ -180,7 +177,7 @@ public abstract class GraphicsInfo
             {
                 try
                 {
-                    updateListeners[i].onGraphicsInfoUpdated( gameData, isEditorMode );
+                    updateListeners[i].onGraphicsInfoUpdated( gameData, userObject instanceof EditorPresets );
                 }
                 catch ( Throwable t )
                 {
@@ -191,7 +188,7 @@ public abstract class GraphicsInfo
         
         try
         {
-            onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+            onDataUpdatedImpl( userObject, timestamp );
         }
         catch ( Throwable t )
         {
@@ -207,7 +204,7 @@ public abstract class GraphicsInfo
         
         updateDataImpl( userObject, timestamp );
         
-        onDataUpdated( userObject, timestamp, false );
+        onDataUpdated( userObject, timestamp );
     }
     
     void onViewportChanged( int viewportX, int viewportY, int viewportWidth, int viewportHeight )

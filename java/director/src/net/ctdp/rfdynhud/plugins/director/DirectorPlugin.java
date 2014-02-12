@@ -72,25 +72,17 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
     @Override
     public void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
-        super.onPluginStarted( eventsManager, gameData, isEditorMode, widgetsManager );
-        
         this.eventsManager = eventsManager;
+        
+        super.onPluginStarted( eventsManager, gameData, isEditorMode, widgetsManager );
         
         if ( !isEnabled() )
             return;
-        
-        widgetsManager.registerListener( this );
-        
-        this.loader = widgetsManager.getConfigurationLoader();
-        this.defaultCandidatesIterator = eventsManager.getConfigurationCandidatesIterator();
-        this.originalNoConfigFoundMessage = loader.getNoConfigFoundMessage();
     }
     
     @Override
     protected void parseIniFile( File iniFile, GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
-        this.eventsManager = eventsManager;
-        
         if ( iniFile.exists() )
         {
             String enabled = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", "enabled", null );
@@ -121,6 +113,26 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
             else
                 this.noConfigFoundMessage = "Director: " + noConfigFoundMessage;
         }
+    }
+    
+    @Override
+    protected void registerListeners( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        super.registerListeners( eventsManager, gameData, isEditorMode, widgetsManager );
+        
+        widgetsManager.registerListener( this );
+        
+        this.loader = widgetsManager.getConfigurationLoader();
+        this.defaultCandidatesIterator = eventsManager.getConfigurationCandidatesIterator();
+        this.originalNoConfigFoundMessage = loader.getNoConfigFoundMessage();
+    }
+    
+    @Override
+    protected void unregisterListeners( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        super.unregisterListeners( eventsManager, gameData, isEditorMode, widgetsManager );
+        
+        widgetsManager.unregisterListener( this );
     }
     
     @Override

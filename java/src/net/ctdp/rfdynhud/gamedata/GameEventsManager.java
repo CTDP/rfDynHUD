@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.Iterator;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
@@ -189,47 +190,25 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     /**
      * This method must be called when the game started up.
      * 
-     * @param userObject custom user object from native side
-     * @param isEditorMode
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      */
-    public void onStartup( Object userObject, boolean isEditorMode )
+    public void onStartup( Object userObject )
     {
         this.running = true;
         
-        eventsDispatcher.fireOnStarted( this, gameData, isEditorMode, renderListenersManager );
+        eventsDispatcher.fireOnStarted( this, gameData, userObject instanceof EditorPresets, renderListenersManager );
     }
     
     /**
-     * This method must be called when the game started up.
+     * This method must be called when the game shuts down.
      * 
-     * @param userObject custom user object from native side
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      */
-    public final void onStartup( Object userObject )
-    {
-        onStartup( userObject, false );
-    }
-    
-    /**
-     * This method must be called when the game shut down.
-     * 
-     * @param userObject custom user object from native side
-     * @param isEditorMode
-     */
-    public void onShutdown( Object userObject, boolean isEditorMode )
+    public void onShutdown( Object userObject)
     {
         this.running = false;
         
-        eventsDispatcher.fireOnShutdown( this, gameData, isEditorMode, renderListenersManager );
-    }
-    
-    /**
-     * This method must be called when the game shut down.
-     * 
-     * @param userObject custom user object from native side
-     */
-    public final void onShutdown( Object userObject )
-    {
-        onShutdown( userObject, false );
+        eventsDispatcher.fireOnShutdown( this, gameData, userObject instanceof EditorPresets, renderListenersManager );
     }
     
     /**
@@ -332,17 +311,18 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param userObject custom user object from native side
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      */
-    protected void onSessionStartedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onSessionStartedImpl( Object userObject, long timestamp )
     {
         ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
         __GDPrivilegedAccess.updateInfo( gameData );
         
         if ( gameData.getProfileInfo().isValid() )
         {
+            boolean isEditorMode = ( userObject instanceof EditorPresets );
+            
             boolean loadPhysicsAndSetup = gameData.getSetup().checkLoadPhysicsAndSetupOnSessionStarted( gameData, isEditorMode );
             
             reloadVehicleInfo();
@@ -360,12 +340,14 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
+     * This method must be called when a session has been started.
+     * Note: LiveGameData must have been updated before.
      * 
-     * @param userObject custom user object from native side
-     * @param isEditorMode editor mode?
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onSessionStarted( Object userObject, boolean isEditorMode )
+    public final byte onSessionStarted( Object userObject )
     {
         RFDHLog.profile( "[PROFILE]: onSessionStarted()" );
         
@@ -375,8 +357,10 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         if ( sessionRunning )
         {
             RFDHLog.debug( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
-            return ( rfDynHUD.isInRenderMode() ? (byte)2 : (byte)0 );
+            return ( ( rfDynHUD == null ) ? (byte)2 : ( rfDynHUD.isInRenderMode() ? (byte)2 : (byte)0 ) );
         }
+        
+        boolean isEditorMode = ( userObject instanceof EditorPresets );
         
         this.sessionRunning = true;
         this.isComingOutOfGarage = true;
@@ -409,7 +393,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            onSessionStartedImpl( userObject, now, isEditorMode );
+            onSessionStartedImpl( userObject, now );
         }
         catch ( Throwable t )
         {
@@ -424,25 +408,11 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * This method must be called when a session has been started.
-     * Note: LiveGameData must have been updated before.
      * 
-     * @param userObject custom user object from native side
-     * 
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onSessionStarted( Object userObject )
-    {
-        return ( onSessionStarted( userObject, false ) );
-    }
-    
-    /**
-     * 
-     * @param userObject custom user object from native side
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      */
-    protected void onSessionEndedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onSessionEndedImpl( Object userObject, long timestamp )
     {
         if ( gameData.getProfileInfo().isValid() )
         {
@@ -452,14 +422,16 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param userObject custom user object from native side
-     * @param isEditorMode editor mode?
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      */
-    public void onSessionEnded( Object userObject, boolean isEditorMode )
+    public void onSessionEnded( Object userObject )
     {
         RFDHLog.profile( "[PROFILE]: onSessionEnded()" );
         
         long now = System.nanoTime();
+        
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( false );
         
         this.waitingForRender = false;
         this.waitingForGraphics = false;
@@ -476,7 +448,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            onSessionEndedImpl( userObject, now, isEditorMode );
+            onSessionEndedImpl( userObject, now );
         }
         catch ( Throwable t )
         {
@@ -484,19 +456,6 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         }
         
         __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
-    }
-    
-    /**
-     * This method must be called when a session has been ended.
-     * 
-     * @param userObject custom user object from native side
-     */
-    public final void onSessionEnded( Object userObject )
-    {
-        if ( rfDynHUD != null )
-            rfDynHUD.setRenderMode( false );
-        
-        onSessionEnded( userObject, false );
     }
     
     /**
@@ -510,11 +469,10 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * @param userObject custom user object from native side
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      */
-    protected void onCockpitEnteredImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onCockpitEnteredImpl( Object userObject, long timestamp )
     {
         ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getFileSystem().getConfigFolder(), gameData.getScoringInfo().getThreeLetterCodeGenerator() );
         
@@ -522,6 +480,8 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         if ( gameData.getProfileInfo().isValid() )
         {
+            boolean isEditorMode = ( userObject instanceof EditorPresets );
+            
             __GDPrivilegedAccess.setInCockpit( true, gameData, timestamp, isEditorMode );
             
             if ( !isEditorMode )
@@ -542,15 +502,19 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * @param userObject custom user object from native side
-     * @param isEditorMode editor mode?
+     * This method must be called when the cockpit has been entered (the user clicked on "Drive").
+     * 
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onCockpitEntered( Object userObject, boolean isEditorMode )
+    public final byte onCockpitEntered( Object userObject )
     {
         RFDHLog.profile( "[PROFILE]: onCockpitEntered()" );
         byte result = 0;
         long now = System.nanoTime();
+        
+        boolean isEditorMode = ( userObject instanceof EditorPresets );
         
         if ( texturesRequested )
         {
@@ -580,7 +544,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            onCockpitEnteredImpl( userObject, now, isEditorMode );
+            onCockpitEnteredImpl( userObject, now );
         }
         catch ( Throwable t )
         {
@@ -595,41 +559,29 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * This method must be called when the cockpit has been entered (the user clicked on "Drive").
-     * 
-     * @param userObject custom user object from native side
-     * 
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onCockpitEntered( Object userObject )
-    {
-        return ( onCockpitEntered( userObject, false ) );
-    }
-    
-    /**
      * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
      * 
-     * @param userObject custom user object from native side
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode
      */
-    protected void onCockpitExitedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onCockpitExitedImpl( Object userObject, long timestamp )
     {
         if ( gameData.getProfileInfo().isValid() )
         {
-            __GDPrivilegedAccess.setInCockpit( false, gameData, timestamp, isEditorMode );
+            __GDPrivilegedAccess.setInCockpit( false, gameData, timestamp, userObject instanceof EditorPresets );
             
-            eventsDispatcher.fireOnCockpitExited( gameData, isEditorMode );
+            eventsDispatcher.fireOnCockpitExited( gameData, userObject instanceof EditorPresets );
         }
     }
     
     /**
-     * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
+     * This method must be called when the user exited the cockpit (pressed ESCAPE in the cockpit).
      * 
-     * @param userObject custom user object from native side
-     * @param isEditorMode
+     * @param userObject custom user object from native side (could be an instance of {@link EditorPresets})
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public void onCockpitExited( Object userObject, boolean isEditorMode )
+    public final byte onCockpitExited( Object userObject )
     {
         RFDHLog.profile( "[PROFILE]: onCockpitExited()" );
         RFDHLog.printlnEx( "Exited cockpit." );
@@ -653,24 +605,12 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            onCockpitExitedImpl( userObject, now, isEditorMode );
+            onCockpitExitedImpl( userObject, now );
         }
         catch ( Throwable t )
         {
             RFDHLog.exception( t );
         }
-    }
-    
-    /**
-     * This method must be called when the user exited the cockpit (pressed ESCAPE in the cockpit).
-     * 
-     * @param userObject custom user object from native side
-     * 
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onCockpitExited( Object userObject )
-    {
-        onCockpitExited( userObject, false );
         
         //byte result = reloadConfigAndSetupTexture( false );
         __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
@@ -971,18 +911,16 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
-     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    protected byte onDrivingAidsUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    protected byte onDrivingAidsUpdatedImpl( byte result, Object userObject, long timestamp )
     {
-        //if ( !isEditorMode )
-            gameData.getDrivingAids().updateData( userObject, System.nanoTime() );
+        gameData.getDrivingAids().updateData( userObject, System.nanoTime() );
         
-        return ( checkWaitingData( isEditorMode, false ) );
+        return ( checkWaitingData( userObject instanceof EditorPresets, false ) );
     }
     
     /**
@@ -991,7 +929,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      */
     public final byte onDrivingAidsUpdated( Object userObject )
     {
-        RFDHLog.profile( "[PROFILE]: onDrivingAids()" );
+        RFDHLog.profile( "[PROFILE]: onDrivingAidsUpdated()" );
         
         byte result = 0;
         
@@ -999,7 +937,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            result = onDrivingAidsUpdatedImpl( result, userObject, now, false );
+            result = onDrivingAidsUpdatedImpl( result, userObject, now );
         }
         catch ( Throwable t )
         {
@@ -1012,33 +950,32 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
-     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    protected byte onTelemetryDataUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    protected byte onTelemetryDataUpdatedImpl( byte result, Object userObject, long timestamp )
     {
-        if ( !isEditorMode )
-            gameData.getTelemetryData().updateData( userObject, System.nanoTime() );
+        gameData.getTelemetryData().updateData( userObject, System.nanoTime() );
         
         this.waitingForTelemetry = false;
         
         if ( gameData.getProfileInfo().isValid() )
         {
-            result = checkWaitingData( isEditorMode, false );
+            result = checkWaitingData( userObject instanceof EditorPresets, false );
         }
         
         return ( result );
     }
     
     /**
-     * @param userObject a custom user object passed through to the sim specific implementation 
-     * @param isEditorMode editor mode?
+     * This method must be called when TelemetryData has been updated.
+     * 
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onTelemetryDataUpdated( Object userObject, boolean isEditorMode )
+    public byte onTelemetryDataUpdated( Object userObject )
     {
         RFDHLog.profile( "[PROFILE]: onTelemetryDataUpdated()" );
         
@@ -1048,7 +985,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            result = onTelemetryDataUpdatedImpl( result, userObject, now, isEditorMode );
+            result = onTelemetryDataUpdatedImpl( result, userObject, now );
         }
         catch ( Throwable t )
         {
@@ -1060,18 +997,6 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         //RFDHLog.println( ">>> /onTelemetryDataUpdated(), result: " + result );
         return ( result );
-    }
-    
-    /**
-     * This method must be called when TelemetryData has been updated.
-     * 
-     * @param userObject a custom user object passed through to the sim specific implementation 
-     * 
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onTelemetryDataUpdated( Object userObject )
-    {
-        return ( onTelemetryDataUpdated( userObject, false ) );
     }
     
     /**
@@ -1133,17 +1058,17 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * 
      * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
      * @param numVehicles
-     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    protected byte onScoringInfoUpdatedImpl( byte result, int numVehicles, Object userObject, long timestamp, boolean isEditorMode )
+    protected byte onScoringInfoUpdatedImpl( byte result, int numVehicles, Object userObject, long timestamp )
     {
-        if ( !isEditorMode )
-            gameData.getScoringInfo().updateData( numVehicles, userObject, timestamp );
+        gameData.getScoringInfo().updateData( numVehicles, userObject, timestamp );
         
         this.waitingForScoring = false;
+        
+        boolean isEditorMode = ( userObject instanceof EditorPresets );
         
         checkRaceRestart( timestamp );
         checkAndFireOnLapStarted( isEditorMode );
@@ -1200,13 +1125,14 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
+     * This method must be called when ScoringInfo has been updated.
      * 
      * @param numVehicles
-     * @param userObject a custom user object passed through to the sim specific implementation 
-     * @param isEditorMode editor mode?
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
+     * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onScoringInfoUpdated( int numVehicles, Object userObject, boolean isEditorMode )
+    public byte onScoringInfoUpdated( int numVehicles, Object userObject )
     {
         RFDHLog.profile( "[PROFILE]: onScoringInfoUpdated()" );
         
@@ -1216,7 +1142,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            result = onScoringInfoUpdatedImpl( result, numVehicles, userObject, now, isEditorMode );
+            result = onScoringInfoUpdatedImpl( result, numVehicles, userObject, now );
         }
         catch ( Throwable t )
         {
@@ -1231,36 +1157,22 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     }
     
     /**
-     * This method must be called when ScoringInfo has been updated.
-     * 
-     * @param numVehicles
-     * @param userObject a custom user object passed through to the sim specific implementation 
-     * 
-     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
-     */
-    public final byte onScoringInfoUpdated( int numVehicles, Object userObject )
-    {
-        return ( onScoringInfoUpdated( numVehicles, userObject, false ) );
-    }
-    
-    /**
      * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
-     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode editor mode?
      
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    protected byte onCommentaryRequestInfoUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    protected byte onCommentaryRequestInfoUpdatedImpl( byte result, Object userObject, long timestamp )
     {
         //if ( !isEditorMode )
             gameData.getCommentaryRequestInfo().updateData( userObject, System.nanoTime() );
         
-        return ( checkWaitingData( isEditorMode, false ) );
+        return ( checkWaitingData( userObject instanceof EditorPresets, false ) );
     }
     
     /**
-     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * @return
      */
     public final byte onCommentaryRequestInfoUpdated( Object userObject )
@@ -1273,7 +1185,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            result = onCommentaryRequestInfoUpdatedImpl( result, userObject, now, false );
+            result = onCommentaryRequestInfoUpdatedImpl( result, userObject, now );
         }
         catch ( Throwable t )
         {
@@ -1286,22 +1198,20 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
-     * @param userObject a custom user object passed through to the sim specific implementation
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      * @param timestamp event timestamp in nano seconds
-     * @param isEditorMode
      * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    protected byte onGraphicsInfoUpdatedImpl( byte result, Object userObject, long timestamp, boolean isEditorMode )
+    protected byte onGraphicsInfoUpdatedImpl( byte result, Object userObject, long timestamp )
     {
-        //if ( !isEditorMode )
-            gameData.getGraphicsInfo().updateData( userObject, timestamp );
+        gameData.getGraphicsInfo().updateData( userObject, timestamp );
         
         return ( result );
     }
     
     /**
-     * @param userObject a custom user object passed through to the sim specific implementation
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
      *  
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
@@ -1316,7 +1226,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            result = onGraphicsInfoUpdatedImpl( result, userObject, now, false );
+            result = onGraphicsInfoUpdatedImpl( result, userObject, now );
         }
         catch ( Throwable t )
         {

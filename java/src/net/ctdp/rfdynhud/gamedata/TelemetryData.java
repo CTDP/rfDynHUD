@@ -133,16 +133,14 @@ public abstract class TelemetryData
         gameData.unregisterDataUpdateListener( l );
     }
     
-    public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    public abstract void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException;
     
     /**
      * Read default values. This is usually done in editor mode.
      * 
-     * @param isEditorMode
-     * 
-     * @throws IOException
+     * @param editorPresets <code>null</code> in non editor mode
      */
-    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
+    public abstract void loadDefaultValues( EditorPresets editorPresets );
     
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
@@ -232,21 +230,19 @@ public abstract class TelemetryData
     
     /**
      * 
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp )
     {
     }
     
     /**
      * 
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected final void onDataUpdated( Object userObject, long timestamp )
     {
         try
         {
@@ -269,7 +265,7 @@ public abstract class TelemetryData
                 {
                     try
                     {
-                        updateListeners[i].onTelemetryDataUpdated( gameData, isEditorMode );
+                        updateListeners[i].onTelemetryDataUpdated( gameData, userObject instanceof EditorPresets );
                     }
                     catch ( Throwable t )
                     {
@@ -288,7 +284,10 @@ public abstract class TelemetryData
                 playerVSI.gear = getCurrentGear();
             }
             
-            onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+            if ( userObject instanceof EditorPresets )
+                applyEditorPresets( (EditorPresets)userObject );
+            
+            onDataUpdatedImpl( userObject, timestamp );
         }
         catch ( Throwable t )
         {
@@ -306,7 +305,7 @@ public abstract class TelemetryData
             
             updateDataImpl( userObject, timestamp );
             
-            onDataUpdated( userObject, timestamp, false );
+            onDataUpdated( userObject, timestamp );
         }
     }
     

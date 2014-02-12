@@ -59,7 +59,7 @@ public class WidgetPropertyChangeListener implements PropertyChangeListener
                 
                 //property.setValue( newValue );
                 
-                editor.getEditorPanel().repaint();
+                editor.repaintEditorPanel();
             }
         }
     }

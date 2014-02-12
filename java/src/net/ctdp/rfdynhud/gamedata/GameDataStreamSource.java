@@ -15,31 +15,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.plugins.datasender;
+package net.ctdp.rfdynhud.gamedata;
 
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * Connects to the editor via a socket and sends/receives data.
+ * An interface, that you can pass into {@link GameEventsManager}'s update methods as 'userObject'.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class Communicator extends net.ctdp.rfdynhud.plugins.AbstractServerCommunicator
+public interface GameDataStreamSource
 {
-    @SuppressWarnings( "unused" )
-    private final DataSenderPlugin plugin;
+    public InputStream getInputStreamForGraphicsInfo();
     
-    @Override
-    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
-    {
-        return ( false );
-    }
+    public InputStream getInputStreamForTelemetryData();
     
-    public Communicator( DataSenderPlugin plugin, int port, String password )
-    {
-        super( plugin, port, password );
-        
-        this.plugin = plugin;
-    }
+    public InputStream getInputStreamForScoringInfo();
+    
+    public InputStream getInputStreamForDrivingAids();
+    
+    public InputStream getInputStreamForCommentaryRequestInfo();
 }

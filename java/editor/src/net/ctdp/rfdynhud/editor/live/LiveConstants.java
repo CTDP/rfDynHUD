@@ -15,31 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.plugins.datasender;
-
-import java.io.DataInputStream;
-import java.io.IOException;
+package net.ctdp.rfdynhud.editor.live;
 
 /**
- * Connects to the editor via a socket and sends/receives data.
+ * Keeps constants for network commands.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class Communicator extends net.ctdp.rfdynhud.plugins.AbstractServerCommunicator
+public class LiveConstants extends net.ctdp.rfdynhud.plugins.CommunicatorConstants
 {
-    @SuppressWarnings( "unused" )
-    private final DataSenderPlugin plugin;
-    
-    @Override
-    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
-    {
-        return ( false );
-    }
-    
-    public Communicator( DataSenderPlugin plugin, int port, String password )
-    {
-        super( plugin, port, password );
-        
-        this.plugin = plugin;
-    }
+    public static final int GRAPHICS_INFO = OFFSET + 2100;
+    public static final int TELEMETRY_DATA = OFFSET + 2200;
+    public static final int SCORING_INFO = OFFSET + 2300;
+    public static final int DRIVING_AIDS = OFFSET + 2400;
+    public static final int DRIVING_AIDS_STATE_CHANGED = OFFSET + 2410;
+    public static final int COMMENTARY_REQUEST_INFO = OFFSET + 2500;
 }

@@ -17,20 +17,19 @@
  */
 package net.ctdp.rfdynhud.editor.director;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
+
+import org.jagatoo.logging.LogLevel;
 
 import net.ctdp.rfdynhud.editor.director.widgetstate.WidgetState.VisibleType;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleControl;
+import net.ctdp.rfdynhud.plugins.AbstractClientCommunicator;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -38,235 +37,48 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorCommunicator implements Runnable
+public class DirectorCommunicator extends AbstractClientCommunicator
 {
     private final DirectorManager manager;
     
-    private String connectionString = null;
-    private String host = null;
-    private int port = 0;
-    
-    private boolean running = false;
-    private boolean connected = false;
-    private boolean closeRequested = false;
-    
-    private boolean waitingForConnection = false;
-    
-    private final ByteArrayOutputStream eventsBuffer0 = new ByteArrayOutputStream();
-    private final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
-    
-    public final String getLastConnectionString()
+    @Override
+    protected void log( LogLevel logLevel, Object... message )
     {
-        return ( connectionString );
+        manager.debug( message );
     }
     
-    public final boolean isRunning()
+    @Override
+    protected void log( Object... message )
     {
-        return ( running );
+        manager.log( message );
     }
     
-    public final boolean isConnected()
+    @Override
+    protected void debug( Object... message )
     {
-        return ( connected );
-    }
-    
-    public void write( int b )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.write( b );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void write( byte[] b )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.write( b );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void write( byte[] b, int off, int len )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.write( b, off, len );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeBoolean( boolean v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeBoolean( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeByte( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeByte( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeShort( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeShort( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeChar( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeChar( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeInt( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeInt( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeLong( long v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeLong( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
-    }
-
-    public void writeFloat( float v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                eventsBuffer.writeFloat( v );
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-        }
+        manager.debug( message );
     }
     
     public void sendWidgetsConfiguration( WidgetsConfiguration widgetsConfig, GameResolution res )
     {
-        if ( !running )
+        if ( !isRunning() )
             return;
         
-        synchronized ( eventsBuffer )
+        DataOutputStream os = getOutputStream();
+        
+        synchronized ( os )
         {
             try
             {
-                eventsBuffer.writeInt( DirectorConstants.WIDGETS_CONFIGURATION );
+                os.writeInt( DirectorConstants.WIDGETS_CONFIGURATION );
                 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ConfigurationSaver.saveConfiguration( widgetsConfig, res.getResolutionString(), 0, 0, 0, 0, baos, true );
                 
-                eventsBuffer.writeInt( baos.size() );
+                os.writeInt( baos.size() );
                 
-                baos.writeTo( eventsBuffer0 );
+                //baos.writeTo( eventsBuffer0 );
+                baos.writeTo( os );
             }
             catch ( IOException e )
             {
@@ -277,44 +89,46 @@ public class DirectorCommunicator implements Runnable
     
     public void sendWidgetState( String widgetName, EffectiveWidgetState ws )
     {
-        if ( !running )
+        if ( !isRunning() )
             return;
         
-        synchronized ( eventsBuffer )
+        DataOutputStream os = getOutputStream();
+        
+        synchronized ( os )
         {
             try
             {
-                eventsBuffer.writeInt( DirectorConstants.WIDGET_STATE );
+                os.writeInt( DirectorConstants.WIDGET_STATE );
                 
-                eventsBuffer.writeByte( widgetName.length() );
-                eventsBuffer.write( widgetName.getBytes() );
+                os.writeByte( widgetName.length() );
+                os.write( widgetName.getBytes() );
                 if ( ws.getVisibleType() == VisibleType.AUTO )
                 {
-                    eventsBuffer.writeLong( Long.MAX_VALUE );
-                    eventsBuffer.writeLong( Long.MIN_VALUE );
+                    os.writeLong( Long.MAX_VALUE );
+                    os.writeLong( Long.MIN_VALUE );
                 }
                 else if ( ws.getVisibleType() == VisibleType.NEVER )
                 {
-                    eventsBuffer.writeLong( Long.MIN_VALUE );
-                    eventsBuffer.writeLong( Long.MIN_VALUE + 1 );
+                    os.writeLong( Long.MIN_VALUE );
+                    os.writeLong( Long.MIN_VALUE + 1 );
                 }
                 else
                 {
                     if ( manager.isTimeDecreasing() )
                     {
-                        eventsBuffer.writeLong( ws.getVisibleStart() - ws.getVisibleTime() );
-                        eventsBuffer.writeLong( ws.getVisibleStart() );
+                        os.writeLong( ws.getVisibleStart() - ws.getVisibleTime() );
+                        os.writeLong( ws.getVisibleStart() );
                     }
                     else
                     {
-                        eventsBuffer.writeLong( ws.getVisibleStart() );
-                        eventsBuffer.writeLong( ws.getVisibleStart() + ws.getVisibleTime() );
+                        os.writeLong( ws.getVisibleStart() );
+                        os.writeLong( ws.getVisibleStart() + ws.getVisibleTime() );
                     }
                 }
-                eventsBuffer.writeShort( ws.getPosX() );
-                eventsBuffer.writeShort( ws.getPosY() );
-                eventsBuffer.writeInt( ws.getForDriverID() );
-                eventsBuffer.writeInt( ws.getCompareDriverID() );
+                os.writeShort( ws.getPosX() );
+                os.writeShort( ws.getPosY() );
+                os.writeInt( ws.getForDriverID() );
+                os.writeInt( ws.getCompareDriverID() );
             }
             catch ( IOException e )
             {
@@ -356,295 +170,128 @@ public class DirectorCommunicator implements Runnable
         manager.onDriversPositionsReceived( ids );
     }
     
-    private void readJoinedDriver( DataInputStream in ) throws IOException
+    @Override
+    protected byte[] onPasswordRequested()
     {
-        int id = in.readInt();
-        short place = in.readShort();
-        int nameLength = in.readByte() & 0xFF;
-        byte[] name = new byte[ nameLength ];
-        in.readFully( name );
-        
-        DriverCapsule dc = new DriverCapsule( new String( name ), id );
-        
-        manager.onPlayerJoined( dc, place );
-    }
-    
-    private boolean readInput( DataInputStream in ) throws IOException
-    {
-        boolean running = this.running;
-        
-        int code = in.readInt();
-        
-        //manager.debug( "Received command code: ", code - DirectorConstants.OFFSET );
-        
-        int driverID;
-        
-        switch ( code )
-        {
-            case DirectorConstants.REQUEST_PASSWORD:
-                byte[] passwordHash = manager.onPasswordRequested();
-                
-                if ( passwordHash == null )
-                {
-                    close();
-                    return ( running );
-                }
-                
-                writeInt( DirectorConstants.PASSWORD_HASH );
-                write( passwordHash );
-                break;
-            case DirectorConstants.PASSWORD_MISMATCH:
-                byte[] passwordHash2 = manager.onPasswordRequested();
-                
-                if ( passwordHash2 == null )
-                {
-                    close();
-                    return ( running );
-                }
-                
-                writeInt( DirectorConstants.PASSWORD_HASH );
-                write( passwordHash2 );
-                break;
-            case DirectorConstants.CONNECTION_ESTEBLISHED:
-                manager.onConnectionEsteblished( in.readBoolean() );
-                break;
-            case DirectorConstants.CONNECTION_REFUSED:
-                manager.onConnectionRefused( "Connection refused" );
-                close();
-                break;
-            case DirectorConstants.CONNECTION_CLOSED:
-                close();
-                running = false;
-                break;
-            case DirectorConstants.ON_SESSION_STARTED:
-                SessionType sessionType = SessionType.values()[in.readByte() & 0xFF];
-                manager.onSessionStarted( sessionType );
-                break;
-            case DirectorConstants.DRIVERS_LIST:
-                readDriversList( in );
-                break;
-            case DirectorConstants.DRIVERS_POSITIONS:
-                readDriversPositions( in );
-                break;
-            case DirectorConstants.ON_PITS_ENTERED:
-                manager.onPitsEntered();
-                break;
-            case DirectorConstants.ON_PITS_EXITED:
-                manager.onPitsExited();
-                break;
-            case DirectorConstants.ON_GARAGE_ENTERED:
-                manager.onGarageEntered();
-                break;
-            case DirectorConstants.ON_GARAGE_EXITED:
-                manager.onGarageExited();
-                break;
-            case DirectorConstants.ON_VEHICLE_CONTROL_CHANGED:
-                driverID = in.readInt();
-                VehicleControl control = VehicleControl.values()[in.readByte() & 0xFF];
-                manager.onVehicleControlChanged( driverID, control );
-                break;
-            case DirectorConstants.ON_LAP_STARTED:
-                driverID = in.readInt();
-                short lap = in.readShort();
-                manager.onLapStarted( driverID, lap );
-                break;
-            case DirectorConstants.ON_COCKPIT_ENTERED:
-                manager.onCockpitEntered();
-                break;
-            case DirectorConstants.ON_COCKPIT_EXITED:
-                manager.onCockpitExited();
-                break;
-            case DirectorConstants.ON_GAME_PAUSE_STATE_CHANGED:
-                manager.onGamePauseStateChanged( in.readBoolean() );
-                break;
-            case DirectorConstants.ON_PLAYER_JOINED:
-                readJoinedDriver( in );
-                break;
-            case DirectorConstants.ON_PLAYER_LEFT:
-                manager.onPlayerLeft( in.readInt() );
-                break;
-            case DirectorConstants.SESSION_TIME:
-                manager.onSessionTimeReceived( in.readLong() );
-                break;
-            default:
-                manager.log( "WARNING: Unknown command code read: " + code );
-        }
-        
-        return ( running );
+        return ( manager.onPasswordRequested() );
     }
     
     @Override
-    public void run()
+    protected void onConnectionEsteblished( boolean isInCockpit )
     {
-        running = true;
-        closeRequested = false;
-        
-        Socket socket = null;
-        DataInputStream in = null;
-        OutputStream out = null;
-        
-        try
-        {
-            waitingForConnection = true;
-            socket = new Socket( host, port );
-            waitingForConnection = false;
-            in = new DataInputStream( new BufferedInputStream( socket.getInputStream() ) );
-            out = socket.getOutputStream();
-        }
-        catch ( UnknownHostException e )
-        {
-            manager.onConnectionRefused( "Connection refused (unknown host)" );
-            running = false;
-            return;
-        }
-        catch ( IOException e )
-        {
-            manager.onConnectionRefused( "Connection refused" );
-            running = false;
-            return;
-        }
-        catch ( Throwable t )
-        {
-            manager.log( t );
-            running = false;
-            return;
-        }
-        
-        connected = true;
-        
-        while ( running && socket.isConnected() )
-        {
-            synchronized ( eventsBuffer )
-            {
-                if ( eventsBuffer0.size() > 0 )
-                {
-                    try
-                    {
-                        //System.out.println( "Sending " + eventsBuffer0.size() + " bytes." );
-                        eventsBuffer0.writeTo( out );
-                        eventsBuffer0.reset();
-                    }
-                    catch ( IOException e )
-                    {
-                        manager.log( e );
-                    }
-                }
-            }
-            
-            if ( closeRequested )
-            {
-                try
-                {
-                    out.write( ( DirectorConstants.CONNECTION_CLOSED >>> 24 ) & 0xFF );
-                    out.write( ( DirectorConstants.CONNECTION_CLOSED >>> 16 ) & 0xFF );
-                    out.write( ( DirectorConstants.CONNECTION_CLOSED >>>  8 ) & 0xFF );
-                    out.write( ( DirectorConstants.CONNECTION_CLOSED >>>  0 ) & 0xFF );
-                    running = false;
-                }
-                catch ( IOException e )
-                {
-                    running = false;
-                    manager.log( e );
-                }
-            }
-            
-            try
-            {
-                if ( in.available() >= 4 )
-                {
-                    running = readInput( in ) && running;
-                }
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-            
-            try
-            {
-                Thread.sleep( 10L );
-            }
-            catch ( InterruptedException e )
-            {
-                manager.log( e );
-            }
-        }
-        
-        running = false;
-        connected = false;
-        
-        try
-        {
-            in.close();
-            out.close();
-            socket.close();
-        }
-        catch ( IOException e )
-        {
-            manager.log( e );
-        }
-        
-        synchronized ( eventsBuffer )
-        {
-            eventsBuffer0.reset();
-        }
-        
+        manager.onConnectionEsteblished( isInCockpit );
+    }
+    
+    @Override
+    protected void onConnectionRefused( String message )
+    {
+        manager.onConnectionRefused( message );
+    }
+    
+    @Override
+    protected void onConnectionClosed()
+    {
         manager.onConnectionClosed();
     }
     
-    public static Object[] parseConnectionString( String connectionString )
+    @Override
+    protected void onSessionStarted( SessionType sessionType )
     {
-        String host = connectionString;
-        int port = 9876;
-        int p = host.indexOf( ':' );
-        if ( p >= 0 )
-        {
-            port = Integer.parseInt( host.substring( p + 1 ) );
-            host = host.substring( 0, p );
-        }
-        
-        return ( new Object[] { host, port } );
+        manager.onSessionStarted( sessionType );
     }
     
-    public void connect( String connectionString )
+    @Override
+    protected void onCockpitEntered()
     {
-        Object[] parsed = parseConnectionString( connectionString );
-        this.connectionString = connectionString;
-        this.host = (String)parsed[0];
-        this.port = (Integer)parsed[1];
-        
-        if ( running )
-            return;
-        
-        new Thread( this ).start();
+        manager.onCockpitEntered();
     }
     
-    public void close()
+    @Override
+    protected void onCockpitExited()
     {
-        if ( connected )
+        manager.onCockpitExited();
+    }
+    
+    @Override
+    protected void onPitsEntered()
+    {
+        manager.onPitsEntered();
+    }
+    
+    @Override
+    protected void onPitsExited()
+    {
+        manager.onPitsExited();
+    }
+    
+    @Override
+    protected void onGarageEntered()
+    {
+        manager.onGarageEntered();
+    }
+    
+    @Override
+    protected void onGarageExited()
+    {
+        manager.onGarageExited();
+    }
+    
+    @Override
+    protected void onVehicleControlChanged( int driverID, VehicleControl control )
+    {
+        manager.onVehicleControlChanged( driverID, control );
+    }
+    
+    @Override
+    protected void onLapStarted( int driverID, short lap )
+    {
+        manager.onLapStarted( driverID, lap );
+    }
+    
+    @Override
+    protected void onGamePauseStateChanged( boolean paused )
+    {
+        manager.onGamePauseStateChanged( paused );
+    }
+    
+    @Override
+    protected void onPlayerJoined( String name, int id, short place )
+    {
+        manager.onPlayerJoined( new DriverCapsule( name, id ), place );
+    }
+    
+    @Override
+    protected void onPlayerLeft( int id )
+    {
+        manager.onPlayerLeft( id );
+    }
+    
+    @Override
+    protected void onSessionTimeReceived( long time )
+    {
+        manager.onSessionTimeReceived( time );
+    }
+    
+    @Override
+    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
+    {
+        switch ( code )
         {
-            closeRequested = true;
+            case DirectorConstants.DRIVERS_LIST:
+                readDriversList( in );
+                return ( true );
+            case DirectorConstants.DRIVERS_POSITIONS:
+                readDriversPositions( in );
+                return ( true );
         }
         
-        if ( waitingForConnection )
-        {
-            /*
-            try
-            {
-                // Create dummy connection to close the waiting socket.
-                Socket socket2 = new Socket( "localhost", port );
-                socket2.close();
-            }
-            catch ( IOException e )
-            {
-                manager.log( e );
-            }
-            */
-        }
+        return ( false );
     }
     
     public DirectorCommunicator( DirectorManager manager )
     {
+        super();
+        
         this.manager = manager;
     }
 }

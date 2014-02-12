@@ -89,11 +89,11 @@ class _rf2_GameEventsManager extends GameEventsManager
     }
     
     @Override
-    protected void onSessionStartedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onSessionStartedImpl( Object userObject, long timestamp )
     {
         this.lastSessionStartedTimestamp = timestamp;
         
-        super.onSessionStartedImpl( userObject, timestamp, isEditorMode );
+        super.onSessionStartedImpl( userObject, timestamp );
     }
     
     @Override
@@ -176,13 +176,13 @@ class _rf2_GameEventsManager extends GameEventsManager
     }
     
     @Override
-    protected byte onScoringInfoUpdatedImpl( byte result, int numVehicles, Object userObject, long timestamp, boolean isEditorMode )
+    protected byte onScoringInfoUpdatedImpl( byte result, int numVehicles, Object userObject, long timestamp )
     {
         boolean wfgsl = waitingForGarageStartLocation;
         
         this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
         
-        result = super.onScoringInfoUpdatedImpl( result, numVehicles, userObject, timestamp, isEditorMode );
+        result = super.onScoringInfoUpdatedImpl( result, numVehicles, userObject, timestamp );
         
         if ( wfgsl )
         {

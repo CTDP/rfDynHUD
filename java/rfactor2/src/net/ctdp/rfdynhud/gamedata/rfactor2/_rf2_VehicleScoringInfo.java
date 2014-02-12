@@ -126,7 +126,7 @@ class _rf2_VehicleScoringInfo extends VehicleScoringInfo
         return ( getSlotId() );
     }
     
-    private void readFromStreamImpl( InputStream in ) throws IOException
+    void readFromStreamImpl( InputStream in ) throws IOException
     {
         int offset = 0;
         int bytesToRead = BUFFER_SIZE;

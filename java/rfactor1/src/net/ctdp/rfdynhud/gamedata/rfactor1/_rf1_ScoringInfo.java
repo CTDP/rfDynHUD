@@ -23,10 +23,9 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jagatoo.util.streams.StreamUtils;
-
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
+import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -37,6 +36,9 @@ import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.util.RFDHLog;
+
+import org.jagatoo.util.streams.StreamUtils;
 
 /**
  * 
@@ -85,6 +87,8 @@ class _rf1_ScoringInfo extends ScoringInfo
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
+    private static final java.net.URL DEFAULT_VALUES = _rf1_ScoringInfo.class.getClassLoader().getResource( _rf1_ScoringInfo.class.getPackage().getName().replace( '.', '/' ) + "/data/game_data/scoring_info" );
+    
     final Map<Integer, VehicleScoringInfo> idVSIMap = new HashMap<Integer, VehicleScoringInfo>();
     final Map<Integer, Integer> nameDuplicatesMap = new HashMap<Integer, Integer>();
     
@@ -93,11 +97,61 @@ class _rf1_ScoringInfo extends ScoringInfo
     @Override
     protected void updateDataImpl( int numVehicles, Object userObject, long timestamp )
     {
-        _rf1_DataAddressKeeper2 ak = (_rf1_DataAddressKeeper2)userObject;
-        
-        _rf1_VehicleScoringInfo firstVSI = (_rf1_VehicleScoringInfo)getFirstVehicleScoringInfo();
-        
-        fetchData( numVehicles, ak.getBufferAddress(), ak.getBufferSize(), buffer, ak.getBufferAddress2(), ak.getBufferSize2(), ( firstVSI == null ) ? null : firstVSI.buffer );
+        if ( userObject instanceof _rf1_DataAddressKeeper2 )
+        {
+            _rf1_DataAddressKeeper2 ak = (_rf1_DataAddressKeeper2)userObject;
+            
+            _rf1_VehicleScoringInfo firstVSI = (_rf1_VehicleScoringInfo)getCachedVehicleScoringInfo( 0 );
+            
+            fetchData( numVehicles, ak.getBufferAddress(), ak.getBufferSize(), buffer, ak.getBufferAddress2(), ak.getBufferSize2(), ( firstVSI == null ) ? null : firstVSI.buffer );
+        }
+        else if ( userObject instanceof GameDataStreamSource )
+        {
+            InputStream in = ( (GameDataStreamSource)userObject ).getInputStreamForScoringInfo();
+            
+            if ( in != null )
+            {
+                try
+                {
+                    readFromStreamImpl( in );
+                    
+                    for ( int i = 0; i < numVehicles; i++ )
+                    {
+                        ( (_rf1_VehicleScoringInfo)getVehicleScoringInfo( i ) ).readFromStreamImpl( in );
+                    }
+                }
+                catch ( IOException e )
+                {
+                    RFDHLog.exception( e );
+                }
+            }
+        }
+        else if ( userObject instanceof EditorPresets )
+        {
+            InputStream in = null;
+            
+            try
+            {
+                in = DEFAULT_VALUES.openStream();
+                
+                readFromStreamImpl( in );
+                
+                numVehicles = getNumVehiclesImpl();
+                
+                for ( int i = 0; i < numVehicles; i++ )
+                {
+                    ( (_rf1_VehicleScoringInfo)getCachedVehicleScoringInfo( i ) ).readFromStreamImpl( in );
+                }
+            }
+            catch ( IOException e )
+            {
+                RFDHLog.exception( e );
+            }
+            finally
+            {
+                StreamUtils.closeStream( in );
+            }
+        }
     }
     
     private void readFromStreamImpl( InputStream in ) throws IOException
@@ -133,12 +187,10 @@ class _rf1_ScoringInfo extends ScoringInfo
             ( (_rf1_VehicleScoringInfo)getVehicleScoringInfo( i ) ).readFromStream( in );
         }
         
-        onDataUpdated( numVehicles, null, now, editorPresets );
-        
-        applyEditorPresets( editorPresets );
-        
         if ( editorPresets != null )
         {
+            applyEditorPresets( editorPresets );
+            
             // Add postfixes to some vehicles' classes to get valid class-scoring in the editor.
             String classA = "F1 2006";
             String classB = "F1 2006B";
@@ -165,24 +217,31 @@ class _rf1_ScoringInfo extends ScoringInfo
             __GDPrivilegedAccess.setVehicleClass( this, 20, classA );
             __GDPrivilegedAccess.setVehicleClass( this, 21, classA );
         }
+        
+        onDataUpdated( numVehicles, editorPresets, now );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void readDefaultValues( EditorPresets editorPresets ) throws IOException
+    public void loadDefaultValues( EditorPresets editorPresets )
     {
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/scoring_info" );
+        InputStream in = null;
         
         try
         {
+            in = DEFAULT_VALUES.openStream();
+            
             readFromStream( in, editorPresets );
+        }
+        catch ( IOException e )
+        {
+            RFDHLog.exception( e );
         }
         finally
         {
-            if ( in != null )
-                StreamUtils.closeStream( in );
+            StreamUtils.closeStream( in );
         }
     }
     

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.render.ImageTemplate;
@@ -39,7 +40,7 @@ class _rf1_DrivingAids extends DrivingAids
     }
     
     @Override
-    public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
+    public void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
     }
     
@@ -47,7 +48,7 @@ class _rf1_DrivingAids extends DrivingAids
      * {@inheritDoc}
      */
     @Override
-    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    public void loadDefaultValues( EditorPresets editorPresets )
     {
     }
     

@@ -556,16 +556,6 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
         
         communicator.connect( conn.getConnectionString() );
         
-        try
-        {
-            Thread.sleep( 100L );
-        }
-        catch ( InterruptedException e )
-        {
-        }
-        
-        communicator.writeInt( DirectorConstants.CONNECTION_REQUEST );
-        
         return ( communicator.isConnected() );
     }
     
@@ -597,9 +587,9 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
             JOptionPane.showMessageDialog( editor.getMainWindow(), "Sent WidgetsConfiguration." );
     }
     
-    public void onConnectionEsteblished( boolean isInRealtimeMode )
+    public void onConnectionEsteblished( boolean isInCockpitMode )
     {
-        if ( isInRealtimeMode )
+        if ( isInCockpitMode )
             sendCurrentConfiguration( false );
         
         editor.mergeDirectorConnectionString( communicator.getLastConnectionString() );

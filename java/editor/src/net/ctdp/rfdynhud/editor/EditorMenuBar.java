@@ -74,6 +74,9 @@ public class EditorMenuBar extends JMenuBar
     private JMenu directorMenu = null;
     private JMenuItem toDirectorModeItem = null;
     
+    private JMenu liveMenu = null;
+    private JMenuItem toLiveModeItem = null;
+    
     public void setNeedsDMCheck()
     {
         this.needsDMCheck = true;
@@ -1048,6 +1051,11 @@ public class EditorMenuBar extends JMenuBar
             {
                 c.setEnabled( c != toDirectorModeItem );
             }
+            
+            for ( Component c : liveMenu.getMenuComponents() )
+            {
+                c.setEnabled( false );
+            }
         }
     }
     
@@ -1058,6 +1066,11 @@ public class EditorMenuBar extends JMenuBar
             for ( Component c : directorMenu.getMenuComponents() )
             {
                 c.setEnabled( c == toDirectorModeItem );
+            }
+            
+            for ( Component c : liveMenu.getMenuComponents() )
+            {
+                c.setEnabled( c == toLiveModeItem );
             }
         }
     }
@@ -1174,6 +1187,63 @@ public class EditorMenuBar extends JMenuBar
         return ( directorMenu );
     }
     
+    private void switchToLiveMode()
+    {
+        if ( editor.switchToLiveMode() )
+        {
+            for ( Component c : directorMenu.getMenuComponents() )
+            {
+                c.setEnabled( false );
+            }
+            
+            for ( Component c : liveMenu.getMenuComponents() )
+            {
+                c.setEnabled( c != toLiveModeItem );
+            }
+        }
+    }
+    
+    private JMenu createLiveMenu()
+    {
+        liveMenu = new JMenu( "Live" );
+        
+        ImageIcon icon_liveModeItem = null;
+        try
+        {
+            icon_liveModeItem = new ImageIcon( ImageIO.read( this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/live/live.png" ) ) );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        toLiveModeItem = new JMenuItem( "Switch to Live Mode", icon_liveModeItem );
+        toLiveModeItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                switchToLiveMode();
+            }
+        } );
+        liveMenu.add( toLiveModeItem );
+        
+        JMenuItem returnItem = new JMenuItem( "Return to Editor Mode" );
+        returnItem.setEnabled( false );
+        returnItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                switchToEditorMode();
+            }
+        } );
+        
+        liveMenu.add( returnItem );
+        
+        return ( liveMenu );
+    }
+    
     private JMenu createHelpMenu()
     {
         JMenu menu = new JMenu( "Help" );
@@ -1220,6 +1290,7 @@ public class EditorMenuBar extends JMenuBar
         this.add( createResolutionsMenu() );
         this.add( createToolsMenu() );
         this.add( createDirectorMenu() );
+        this.add( createLiveMenu() );
         this.add( createHelpMenu() );
     }
 }

@@ -21,8 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.gamedata.DeviceLegalStatus;
+import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.IgnitionStatus;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SurfaceType;
@@ -32,6 +34,7 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.streams.StreamUtils;
 
@@ -165,20 +168,60 @@ class _rf2_TelemetryData extends TelemetryData
     
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
+    private static final java.net.URL DEFAULT_VALUES = _rf2_TelemetryData.class.getClassLoader().getResource( _rf2_TelemetryData.class.getPackage().getName().replace( '.', '/' ) + "/data/game_data/telemetry_data" );
+    
     private static native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
     
     @Override
     protected void updateDataImpl( Object userObject, long timestamp )
     {
-        _rf2_DataAddressKeeper ak = (_rf2_DataAddressKeeper)userObject;
-        
-        fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+        if ( userObject instanceof _rf2_DataAddressKeeper )
+        {
+            _rf2_DataAddressKeeper ak = (_rf2_DataAddressKeeper)userObject;
+            
+            fetchData( ak.getBufferAddress(), ak.getBufferSize(), buffer );
+        }
+        else if ( userObject instanceof GameDataStreamSource )
+        {
+            InputStream in = ( (GameDataStreamSource)userObject ).getInputStreamForTelemetryData();
+            
+            if ( in != null )
+            {
+                try
+                {
+                    readFromStreamImpl( in );
+                }
+                catch ( IOException e )
+                {
+                    RFDHLog.exception( e );
+                }
+            }
+        }
+        else if ( userObject instanceof EditorPresets )
+        {
+            InputStream in = null;
+            
+            try
+            {
+                in = DEFAULT_VALUES.openStream();
+                
+                readFromStreamImpl( in );
+            }
+            catch ( IOException e )
+            {
+                RFDHLog.exception( e );
+            }
+            finally
+            {
+                StreamUtils.closeStream( in );
+            }
+        }
     }
     
     @Override
-    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp )
     {
-        super.onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+        super.onDataUpdatedImpl( userObject, timestamp );
         
         ( (_rf2_VehiclePhysics)gameData.getPhysics() ).applyFuelTankSize( getFuelTankCapacity() );
     }
@@ -212,7 +255,7 @@ class _rf2_TelemetryData extends TelemetryData
     }
     
     @Override
-    public void readFromStream( InputStream in, boolean isEditorMode ) throws IOException
+    public void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         final long now = System.nanoTime();
         
@@ -220,25 +263,30 @@ class _rf2_TelemetryData extends TelemetryData
         
         readFromStreamImpl( in );
         
-        onDataUpdated( null, now, isEditorMode );
+        onDataUpdated( editorPresets, now );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void readDefaultValues( boolean isEditorMode ) throws IOException
+    public void loadDefaultValues( EditorPresets editorPresets )
     {
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream( this.getClass().getPackage().getName().replace( '.', '/' ) + "/data/game_data/telemetry_data" );
+        InputStream in = null;
         
         try
         {
-            readFromStream( in, isEditorMode );
+            in = DEFAULT_VALUES.openStream();
+            
+            readFromStream( in, editorPresets );
+        }
+        catch ( IOException e )
+        {
+            RFDHLog.exception( e );
         }
         finally
         {
-            if ( in != null )
-                StreamUtils.closeStream( in );
+            StreamUtils.closeStream( in );
         }
     }
     
@@ -891,21 +939,21 @@ class _rf2_TelemetryData extends TelemetryData
     {
         // unsigned char mMaxGears;       // maximum forward gears
         
-        return ( ByteUtil.readByte( buffer, OFFSET_MAX_GEARS ) );
+        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_MAX_GEARS ) );
     }
     
     public final int getFrontTireCompoundIndex()
     {
         // unsigned char mFrontTireCompoundIndex;   // index within brand
         
-        return ( ByteUtil.readByte( buffer, OFFSET_FRONT_TIRE_COMPOUND_INDEX ) );
+        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_FRONT_TIRE_COMPOUND_INDEX ) );
     }
     
     public final int getRearTireCompoundIndex()
     {
         // unsigned char mRearTireCompoundIndex;    // index within brand
         
-        return ( ByteUtil.readByte( buffer, OFFSET_REAR_TIRE_COMPOUND_INDEX ) );
+        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_REAR_TIRE_COMPOUND_INDEX ) );
     }
     
     public final float getFuelTankCapacity()
@@ -935,7 +983,7 @@ class _rf2_TelemetryData extends TelemetryData
         // unsigned char mRearFlapActivated;       // whether rear flap is activated
         
         // Override rf2 bug, that can notify the rear flap being activated, even if not allowed (or installed). TODO: Remove this!
-        if ( ByteUtil.readByte( buffer, OFFSET_REAR_FLAP_LEGAL_STATUS ) != 2 )
+        if ( ByteUtil.readUnsignedByte( buffer, OFFSET_REAR_FLAP_LEGAL_STATUS ) != 2 )
             return ( false );
         
         return ( ByteUtil.readBoolean( buffer, OFFSET_REAR_FLAP_ACTIVATED ) );
@@ -958,7 +1006,7 @@ class _rf2_TelemetryData extends TelemetryData
     {
         // unsigned char mRearFlapLegalStatus;      // 0=disallowed, 1=criteria detected but not allowed quite yet, 2=allowed
         
-        byte status = ByteUtil.readByte( buffer, OFFSET_REAR_FLAP_LEGAL_STATUS );
+        short status = ByteUtil.readUnsignedByte( buffer, OFFSET_REAR_FLAP_LEGAL_STATUS );
         
         switch ( status )
         {
@@ -981,7 +1029,7 @@ class _rf2_TelemetryData extends TelemetryData
     {
         // unsigned char mIgnitionStarter;          // 0=off 1=ignition 2=ignition+starter
         
-        byte status = ByteUtil.readByte( buffer, OFFSET_IGNITION_STARTER );
+        short status = ByteUtil.readUnsignedByte( buffer, OFFSET_IGNITION_STARTER );
         
         switch ( status )
         {

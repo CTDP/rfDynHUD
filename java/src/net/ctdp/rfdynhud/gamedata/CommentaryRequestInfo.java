@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
@@ -31,6 +32,7 @@ public abstract class CommentaryRequestInfo
 {
     private long updateTimestamp = -1L;
     private long updateId = 0L;
+    private boolean updatedInTimeScope = false;
     
     protected final LiveGameData gameData;
     
@@ -98,16 +100,14 @@ public abstract class CommentaryRequestInfo
         gameData.unregisterDataUpdateListener( l );
     }
     
-    public abstract void readFromStream( InputStream in, boolean isEditorMode ) throws IOException;
+    public abstract void readFromStream( InputStream in, EditorPresets editorPresets ) throws IOException;
     
     /**
      * Read default values. This is usually done in editor mode.
      * 
-     * @param isEditorMode
-     * 
-     * @throws IOException
+     * @param editorPresets <code>null</code> in non editor mode
      */
-    public abstract void readDefaultValues( boolean isEditorMode ) throws IOException;
+    public abstract void loadDefaultValues( EditorPresets editorPresets );
     
     public abstract void writeToStream( OutputStream out ) throws IOException;
     
@@ -132,6 +132,25 @@ public abstract class CommentaryRequestInfo
     }
     
     /**
+     * Gets, whether these {@link CommentaryRequestInfo} have at least been updated once.
+     * 
+     * @return whether these {@link CommentaryRequestInfo} have at least been updated once.
+     */
+    public final boolean isValid()
+    {
+        return ( updateId > 0L );
+    }
+    
+    /**
+     * Gets, whether the last update of these data has been done while in the cockpit.
+     * @return whether the last update of these data has been done while in the cockpit.
+     */
+    public final boolean isUpdatedInTimeScope()
+    {
+        return ( updatedInTimeScope );
+    }
+    
+    /**
      * 
      * @param userObject
      * @param timestamp
@@ -141,21 +160,20 @@ public abstract class CommentaryRequestInfo
     }
     
     /**
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected void onDataUpdatedImpl( Object userObject, long timestamp, boolean isEditorMode )
+    protected void onDataUpdatedImpl( Object userObject, long timestamp )
     {
     }
     
     /**
-     * @param userObject
+     * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
-     * @param isEditorMode
      */
-    protected final void onDataUpdated( Object userObject, long timestamp, boolean isEditorMode )
+    protected final void onDataUpdated( Object userObject, long timestamp )
     {
+        this.updatedInTimeScope = gameData.isInCockpit();
         this.updateTimestamp = timestamp;
         this.updateId++;
         
@@ -165,7 +183,7 @@ public abstract class CommentaryRequestInfo
             {
                 try
                 {
-                    updateListeners[i].onCommentaryInfoUpdated( gameData, isEditorMode );
+                    updateListeners[i].onCommentaryInfoUpdated( gameData, userObject instanceof EditorPresets );
                 }
                 catch ( Throwable t )
                 {
@@ -176,7 +194,7 @@ public abstract class CommentaryRequestInfo
         
         try
         {
-            onDataUpdatedImpl( userObject, timestamp, isEditorMode );
+            onDataUpdatedImpl( userObject, timestamp );
         }
         catch ( Throwable t )
         {
@@ -192,7 +210,7 @@ public abstract class CommentaryRequestInfo
         
         updateDataImpl( userObject, timestamp );
         
-        onDataUpdated( userObject, timestamp, false );
+        onDataUpdated( userObject, timestamp );
     }
     
     /**

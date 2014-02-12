@@ -27,7 +27,7 @@ import net.ctdp.rfdynhud.editor.director.DirectorConstants;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class Communicator extends net.ctdp.rfdynhud.plugins.AbstractCommunicator
+public class Communicator extends net.ctdp.rfdynhud.plugins.AbstractServerCommunicator
 {
     private final DirectorPlugin plugin;
     

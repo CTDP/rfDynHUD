@@ -39,7 +39,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     private boolean isInCockpit = false;
     
     private boolean enabled = false;
-    protected AbstractCommunicator communicator = null;
+    protected AbstractServerCommunicator communicator = null;
     
     //private GameEventsManager eventsManager = null;
     
@@ -70,6 +70,20 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     
     protected abstract void parseIniFile( File iniFile, GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
     
+    /**
+     * 
+     * @param eventsManager
+     * @param gameData
+     * @param isEditorMode
+     * @param widgetsManager
+     */
+    protected void registerListeners( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        gameData.registerGameEventsListener( this );
+        gameData.registerDataUpdateListener( this );
+        gameData.getScoringInfo().registerListener( this );
+    }
+    
     @Override
     public void onPluginStarted( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
@@ -87,11 +101,23 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
             return;
         }
         
-        gameData.registerGameEventsListener( this );
-        gameData.registerDataUpdateListener( this );
-        gameData.getScoringInfo().registerListener( this );
+        registerListeners( eventsManager, gameData, isEditorMode, widgetsManager );
         
         communicator.connect();
+    }
+    
+    /**
+     * 
+     * @param eventsManager
+     * @param gameData
+     * @param isEditorMode
+     * @param widgetsManager
+     */
+    protected void unregisterListeners( GameEventsManager eventsManager, LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
+    {
+        gameData.unregisterGameEventsListener( this );
+        gameData.unregisterDataUpdateListener( this );
+        gameData.getScoringInfo().unregisterListener( this );
     }
     
     @Override
@@ -101,6 +127,8 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
         {
             communicator.close( false );
         }
+        
+        unregisterListeners( eventsManager, gameData, isEditorMode, widgetsManager );
     }
     
     protected void onConnectionEsteblished()
