@@ -58,6 +58,11 @@ public abstract class GameEventsPlugin
         return ( baseFolder );
     }
     
+    public final String getLogPrefix()
+    {
+        return ( logPrefix );
+    }
+    
     public void log( LogLevel logLevel, Object... message )
     {
         if ( ( message != null ) && ( message.length > 0 ) )

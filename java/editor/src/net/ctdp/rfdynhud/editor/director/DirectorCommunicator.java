@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleControl;
-import net.ctdp.rfdynhud.plugins.AbstractClientCommunicator;
+import net.ctdp.rfdynhud.plugins.datasender.AbstractClientCommunicator;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**

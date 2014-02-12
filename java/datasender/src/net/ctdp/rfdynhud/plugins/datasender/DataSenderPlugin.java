@@ -27,7 +27,6 @@ import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
-import net.ctdp.rfdynhud.plugins.AbstractDataSenderPlugin;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 
 import org.jagatoo.util.ini.AbstractIniParser;

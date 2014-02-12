@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleControl;
-import net.ctdp.rfdynhud.plugins.AbstractClientCommunicator;
+import net.ctdp.rfdynhud.plugins.datasender.AbstractClientCommunicator;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.logging.LogLevel;

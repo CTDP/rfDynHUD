@@ -25,7 +25,7 @@ import java.io.IOException;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class Communicator extends net.ctdp.rfdynhud.plugins.AbstractServerCommunicator
+public class Communicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractServerCommunicator
 {
     @SuppressWarnings( "unused" )
     private final DataSenderPlugin plugin;

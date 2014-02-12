@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.plugins;
+package net.ctdp.rfdynhud.plugins.datasender;
 
 import java.io.File;
 
@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo.ScoringInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.plugins.GameEventsPlugin;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 
 /**

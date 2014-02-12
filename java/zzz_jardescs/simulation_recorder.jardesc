@@ -11,6 +11,6 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=rfdynhud/test\/src&lt;net.ctdp.rfdynhud.test.optimization"/>
+        <javaElement handleIdentifier="=rfdynhud/simulation\/src&lt;net.ctdp.rfdynhud.plugins.simulation"/>
     </selectedElements>
 </jardesc>

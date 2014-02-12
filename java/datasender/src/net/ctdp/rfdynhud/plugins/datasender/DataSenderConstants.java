@@ -22,7 +22,7 @@ package net.ctdp.rfdynhud.plugins.datasender;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DataSenderConstants extends net.ctdp.rfdynhud.plugins.CommunicatorConstants
+public interface DataSenderConstants extends net.ctdp.rfdynhud.plugins.datasender.CommunicatorConstants
 {
     public static final int GRAPHICS_INFO = OFFSET + 2100;
     public static final int TELEMETRY_DATA = OFFSET + 2200;

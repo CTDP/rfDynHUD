@@ -22,7 +22,7 @@ package net.ctdp.rfdynhud.plugins.director;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorConstants extends net.ctdp.rfdynhud.plugins.CommunicatorConstants
+public interface DirectorConstants extends net.ctdp.rfdynhud.plugins.datasender.CommunicatorConstants
 {
     public static final int WIDGETS_CONFIGURATION = OFFSET + 10000;
     public static final int RESET_WIDGET_STATES = OFFSET + 10001;

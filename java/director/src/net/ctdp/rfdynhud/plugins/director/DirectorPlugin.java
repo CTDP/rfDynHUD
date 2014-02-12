@@ -28,7 +28,7 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.plugins.AbstractDataSenderPlugin;
+import net.ctdp.rfdynhud.plugins.datasender.AbstractDataSenderPlugin;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;

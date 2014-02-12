@@ -15,14 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.plugins;
+package net.ctdp.rfdynhud.plugins.datasender;
 
 /**
  * Keeps constants for network commands.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class CommunicatorConstants
+public interface CommunicatorConstants
 {
     public static final int OFFSET = 0xFFFF;
     
