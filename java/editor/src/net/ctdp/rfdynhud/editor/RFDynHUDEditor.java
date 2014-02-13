@@ -76,6 +76,7 @@ import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.plugins.simulation.SimulationPlayer;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
@@ -1580,6 +1581,81 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( true );
     }
     
+    private volatile boolean simulating = false;
+    
+    public boolean switchToSimulationMode()
+    {
+        getEditorPanel().liveMode = true;
+        
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    simulating = true;
+                    
+                    //Object synMonitor = getEditorPanel().getDrawSyncMonitor();
+                    
+                    while ( simulating )
+                    {
+                        //synchronized ( syncMonitor )
+                        {
+                            repaintEditorPanel();
+                        }
+                        
+                        try
+                        {
+                            Thread.sleep( 100L );
+                        }
+                        catch ( InterruptedException e )
+                        {
+                        }
+                    }
+                }
+                finally
+                {
+                    getEditorPanel().liveMode = false;
+                }
+            }
+        }.start();
+        
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                SimulationPlayer.PlaybackUpdateInterface updateInterfce = new SimulationPlayer.PlaybackUpdateInterface()
+                {
+                    @Override
+                    public void update( boolean firstTime )
+                    {
+                    }
+                    
+                    @Override
+                    public boolean isCancelled()
+                    {
+                        return ( !simulating );
+                    }
+                };
+                
+                String file = "c:\\Spiele\\rFactor2\\Plugins\\rfDynHUD\\plugins\\simulation\\simdata";
+                
+                try
+                {
+                    SimulationPlayer.playback( eventsManager, getEditorPanel().getDrawSyncMonitor(), new File( file ), false, updateInterfce );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
+        }.start();
+        
+        return ( true );
+    }
+    
     public boolean switchToEditorMode()
     {
         if ( directorMgr != null )
@@ -1603,6 +1679,20 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             if ( liveMgr.isConnected() )
                 liveMgr.stop();
         }
+        
+        simulating = false;
+        
+        try
+        {
+            Thread.sleep( 500L );
+        }
+        catch ( InterruptedException e )
+        {
+        }
+        
+        initTestGameData();
+        
+        repaintEditorPanel();
         
         return ( true );
     }

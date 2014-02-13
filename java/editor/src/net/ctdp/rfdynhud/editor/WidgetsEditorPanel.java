@@ -753,6 +753,8 @@ public class WidgetsEditorPanel extends JPanel
             widgetsConfig.setAllDirtyFlags();
         }
         
+        boolean isEditorMode = !liveMode;
+        
         try
         {
             int n = widgetsConfig.getNumWidgets();
@@ -770,7 +772,7 @@ public class WidgetsEditorPanel extends JPanel
                 dirtyFlags.add( widget.getDirtyFlag( false ) );
                 
                 Rect2i innerRect = getWidgetInnerRect( widget );
-                TransformableTexture[] subTextures = widget.getSubTextures( gameData, true, innerRect.getWidth(), innerRect.getHeight() );
+                TransformableTexture[] subTextures = widget.getSubTextures( gameData, isEditorMode, innerRect.getWidth(), innerRect.getHeight() );
                 subTexs.add( subTextures );
                 
                 if ( subTextures != null )
@@ -797,7 +799,17 @@ public class WidgetsEditorPanel extends JPanel
             
             while ( checkOverlappingWidgetsAndTransferDirtyFlags( transformedSubRects, oldWidgetRects, oldWidgetSubTexRects ) );
             
-            drawingManager.drawWidgets( gameData, !liveMode, false, !liveMode );
+            if ( liveMode )
+            {
+                synchronized ( drawSyncMonitor )
+                {
+                    drawingManager.drawWidgets( gameData, isEditorMode, false, true );
+                }
+            }
+            else
+            {
+                drawingManager.drawWidgets( gameData, isEditorMode, false, true );
+            }
             
             for ( int i = 0; i < n; i++ )
             {
@@ -952,10 +964,7 @@ public class WidgetsEditorPanel extends JPanel
         
         //System.out.println( "paintComponent()" );
         
-        synchronized ( drawSyncMonitor )
-        {
-            drawWidgets( (Graphics2D)g, liveMode, scaleFactor, !liveMode );
-        }
+        drawWidgets( (Graphics2D)g, liveMode, scaleFactor, !liveMode );
     }
     
     public WidgetsEditorPanel( WidgetsEditorPanelSettings settings, RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )

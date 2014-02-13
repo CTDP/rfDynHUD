@@ -73,9 +73,12 @@ public class EditorMenuBar extends JMenuBar
     
     private JMenu directorMenu = null;
     private JMenuItem toDirectorModeItem = null;
+    private JMenuItem toEditorModeFromDirectorItem = null;
     
     private JMenu liveMenu = null;
     private JMenuItem toLiveModeItem = null;
+    private JMenuItem toSimulationModeItem = null;
+    private JMenuItem toEditorModeFromLiveItem = null;
     
     public void setNeedsDMCheck()
     {
@@ -1070,7 +1073,7 @@ public class EditorMenuBar extends JMenuBar
             
             for ( Component c : liveMenu.getMenuComponents() )
             {
-                c.setEnabled( c == toLiveModeItem );
+                c.setEnabled( c == toLiveModeItem || c == toSimulationModeItem );
             }
         }
     }
@@ -1100,9 +1103,9 @@ public class EditorMenuBar extends JMenuBar
         } );
         directorMenu.add( toDirectorModeItem );
         
-        JMenuItem returnItem = new JMenuItem( "Return to Editor Mode" );
-        returnItem.setEnabled( false );
-        returnItem.addActionListener( new ActionListener()
+        toEditorModeFromDirectorItem = new JMenuItem( "Return to Editor Mode" );
+        toEditorModeFromDirectorItem.setEnabled( false );
+        toEditorModeFromDirectorItem.addActionListener( new ActionListener()
         {
             @Override
             public void actionPerformed( ActionEvent e )
@@ -1111,7 +1114,7 @@ public class EditorMenuBar extends JMenuBar
             }
         } );
         
-        directorMenu.add( returnItem );
+        directorMenu.add( toEditorModeFromDirectorItem );
         
         directorMenu.addSeparator();
         
@@ -1198,7 +1201,23 @@ public class EditorMenuBar extends JMenuBar
             
             for ( Component c : liveMenu.getMenuComponents() )
             {
-                c.setEnabled( c != toLiveModeItem );
+                c.setEnabled( c == toEditorModeFromLiveItem );
+            }
+        }
+    }
+    
+    private void switchToSimulationMode()
+    {
+        if ( editor.switchToSimulationMode() )
+        {
+            for ( Component c : directorMenu.getMenuComponents() )
+            {
+                c.setEnabled( false );
+            }
+            
+            for ( Component c : liveMenu.getMenuComponents() )
+            {
+                c.setEnabled( c == toEditorModeFromLiveItem );
             }
         }
     }
@@ -1228,9 +1247,20 @@ public class EditorMenuBar extends JMenuBar
         } );
         liveMenu.add( toLiveModeItem );
         
-        JMenuItem returnItem = new JMenuItem( "Return to Editor Mode" );
-        returnItem.setEnabled( false );
-        returnItem.addActionListener( new ActionListener()
+        toLiveModeItem = new JMenuItem( "Switch to Simulation Mode", icon_liveModeItem );
+        toLiveModeItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                switchToSimulationMode();
+            }
+        } );
+        liveMenu.add( toLiveModeItem );
+        
+        toEditorModeFromLiveItem = new JMenuItem( "Return to Editor Mode" );
+        toEditorModeFromLiveItem.setEnabled( false );
+        toEditorModeFromLiveItem.addActionListener( new ActionListener()
         {
             @Override
             public void actionPerformed( ActionEvent e )
@@ -1239,7 +1269,7 @@ public class EditorMenuBar extends JMenuBar
             }
         } );
         
-        liveMenu.add( returnItem );
+        liveMenu.add( toEditorModeFromLiveItem );
         
         return ( liveMenu );
     }

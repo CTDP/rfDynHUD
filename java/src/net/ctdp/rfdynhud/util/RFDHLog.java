@@ -59,7 +59,7 @@ public final class RFDHLog
         }
         
         if ( ResourceManager.isIDEMode() || !FOLDER.exists() )
-            return ( new ConsoleLog( LogLevel.PROFILE ) );
+            return ( new ConsoleLog( LogLevel.DEBUG ) );
         
         try
         {
