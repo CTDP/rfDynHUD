@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
@@ -44,7 +45,6 @@ import org.jagatoo.util.Tools;
  */
 public abstract class GameEventsManager implements ConfigurationLoadListener
 {
-    public static boolean simulationMode = false;
     protected final RFDynHUD rfDynHUD;
     protected final WidgetsDrawingManager widgetsManager;
     protected final LiveGameData gameData;
@@ -62,6 +62,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     protected boolean waitingForGraphics = false;
     protected boolean waitingForTelemetry = false;
     protected boolean waitingForScoring = false;
+    protected boolean waitingForWeather = false;
     protected boolean waitingForGarageStartLocation = false;
     protected boolean waitingForSetup = false;
     protected long setupReloadTryTime = -1L;
@@ -289,7 +290,8 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            reloadConfigAndSetupTextureImpl( force );
+            if ( !__GDPrivilegedAccess.simulationMode && ( __EDPrivilegedAccess.editorClassLoader == null ) )
+                reloadConfigAndSetupTextureImpl( force );
             
             if ( texturesRequested )
             {
@@ -353,14 +355,14 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         long now = System.nanoTime();
         
+        boolean isEditorMode = ( userObject instanceof EditorPresets );
+        
         //if ( currentSessionIsRace == Boolean.TRUE )
-        if ( sessionRunning )
+        if ( sessionRunning && !isEditorMode && !__GDPrivilegedAccess.simulationMode )
         {
             RFDHLog.debug( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
             return ( ( rfDynHUD == null ) ? (byte)2 : ( rfDynHUD.isInRenderMode() ? (byte)2 : (byte)0 ) );
         }
-        
-        boolean isEditorMode = ( userObject instanceof EditorPresets );
         
         this.sessionRunning = true;
         this.isComingOutOfGarage = true;
@@ -369,6 +371,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         this.waitingForGraphics = !isEditorMode;
         this.waitingForTelemetry = !isEditorMode;
         this.waitingForScoring = !isEditorMode;
+        this.waitingForWeather = !isEditorMode;
         this.waitingForGarageStartLocation = !isEditorMode;
         this.waitingForSetup = false;
         this.setupReloadTryTime = -1L;
@@ -437,6 +440,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         this.waitingForGraphics = false;
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
+        this.waitingForWeather = false;
         this.waitingForGarageStartLocation = false;
         this.waitingForSetup = false;
         this.setupReloadTryTime = -1L;
@@ -455,7 +459,8 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
             RFDHLog.exception( t );
         }
         
-        __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
+        if ( !( userObject instanceof EditorPresets ) && !__GDPrivilegedAccess.simulationMode )
+            __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
     }
     
     /**
@@ -531,6 +536,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         this.waitingForGraphics = waitingForGraphics || !isEditorMode;
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
+        this.waitingForWeather = waitingForWeather || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForGarageStartLocation = true;
         this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.setupReloadTryTime = now + 5000000000L;
@@ -831,6 +837,14 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         }
     }
     
+    public final boolean getWaitingForData( boolean isEditorMode )
+    {
+        if ( isEditorMode )
+            return ( waitingForTelemetry || waitingForScoring || waitingForWeather );
+        
+        return ( waitingForData );
+    }
+    
     protected byte checkWaitingData( boolean isEditorMode, boolean forceReload )
     {
         long now = System.nanoTime();
@@ -838,7 +852,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         eventsDispatcher.checkAndFireOnNeededDataComplete( gameData, isEditorMode );
         
         boolean waitingForSetup2 = ( now <= setupReloadTryTime );
-        if ( simulationMode )
+        if ( __GDPrivilegedAccess.simulationMode )
             waitingForSetup2 = false;
         
         if ( !waitingForScoring && gameData.getScoringInfo().getSessionType().isRace() && ( cockpitLeftInRaceSession == Boolean.FALSE ) )
@@ -884,7 +898,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         byte result = 0;
         
-        if ( !waitingForRender && !waitingForGraphics && !waitingForTelemetry && !waitingForScoring/* && !waitingForSetup && !waitingForSetup2*/ )
+        if ( !waitingForRender && !waitingForGraphics && !waitingForTelemetry && !waitingForScoring && !waitingForWeather/* && !waitingForSetup && !waitingForSetup2*/ )
         {
             onWaitingForDataCompleted( now, isEditorMode );
             
@@ -1163,6 +1177,47 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
+    protected byte onWeatherInfoUpdatedImpl( byte result, Object userObject, long timestamp )
+    {
+        gameData.getWeatherInfo().updateData( userObject, System.nanoTime() );
+        
+        this.waitingForWeather = false;
+        
+        return ( checkWaitingData( userObject instanceof EditorPresets, false ) );
+    }
+    
+    /**
+     * @param userObject a custom user object passed through to the sim specific implementation 
+     * @return
+     */
+    public final byte onWeatherInfoUpdated( Object userObject )
+    {
+        RFDHLog.profile( "[PROFILE]: onWeatherInfoUpdated()" );
+        
+        byte result = 0;
+        
+        long now = System.nanoTime();
+        
+        try
+        {
+            result = onWeatherInfoUpdatedImpl( result, userObject, now );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        //RFDHLog.println( ">>> /onWeatherInfoUpdated(), result: " + result );
+        return ( result );
+    }
+    
+    /**
+     * @param result 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested
+     * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
+     * @param timestamp event timestamp in nano seconds
+     
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
     protected byte onCommentaryRequestInfoUpdatedImpl( byte result, Object userObject, long timestamp )
     {
         //if ( !isEditorMode )
@@ -1312,11 +1367,14 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      */
     protected byte beforeRenderImpl( byte result, short viewportX, short viewportY, short viewportWidth, short viewportHeight )
     {
-        boolean vpChanged = checkAndApplyChangedViewport( viewportX, viewportY, viewportWidth, viewportHeight );
-        
-        if ( isSessionRunning() && gameData.getProfileInfo().isValid() )
+        if ( !__GDPrivilegedAccess.simulationMode )
         {
-            handleViewport( result, viewportX, viewportY, viewportWidth, viewportHeight, vpChanged );
+            boolean vpChanged = checkAndApplyChangedViewport( viewportX, viewportY, viewportWidth, viewportHeight );
+            
+            if ( isSessionRunning() && gameData.getProfileInfo().isValid() )
+            {
+                handleViewport( result, viewportX, viewportY, viewportWidth, viewportHeight, vpChanged );
+            }
         }
         
         return ( result );

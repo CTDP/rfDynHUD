@@ -57,6 +57,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin
         
         File dataFile = null;
         boolean onlyRecordInCockpit = true;
+        boolean resetWhenEnteringCockpit = false;
         
         File iniFile = new File( getBaseFolder(), INI_FILENAME );
         
@@ -72,6 +73,8 @@ public class SimulationRecorderPlugin extends GameEventsPlugin
             
             onlyRecordInCockpit = Boolean.parseBoolean( AbstractIniParser.parseIniValue( iniFile, "SIMRECORDER", "onlyRecordInCockpit", "true" ) );
             
+            resetWhenEnteringCockpit = Boolean.parseBoolean( AbstractIniParser.parseIniValue( iniFile, "SIMRECORDER", "resetWhenEnteringCockpit", "false" ) );
+            
             String file = AbstractIniParser.parseIniValue( iniFile, "SIMRECORDER", "file", "D:\\rfdynhud_data" );
             
             dataFile = new File( file );
@@ -86,7 +89,7 @@ public class SimulationRecorderPlugin extends GameEventsPlugin
         
         try
         {
-            this.recorder = new SimulationRecorder( dataFile, onlyRecordInCockpit, getLogPrefix() );
+            this.recorder = new SimulationRecorder( dataFile, onlyRecordInCockpit, resetWhenEnteringCockpit, getLogPrefix() );
         }
         catch ( IOException e )
         {

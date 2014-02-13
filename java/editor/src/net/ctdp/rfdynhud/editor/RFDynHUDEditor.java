@@ -220,6 +220,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( gameData );
     }
     
+    public final GameEventsManager getGameEventsManager()
+    {
+        return ( eventsManager );
+    }
+    
     public final GameResolution getGameResolution()
     {
         return ( gameResolution );
@@ -1582,10 +1587,14 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     }
     
     private volatile boolean simulating = false;
+    private volatile boolean simulating2 = false;
     
     public boolean switchToSimulationMode()
     {
         getEditorPanel().liveMode = true;
+        
+        eventsManager.onSessionEnded( presets );
+        eventsManager.onSessionStarted( null );
         
         new Thread()
         {
@@ -1595,14 +1604,18 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 try
                 {
                     simulating = true;
+                    simulating2 = true;
                     
                     //Object synMonitor = getEditorPanel().getDrawSyncMonitor();
                     
                     while ( simulating )
                     {
-                        //synchronized ( syncMonitor )
+                        if ( !eventsManager.getWaitingForData( true ) )
                         {
-                            repaintEditorPanel();
+                            //synchronized ( syncMonitor )
+                            {
+                                repaintEditorPanel();
+                            }
                         }
                         
                         try
@@ -1613,6 +1626,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         {
                         }
                     }
+                    
+                    simulating2 = false;
                 }
                 finally
                 {
@@ -1626,10 +1641,16 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             @Override
             public void run()
             {
-                SimulationPlayer.PlaybackUpdateInterface updateInterfce = new SimulationPlayer.PlaybackUpdateInterface()
+                SimulationPlayer.PlaybackControl control = new SimulationPlayer.PlaybackControl()
                 {
                     @Override
-                    public void update( boolean firstTime )
+                    public float getTimeScale()
+                    {
+                        return ( 1.0f );
+                    }
+                    
+                    @Override
+                    public void update()
                     {
                     }
                     
@@ -1644,7 +1665,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 
                 try
                 {
-                    SimulationPlayer.playback( eventsManager, getEditorPanel().getDrawSyncMonitor(), new File( file ), false, updateInterfce );
+                    SimulationPlayer.playback( eventsManager, getEditorPanel().getDrawSyncMonitor(), new File( file ), control );
                 }
                 catch ( Throwable t )
                 {
@@ -1680,17 +1701,26 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 liveMgr.stop();
         }
         
-        simulating = false;
-        
-        try
+        if ( simulating )
         {
-            Thread.sleep( 500L );
+            simulating = false;
+            
+            while ( simulating2 )
+            {
+                try
+                {
+                    Thread.sleep( 100L );
+                }
+                catch ( InterruptedException e )
+                {
+                }
+            }
+            
+            eventsManager.onSessionEnded( presets );
+            eventsManager.onSessionStarted( presets );
+            
+            initTestGameData();
         }
-        catch ( InterruptedException e )
-        {
-        }
-        
-        initTestGameData();
         
         repaintEditorPanel();
         
@@ -1716,6 +1746,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     {
         eventsManager.onDrivingAidsUpdated( presets );
         eventsManager.onScoringInfoUpdated( -1, presets );
+        eventsManager.onWeatherInfoUpdated( presets );
         eventsManager.onTelemetryDataUpdated( presets );
         eventsManager.onCommentaryRequestInfoUpdated( presets );
         eventsManager.onGraphicsInfoUpdated( presets );

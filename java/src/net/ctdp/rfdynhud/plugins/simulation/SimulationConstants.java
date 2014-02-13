@@ -24,24 +24,25 @@ package net.ctdp.rfdynhud.plugins.simulation;
  */
 public interface SimulationConstants
 {
+    public static final char ON_SESSION_STARTED = 'S';
+    public static final char ON_SESSION_ENDED = 's';
     public static final char ON_PHYSICS = 'p';
     public static final char ON_SETUP = 'u';
     public static final char ON_TRACK = 't';
-    public static final char ON_PITS_ENTERED = 'B';
-    public static final char ON_PITS_EXITED = 'b';
+    public static final char ON_COCKPIT_ENTERED = 'C';
+    public static final char ON_COCKPIT_EXITED = 'c';
     public static final char ON_GARAGE_ENTERED = 'G';
     public static final char ON_GARAGE_EXITED = 'g';
-    public static final char ON_CONTROL = 'c';
+    public static final char ON_PITS_ENTERED = 'B';
+    public static final char ON_PITS_EXITED = 'b';
+    public static final char ON_CONTROL = 'x';
     public static final char ON_LAP = 'l';
-    public static final char ON_SESSION_STARTED = 'S';
-    public static final char ON_SESSION_ENDED = 's';
-    public static final char ON_COCKPIT_ENTERED = 'R';
-    public static final char ON_COCKPIT_EXITED = 'r';
-    public static final char ON_VIEWPORT_CHANGED = 'v';
+    public static final char ON_DATA_UPDATED_DRIVING_AIDS = 'A';
     public static final char ON_DATA_UPDATED_GRAPHICS = 'I';
     public static final char ON_DATA_UPDATED_TELEMETRY = 'T';
     public static final char ON_DATA_UPDATED_SCORING = 'D';
-    public static final char ON_DATA_UPDATED_DRIVING_AIDS = 'A';
+    public static final char ON_DATA_UPDATED_WEATHER = 'W';
     public static final char ON_DATA_UPDATED_COMMENTARY = 'O';
-    public static final char BEFORE_RENDERED = 'W';
+    public static final char ON_VIEWPORT_CHANGED = 'v';
+    public static final char BEFORE_RENDERED = 'R';
 }

@@ -27,9 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.util.AbstractThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
@@ -660,7 +657,6 @@ public abstract class ScoringInfo
     
     protected void updateData( int numVehicles, Object userObject, long timestamp )
     {
-        //if ( gameData.getProfileInfo().isValid() && !( userObject instanceof EditorPresets ) )
         if ( gameData.getProfileInfo().isValid() )
         {
             if ( userObject instanceof EditorPresets )
@@ -708,7 +704,7 @@ public abstract class ScoringInfo
     }
     
     /**
-     * 
+     * @param timestamp
      * @param isEditorMode
      */
     final void onSessionStarted( long timestamp, boolean isEditorMode )
@@ -1242,190 +1238,6 @@ public abstract class ScoringInfo
     }
     
     /**
-     * Gets cloud darkness? 0.0-1.0
-     * 
-     * @return cloud darkness? 0.0-1.0
-     */
-    public abstract float getCloudDarkness();
-    
-    /**
-     * Gets raining severity 0.0-1.0
-     * 
-     * @return raining severity 0.0-1.0
-     */
-    public abstract float getRainingSeverity();
-    
-    /**
-     * Gets ambient temperature (Kelvin)
-     * 
-     * @return ambient temperature (Kelvin)
-     */
-    public abstract float getAmbientTemperatureK();
-//        return ( data.getAmbientTemperature() - Convert.ZERO_KELVIN );
-    
-    /**
-     * Gets ambient temperature (Celsius)
-     * 
-     * @return ambient temperature (Celsius)
-     */
-    public final float getAmbientTemperatureC()
-    {
-        return ( getAmbientTemperatureK() + Convert.ZERO_KELVIN );
-    }
-    
-    /**
-     * Gets ambient temperature (Fahrenheit)
-     * 
-     * @return ambient temperature (Fahrenheit)
-     */
-    public final float getAmbientTemperatureF()
-    {
-        return ( Convert.celsius2Fahrehheit( getAmbientTemperatureC() ) );
-    }
-    
-    /**
-     * Gets ambient temperature (PLR selected units)
-     * 
-     * @return ambient temperature (PLR selected units)
-     */
-    public final float getAmbientTemperature()
-    {
-        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
-            return ( getAmbientTemperatureF() );
-        
-        return ( getAmbientTemperatureC() );
-    }
-    
-    /**
-     * Gets track temperature (Kelvin)
-     * 
-     * @return track temperature (Kelvin)
-     */
-    public abstract float getTrackTemperatureK();
-//        return ( data.getTrackTemperature() - Convert.ZERO_KELVIN );
-    
-    /**
-     * Gets track temperature (Celsius)
-     * 
-     * @return track temperature (Celsius)
-     */
-    public final float getTrackTemperatureC()
-    {
-        return ( getTrackTemperature() + Convert.ZERO_KELVIN );
-    }
-    
-    /**
-     * Gets track temperature (Fahrenheit)
-     * 
-     * @return track temperature (Fahrenheit)
-     */
-    public final float getTrackTemperatureF()
-    {
-        return ( Convert.celsius2Fahrehheit( getTrackTemperatureC() ) );
-    }
-    
-    /**
-     * Gets track temperature (PLR selected units)
-     * 
-     * @return track temperature (PLR selected units)
-     */
-    public final float getTrackTemperature()
-    {
-        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
-            return ( getTrackTemperatureF() );
-        
-        return ( getTrackTemperatureC() );
-    }
-    
-    /**
-     * Gets wind speed in m/sec.
-     * 
-     * @param speed output buffer
-     */
-    public abstract void getWindSpeedMS( TelemVect3 speed );
-    
-    /**
-     * Gets wind speed in km/h.
-     * 
-     * @param speed output buffer
-     */
-    public final void getWindSpeedKmh( TelemVect3 speed )
-    {
-        getWindSpeedMS( speed );
-        
-        speed.x *= SpeedUnits.Convert.MS_TO_KMH;
-        speed.y *= SpeedUnits.Convert.MS_TO_KMH;
-        speed.z *= SpeedUnits.Convert.MS_TO_KMH;
-    }
-    
-    /**
-     * Gets wind speed in km/h.
-     * 
-     * @param speed output buffer
-     * 
-     * @deprecated replaced by {@link #getWindSpeedKmh(TelemVect3)}
-     */
-    @Deprecated
-    public final void getWindSpeedKph( TelemVect3 speed )
-    {
-        getWindSpeedKmh( speed );
-    }
-    
-    /**
-     * Gets wind speed in mi/h.
-     * 
-     * @param speed output buffer
-     */
-    public final void getWindSpeedMih( TelemVect3 speed )
-    {
-        getWindSpeedMS( speed );
-        
-        speed.x *= SpeedUnits.Convert.MS_TO_MIH;
-        speed.y *= SpeedUnits.Convert.MS_TO_MIH;
-        speed.z *= SpeedUnits.Convert.MS_TO_MIH;
-    }
-    
-    /**
-     * Gets wind speed in mi/h.
-     * 
-     * @param speed output buffer
-     * 
-     * @deprecated replaced by {@link #getWindSpeedMih(TelemVect3)}
-     */
-    @Deprecated
-    public final void getWindSpeedMph( TelemVect3 speed )
-    {
-        getWindSpeedMih( speed );
-    }
-    
-    /**
-     * Gets wind speed in km/h or mph depending on PLR settings.
-     * 
-     * @param speed output buffer
-     */
-    public final void getWindSpeed( TelemVect3 speed )
-    {
-        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MIH )
-            getWindSpeedMih( speed );
-        else
-            getWindSpeedKmh( speed );
-    }
-    
-    /**
-     * Gets wetness on main path 0.0-1.0
-     * 
-     * @return wetness on main path 0.0-1.0
-     */
-    public abstract float getOnPathWetness();
-    
-    /**
-     * Gets wetness off main path 0.0-1.0
-     * 
-     * @return wetness off main path 0.0-1.0
-     */
-    public abstract float getOffPathWetness();
-    
-    /**
      * Gets the i-th vehicle scoring info.
      * 
      * @param i the index
@@ -1791,6 +1603,182 @@ public abstract class ScoringInfo
     public final VehicleScoringInfo getCompareVSI()
     {
         return ( controlledCompareVSI );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getCloudDarkness()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getCloudDarkness()
+    {
+        return ( gameData.getWeatherInfo().getCloudDarkness() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getRainingSeverity()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getRainingSeverity()
+    {
+        return ( gameData.getWeatherInfo().getRainingSeverity() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getAmbientTemperatureK()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getAmbientTemperatureK()
+    {
+        return ( gameData.getWeatherInfo().getAmbientTemperatureK() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getAmbientTemperatureC()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getAmbientTemperatureC()
+    {
+        return ( gameData.getWeatherInfo().getAmbientTemperatureC() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getAmbientTemperatureF()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getAmbientTemperatureF()
+    {
+        return ( gameData.getWeatherInfo().getAmbientTemperatureF() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getAmbientTemperature()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getAmbientTemperature()
+    {
+        return ( gameData.getWeatherInfo().getAmbientTemperature() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getTrackTemperatureK()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getTrackTemperatureK()
+    {
+        return ( gameData.getWeatherInfo().getTrackTemperatureK() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getTrackTemperatureC()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getTrackTemperatureC()
+    {
+        return ( gameData.getWeatherInfo().getTrackTemperatureC() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getTrackTemperatureF()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getTrackTemperatureF()
+    {
+        return ( gameData.getWeatherInfo().getTrackTemperatureF() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getTrackTemperature()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getTrackTemperature()
+    {
+        return ( gameData.getWeatherInfo().getTrackTemperature() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getWindSpeedMS(TelemVect3)}
+     * 
+     * @param speed
+     */
+    @Deprecated
+    public final void getWindSpeedMS( TelemVect3 speed )
+    {
+        gameData.getWeatherInfo().getWindSpeedMS( speed );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getWindSpeedKmh(TelemVect3)}
+     * 
+     * @param speed
+     */
+    @Deprecated
+    public final void getWindSpeedKph( TelemVect3 speed )
+    {
+        gameData.getWeatherInfo().getWindSpeedKmh( speed );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getWindSpeedMih(TelemVect3)}
+     * 
+     * @param speed
+     */
+    @Deprecated
+    public final void getWindSpeedMph( TelemVect3 speed )
+    {
+        gameData.getWeatherInfo().getWindSpeedMih( speed );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getWindSpeed(TelemVect3)}
+     * 
+     * @param speed
+     */
+    @Deprecated
+    public final void getWindSpeed( TelemVect3 speed )
+    {
+        gameData.getWeatherInfo().getWindSpeed( speed );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getOnPathWetness()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getOnPathWetness()
+    {
+        return ( gameData.getWeatherInfo().getOnPathWetness() );
+    }
+    
+    /**
+     * @deprecated use {@link WeatherInfo#getOffPathWetness()}
+     * 
+     * @return
+     */
+    @Deprecated
+    public final float getOffPathWetness()
+    {
+        return ( gameData.getWeatherInfo().getOffPathWetness() );
     }
     
     protected ScoringInfo( LiveGameData gameData )

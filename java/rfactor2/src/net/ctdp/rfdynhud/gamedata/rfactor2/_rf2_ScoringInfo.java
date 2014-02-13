@@ -508,85 +508,6 @@ class _rf2_ScoringInfo extends ScoringInfo
         return ( ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, MAX_PLAYER_FILENAME_LENGTH ) );
     }
     
-    // weather - TODO: Deprecate here and move to new WeatherInfo class!
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getCloudDarkness()
-    {
-        // double mDarkCloud
-        
-        return ( (float)ByteUtil.readDouble( buffer, OFFSET_CLOUD_DARKNESS ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getRainingSeverity()
-    {
-        // double mRaining
-        
-        return ( (float)ByteUtil.readDouble( buffer, OFFSET_RAINING_SEVERITIY ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getAmbientTemperatureK()
-    {
-        // double mAmbientTemp
-        
-        return ( (float)ByteUtil.readDouble( buffer, OFFSET_AMBIENT_TEMPERATURE ) - Convert.ZERO_KELVIN );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getTrackTemperatureK()
-    {
-        // double mTrackTemp
-        
-        return ( (float)ByteUtil.readDouble( buffer, OFFSET_TRACK_TEMPERATURE ) - Convert.ZERO_KELVIN );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final void getWindSpeedMS( TelemVect3 speed )
-    {
-        // TelemVect3 mWind
-        
-        ByteUtil.readVectorD( buffer, OFFSET_WIND_SPEED, speed );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getOnPathWetness()
-    {
-        // double mOnPathWetness
-        
-        return ( (float)ByteUtil.readDouble( buffer, OFFSET_ON_PATH_WETNESS ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getOffPathWetness()
-    {
-        // double mOffPathWetness
-        
-        return ( (float)ByteUtil.readDouble( buffer, OFFSET_OFF_PATH_WETNESS ) );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -610,6 +531,55 @@ class _rf2_ScoringInfo extends ScoringInfo
         }
         
         return ( (_rf2_VehicleScoringInfo)getPlayersVehicleScoringInfo() );
+    }
+    
+    final float _getCloudDarkness()
+    {
+        // double mDarkCloud
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_CLOUD_DARKNESS ) );
+    }
+    
+    final float _getRainingSeverity()
+    {
+        // double mRaining
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_RAINING_SEVERITIY ) );
+    }
+    
+    final float _getAmbientTemperatureK()
+    {
+        // double mAmbientTemp
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_AMBIENT_TEMPERATURE ) - Convert.ZERO_KELVIN );
+    }
+    
+    final float _getTrackTemperatureK()
+    {
+        // double mTrackTemp
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_TRACK_TEMPERATURE ) - Convert.ZERO_KELVIN );
+    }
+    
+    final void _getWindSpeedMS( TelemVect3 speed )
+    {
+        // TelemVect3 mWind
+        
+        ByteUtil.readVectorD( buffer, OFFSET_WIND_SPEED, speed );
+    }
+    
+    final float _getOnPathWetness()
+    {
+        // double mOnPathWetness
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_ON_PATH_WETNESS ) );
+    }
+    
+    final float _getOffPathWetness()
+    {
+        // double mOffPathWetness
+        
+        return ( (float)ByteUtil.readDouble( buffer, OFFSET_OFF_PATH_WETNESS ) );
     }
     
     _rf2_ScoringInfo( LiveGameData gameData )

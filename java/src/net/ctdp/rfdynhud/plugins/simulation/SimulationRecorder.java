@@ -22,6 +22,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
 
 import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo.CommentaryInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.DrivingAids.DrivingAidsUpdateListener;
@@ -31,6 +32,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo.ScoringInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.TelemetryData.TelemetryDataUpdateListener;
+import net.ctdp.rfdynhud.gamedata.WeatherInfo.WeatherInfoUpdateListener;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.plugins.GameEventsPlugin;
 import net.ctdp.rfdynhud.render.WidgetsManager;
@@ -45,12 +47,14 @@ import org.jagatoo.util.streams.StreamUtils;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdateListener, TelemetryDataUpdateListener, ScoringInfoUpdateListener, DrivingAidsUpdateListener, CommentaryInfoUpdateListener, WidgetsRenderListener
+public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdateListener, TelemetryDataUpdateListener, ScoringInfoUpdateListener, WeatherInfoUpdateListener, DrivingAidsUpdateListener, CommentaryInfoUpdateListener, WidgetsRenderListener
 {
     private final String logPrefix;
     
     private final boolean onlyRecordInCockpit;
+    private final boolean resetWhenEnteringCockpit;
     
+    private final File file;
     private DataOutputStream os = null;
     
     private long t0 = -1L;
@@ -81,6 +85,7 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
         gameData.getGraphicsInfo().registerListener( this );
         gameData.getTelemetryData().registerListener( this );
         gameData.getScoringInfo().registerListener( this );
+        gameData.getWeatherInfo().registerListener( this );
         gameData.getDrivingAids().registerListener( this );
         widgetsManager.registerListener( this );
     }
@@ -93,8 +98,19 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
         gameData.getGraphicsInfo().unregisterListener( this );
         gameData.getTelemetryData().unregisterListener( this );
         gameData.getScoringInfo().unregisterListener( this );
+        gameData.getWeatherInfo().unregisterListener( this );
         gameData.getDrivingAids().unregisterListener( this );
         widgetsManager.unregisterListener( this );
+    }
+    
+    private void resetStream() throws IOException
+    {
+        StreamUtils.closeStream( os );
+        this.os = null;
+        
+        this.os = new DataOutputStream( new BufferedOutputStream( new GZIPOutputStream( new FileOutputStream( file ) ) ) );
+        
+        t0 = -1L;
     }
     
     private void writeTimecode() throws IOException
@@ -105,6 +121,32 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
         long t = ( System.nanoTime() / 1000000L ) - t0;
         
         os.writeLong( t );
+    }
+    
+    private boolean sessionStarted = false;
+    
+    @Override
+    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( sessionStarted )
+            return;
+        
+        //if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+        //    return;
+        
+        try
+        {
+            resetStream();
+            
+            os.write( SimulationConstants.ON_SESSION_STARTED );
+            writeTimecode();
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+        
+        sessionStarted = true;
     }
     
     @Override
@@ -161,14 +203,14 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
     }
     
     @Override
-    public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
-            return;
-        
         try
         {
-            os.write( SimulationConstants.ON_PITS_ENTERED );
+            if ( resetWhenEnteringCockpit )
+                resetStream();
+            
+            os.write( SimulationConstants.ON_COCKPIT_ENTERED );
             writeTimecode();
         }
         catch ( IOException e )
@@ -178,14 +220,16 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
     }
     
     @Override
-    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
+    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused )
     {
-        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
-            return;
-        
+    }
+    
+    @Override
+    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
+    {
         try
         {
-            os.write( SimulationConstants.ON_PITS_EXITED );
+            os.write( SimulationConstants.ON_COCKPIT_EXITED );
             writeTimecode();
         }
         catch ( IOException e )
@@ -220,6 +264,40 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
         try
         {
             os.write( SimulationConstants.ON_GARAGE_EXITED );
+            writeTimecode();
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+            return;
+        
+        try
+        {
+            os.write( SimulationConstants.ON_PITS_ENTERED );
+            writeTimecode();
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+    }
+    
+    @Override
+    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
+            return;
+        
+        try
+        {
+            os.write( SimulationConstants.ON_PITS_EXITED );
             writeTimecode();
         }
         catch ( IOException e )
@@ -280,76 +358,21 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
     }
     
     @Override
-    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
+    public void onDrivingAidsUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        //if ( onlyRecordInCockpit && !gameData.isInCockpit() )
-        //    return;
-        
-        try
-        {
-            os.write( SimulationConstants.ON_SESSION_STARTED );
-            writeTimecode();
-        }
-        catch ( IOException e )
-        {
-            log( e );
-        }
-    }
-    
-    @Override
-    public void onCockpitEntered( LiveGameData gameData, boolean isEditorMode )
-    {
-        try
-        {
-            os.write( SimulationConstants.ON_COCKPIT_ENTERED );
-            writeTimecode();
-        }
-        catch ( IOException e )
-        {
-            log( e );
-        }
-    }
-    
-    @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused )
-    {
-    }
-    
-    @Override
-    public void onCockpitExited( LiveGameData gameData, boolean isEditorMode )
-    {
-        try
-        {
-            os.write( SimulationConstants.ON_COCKPIT_EXITED );
-            writeTimecode();
-        }
-        catch ( IOException e )
-        {
-            log( e );
-        }
-    }
-    
-    @Override
-    public void onViewportChanged( LiveGameData gameData, int viewportX, int viewportY, int viewportWidth, int viewportHeight )
-    {
-        /*
-        if ( onlyRecordInCockpit && !gameData.isInRealtimeMode() )
+        if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
-            os.write( SimulationConstants.ON_VIEWPORT_CHANGED );
+            os.write( SimulationConstants.ON_DATA_UPDATED_DRIVING_AIDS );
             writeTimecode();
-            os.writeShort( viewportX );
-            os.writeShort( viewportY );
-            os.writeShort( viewportWidth );
-            os.writeShort( viewportHeight );
+            gameData.getDrivingAids().writeToStream( os );
         }
         catch ( IOException e )
         {
             log( e );
         }
-        */
     }
     
     @Override
@@ -421,16 +444,16 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
     }
     
     @Override
-    public void onDrivingAidsUpdated( LiveGameData gameData, boolean isEditorMode )
+    public void onWeatherInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         if ( onlyRecordInCockpit && !gameData.isInCockpit() )
             return;
         
         try
         {
-            os.write( SimulationConstants.ON_DATA_UPDATED_DRIVING_AIDS );
+            os.write( SimulationConstants.ON_DATA_UPDATED_WEATHER );
             writeTimecode();
-            gameData.getDrivingAids().writeToStream( os );
+            gameData.getWeatherInfo().writeToStream( os );
         }
         catch ( IOException e )
         {
@@ -454,6 +477,29 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
         {
             log( e );
         }
+    }
+    
+    @Override
+    public void onViewportChanged( LiveGameData gameData, int viewportX, int viewportY, int viewportWidth, int viewportHeight )
+    {
+        /*
+        if ( onlyRecordInCockpit && !gameData.isInRealtimeMode() )
+            return;
+        
+        try
+        {
+            os.write( SimulationConstants.ON_VIEWPORT_CHANGED );
+            writeTimecode();
+            os.writeShort( viewportX );
+            os.writeShort( viewportY );
+            os.writeShort( viewportWidth );
+            os.writeShort( viewportHeight );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+        */
     }
     
     @Override
@@ -488,16 +534,19 @@ public class SimulationRecorder implements GameEventsListener, GraphicsInfoUpdat
         StreamUtils.closeStream( os );
     }
     
-    public SimulationRecorder( File file, boolean onlyRecordInCockpit, String logPrefix ) throws IOException
+    public SimulationRecorder( File file, boolean onlyRecordInCockpit, boolean resetWhenEnteringCockpit, String logPrefix ) throws IOException
     {
         this.logPrefix = logPrefix;
         this.onlyRecordInCockpit = onlyRecordInCockpit;
+        this.resetWhenEnteringCockpit = resetWhenEnteringCockpit;
         
-        this.os = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( file ) ) );
+        this.file = file;
+        
+        resetStream();
     }
     
     public SimulationRecorder( File file, String logPrefix ) throws IOException
     {
-        this( file, true, logPrefix );
+        this( file, true, false, logPrefix );
     }
 }

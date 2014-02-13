@@ -186,6 +186,12 @@ public abstract class DrivingAids
     {
     }
     
+    protected void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+            return;
+    }
+    
     /**
      * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
      * @param timestamp
@@ -197,6 +203,9 @@ public abstract class DrivingAids
             this.updatedInTimeScope = gameData.isInCockpit();
             this.updateTimestamp = timestamp;
             this.updateId++;
+            
+            if ( userObject instanceof EditorPresets )
+                applyEditorPresets( (EditorPresets)userObject );
             
             final int numAids = getNumAids();
             

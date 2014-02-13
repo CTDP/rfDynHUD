@@ -1247,8 +1247,18 @@ public class EditorMenuBar extends JMenuBar
         } );
         liveMenu.add( toLiveModeItem );
         
-        toLiveModeItem = new JMenuItem( "Switch to Simulation Mode", icon_liveModeItem );
-        toLiveModeItem.addActionListener( new ActionListener()
+        ImageIcon icon_simModeItem = null;
+        try
+        {
+            icon_simModeItem = new ImageIcon( ImageIO.read( this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/live/simulation.png" ) ) );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        toSimulationModeItem = new JMenuItem( "Switch to Simulation Mode", icon_simModeItem );
+        toSimulationModeItem.addActionListener( new ActionListener()
         {
             @Override
             public void actionPerformed( ActionEvent e )
@@ -1256,7 +1266,7 @@ public class EditorMenuBar extends JMenuBar
                 switchToSimulationMode();
             }
         } );
-        liveMenu.add( toLiveModeItem );
+        liveMenu.add( toSimulationModeItem );
         
         toEditorModeFromLiveItem = new JMenuItem( "Return to Editor Mode" );
         toEditorModeFromLiveItem.setEnabled( false );

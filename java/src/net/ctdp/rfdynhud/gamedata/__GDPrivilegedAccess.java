@@ -38,6 +38,8 @@ public class __GDPrivilegedAccess
     public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
     public static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = DataCache.INPUT_ACTION_RESET_LAPTIMES_CACHE;
     
+    public static boolean simulationMode = false;
+    
     public static File readDevGameFolder( String game )
     {
         try
@@ -117,6 +119,7 @@ public class __GDPrivilegedAccess
     {
         gameData.getTelemetryData().onSessionStarted( isEditorMode );
         gameData.getScoringInfo().onSessionStarted( timestamp, isEditorMode );
+        gameData.getWeatherInfo().onSessionStarted( timestamp, isEditorMode );
         gameData.getSetup().onSessionStarted( timestamp );
     }
     
@@ -129,6 +132,7 @@ public class __GDPrivilegedAccess
     {
         gameData.getTelemetryData().onSessionEnded( timestamp );
         gameData.getScoringInfo().onSessionEnded( timestamp );
+        gameData.getWeatherInfo().onSessionEnded( timestamp );
         gameData.getSetup().onSessionEnded( timestamp );
     }
     

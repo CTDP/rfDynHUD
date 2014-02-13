@@ -47,6 +47,8 @@ public interface _LiveGameDataObjectsFactory
     
     public abstract VehicleScoringInfo[] newVehicleScoringInfos( LiveGameData gameData, int count, VehicleScoringInfo[] toRecycle );
     
+    public abstract WeatherInfo newWeatherInfo( LiveGameData gameData );
+    
     public abstract void loadVehiclePhysicsDefaults( VehiclePhysics physics );
     
     public abstract void loadVehiclePhysics( LiveGameData gameData );

@@ -678,7 +678,16 @@ char JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated( const long numVehicl
     env->CallVoidMethod( scoringInfoAddressKeeper, setBufferInfo1, (jlong)(long)buffer, (jint)size );
     env->CallVoidMethod( scoringInfoAddressKeeper, setBufferInfo2, (jlong)(long)buffer2, (jint)size2 );
     //return ( env->CallBooleanMethod( gameEventsManager, onScoringInfoUpdated, (jint)numVehicles, scoringInfoAddressKeeper ) == JNI_TRUE );
-    return ( env->CallByteMethod( gameEventsManager, onScoringInfoUpdated, (jint)numVehicles, scoringInfoAddressKeeper ) );
+    char result1 = env->CallByteMethod( gameEventsManager, onScoringInfoUpdated, (jint)numVehicles, scoringInfoAddressKeeper );
+    char result2 = env->CallByteMethod( gameEventsManager, onWeatherInfoUpdated, NULL );
+    
+    if ( ( result1 == 0 ) || ( result2 == 0 ) )
+        return ( 0 );
+    
+    if ( ( result1 == 2 ) || ( result2 == 2 ) )
+        return ( 2 );
+    
+    return ( 1 );
 }
 
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor2__1rf2_1ScoringInfo_fetchData( JNIEnv* env, jclass ScoringInfo, jint numVehicles, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer, jlong sourceBufferAddress2, jint sourceBufferSize2, jbyteArray targetBuffer2 )
@@ -828,6 +837,14 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass _rfdynhudClass, jobj
     if ( onScoringInfoUpdated == 0 )
     {
         logg( "ERROR: Failed to find the onScoringInfoUpdated() method on GameEventsManager." );
+        return ( false );
+    }
+    
+    onWeatherInfoUpdated = env->GetMethodID( GameEventsManager, "onWeatherInfoUpdated", "(Ljava/lang/Object;)B" );
+    
+    if ( onWeatherInfoUpdated == 0 )
+    {
+        logg( "ERROR: Failed to find the onWeatherInfoUpdated() method on GameEventsManager." );
         return ( false );
     }
     

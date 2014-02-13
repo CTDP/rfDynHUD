@@ -177,6 +177,9 @@ public abstract class CommentaryRequestInfo
         this.updateTimestamp = timestamp;
         this.updateId++;
         
+        if ( userObject instanceof EditorPresets )
+            applyEditorPresets( (EditorPresets)userObject );
+        
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
@@ -203,6 +206,12 @@ public abstract class CommentaryRequestInfo
     }
     
     protected abstract void updateDataImpl( Object userObject, long timestamp );
+    
+    protected void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+            return;
+    }
     
     protected void updateData( Object userObject, long timestamp )
     {

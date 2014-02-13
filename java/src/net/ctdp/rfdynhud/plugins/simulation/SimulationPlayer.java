@@ -22,10 +22,14 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
+
+import org.jagatoo.util.streams.StreamUtils;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
 /**
  * Capable of playing back recorded data events simulations.
@@ -34,9 +38,16 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
  */
 public class SimulationPlayer
 {
-    public static interface PlaybackUpdateInterface
+    public static interface PlaybackControl
     {
-        public void update( boolean firstTime );
+        /**
+         * Gets a time scale factor. A value of <= 0 will make timing get totally ignored.
+         * 
+         * @return
+         */
+        public float getTimeScale();
+        
+        public void update();
         
         public boolean isCancelled();
     }
@@ -81,15 +92,25 @@ public class SimulationPlayer
         }
     };
     
-    private static long waitForTimeCode( long t0, long t, boolean ignoreTiming, PlaybackUpdateInterface updateInterface ) throws InterruptedException
+    private static long waitForTimeCode( long t0, long t, PlaybackControl control ) throws InterruptedException
     {
-        if ( !ignoreTiming && ( t0 != -1L ) )
+        if ( ( control != null ) && control.isCancelled() )
+            return ( t );
+        
+        if ( ( ( control == null ) || ( control.getTimeScale() > 0f ) ) && ( t0 != -1L ) )
         {
-            long waitTime = Math.min( t - t0, 1000L );
+            long waitTime = t - t0;
+            if ( control != null )
+            {
+                float timeScale = control.getTimeScale();
+                if ( timeScale != 1.0f )
+                    waitTime = (long)( waitTime * control.getTimeScale() );
+            }
+            waitTime = Math.min( waitTime, 1000L );
             
             while ( waitTime > 0L )
             {
-                if ( ( updateInterface != null ) && updateInterface.isCancelled() )
+                if ( ( control != null ) && control.isCancelled() )
                     break;
                 
                 if ( waitTime > 100L )
@@ -108,167 +129,194 @@ public class SimulationPlayer
         return ( t );
     }
     
-    public static void playback( GameEventsManager eventsManager, Object syncMonitor, File file, boolean ignoreTiming, PlaybackUpdateInterface updateInterface ) throws Throwable
+    public static void playback( GameEventsManager eventsManager, Object syncMonitor, File file, PlaybackControl control ) throws Throwable
     {
-        boolean oldSimMode = GameEventsManager.simulationMode;
-        GameEventsManager.simulationMode = true;
+        boolean oldSimMode = __GDPrivilegedAccess.simulationMode;
+        __GDPrivilegedAccess.simulationMode = true;
         
         if ( syncMonitor == null )
             syncMonitor = new Object();
         
+        DataInputStream in = null;
+        
         try
         {
-            DataInputStream in = new DataInputStream( new BufferedInputStream( new FileInputStream( file ) ) );
+            in = new DataInputStream( new BufferedInputStream( new GZIPInputStream( new FileInputStream( file ) ) ) );
             SimDataStreamSource simUserObject = new SimDataStreamSource( in );
             
             //LiveGameData gameData = eventsManager.getGameData();
             
+            boolean firstSessionStart = true;
+            
             boolean isGraphicsReady = false;
             boolean isTelementryReady = false;
             boolean isScoringReady = false;
-            boolean isFirstReady = true;
+            boolean isWeatherReady = false;
             
             long t0 = -1L;
             
-            try
+            int len = 0;
+            
+            int code = 0;
+            while ( ( code = in.read() ) != -1 )
             {
-                int len = 0;
+                if ( ( control != null ) && control.isCancelled() )
+                    break;
                 
-                int b = 0;
-                while ( ( b = in.read() ) != -1 )
+                //System.out.println( "code: " + code + " ('" + (char)code + "')" );
+                //System.out.println( "waiting for data: " + eventsManager.getWaitingForData( true ) );
+                
+                switch ( code )
                 {
-                    if ( ( updateInterface != null ) && updateInterface.isCancelled() )
+                    case SimulationConstants.ON_SESSION_STARTED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            if ( firstSessionStart )
+                                eventsManager.onSessionEnded( simUserObject );
+                            firstSessionStart = false;
+                            eventsManager.onSessionStarted( simUserObject );
+                        }
                         break;
-                    
-                    switch ( b )
-                    {
-                        case SimulationConstants.ON_PHYSICS:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_SETUP:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_TRACK:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            len = in.readShort();
-                            for ( int i = 0; i < len; i++ )
-                                in.readChar();
-                            break;
-                        case SimulationConstants.ON_PITS_ENTERED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_PITS_EXITED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_GARAGE_ENTERED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_GARAGE_EXITED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_CONTROL:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            in.readShort();
-                            break;
-                        case SimulationConstants.ON_LAP:
-                            //System.out.println( "lap" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            in.readShort();
-                            in.readShort(); // TODO: remove
-                            break;
-                        case SimulationConstants.ON_SESSION_STARTED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_SESSION_ENDED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_COCKPIT_ENTERED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            t0 = -1L; // Avoid mysterious wait time!
-                            break;
-                        case SimulationConstants.ON_COCKPIT_EXITED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            break;
-                        case SimulationConstants.ON_VIEWPORT_CHANGED:
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            in.readShort();
-                            in.readShort();
-                            in.readShort();
-                            in.readShort();
-                            break;
-                        case SimulationConstants.ON_DATA_UPDATED_GRAPHICS:
-                            //System.out.println( "graphics" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            synchronized ( syncMonitor )
-                            {
-                                eventsManager.onGraphicsInfoUpdated( simUserObject );
-                            }
-                            isGraphicsReady = true;
-                            break;
-                        case SimulationConstants.ON_DATA_UPDATED_TELEMETRY:
-                            //System.out.println( "telemetry" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            synchronized ( syncMonitor )
-                            {
-                                eventsManager.onTelemetryDataUpdated( simUserObject );
-                            }
-                            isTelementryReady = true;
-                            break;
-                        case SimulationConstants.ON_DATA_UPDATED_SCORING:
-                            //System.out.println( "scoring" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            int numVehicles = in.readInt();
-                            synchronized ( syncMonitor )
-                            {
-                                eventsManager.onScoringInfoUpdated( numVehicles, simUserObject );
-                            }
-                            isScoringReady = true;
-                            break;
-                        case SimulationConstants.ON_DATA_UPDATED_DRIVING_AIDS:
-                            //System.out.println( "driving_aids" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            synchronized ( syncMonitor )
-                            {
-                                eventsManager.onDrivingAidsUpdated( simUserObject );
-                            }
-                            break;
-                        case SimulationConstants.ON_DATA_UPDATED_COMMENTARY:
-                            //System.out.println( "commentary" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            synchronized ( syncMonitor )
-                            {
-                                eventsManager.onCommentaryRequestInfoUpdated( simUserObject );
-                            }
-                            break;
-                        case SimulationConstants.BEFORE_RENDERED:
-                            //System.out.println( "render" );
-                            t0 = waitForTimeCode( t0, in.readLong(), ignoreTiming, updateInterface );
-                            if ( isGraphicsReady && isTelementryReady && isScoringReady )
-                            {
-                                if ( updateInterface != null )
-                                    updateInterface.update( isFirstReady );
-                                
-                                isFirstReady = false;
-                            }
-                            break;
-                    }
+                    case SimulationConstants.ON_SESSION_ENDED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onSessionEnded( simUserObject );
+                        }
+                        break;
+                    case SimulationConstants.ON_PHYSICS:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_SETUP:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_TRACK:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        len = in.readShort();
+                        for ( int i = 0; i < len; i++ )
+                            in.readChar();
+                        break;
+                    case SimulationConstants.ON_COCKPIT_ENTERED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        t0 = -1L; // Avoid mysterious wait time!
+                        break;
+                    case SimulationConstants.ON_COCKPIT_EXITED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_GARAGE_ENTERED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_GARAGE_EXITED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_PITS_ENTERED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_PITS_EXITED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        break;
+                    case SimulationConstants.ON_CONTROL:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        in.readShort();
+                        break;
+                    case SimulationConstants.ON_LAP:
+                        //System.out.println( "lap" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        in.readShort();
+                        break;
+                    case SimulationConstants.ON_DATA_UPDATED_DRIVING_AIDS:
+                        //System.out.println( "driving_aids" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onDrivingAidsUpdated( simUserObject );
+                        }
+                        break;
+                    case SimulationConstants.ON_DATA_UPDATED_GRAPHICS:
+                        //System.out.println( "graphics" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onGraphicsInfoUpdated( simUserObject );
+                        }
+                        isGraphicsReady = true;
+                        break;
+                    case SimulationConstants.ON_DATA_UPDATED_TELEMETRY:
+                        //System.out.println( "telemetry" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onTelemetryDataUpdated( simUserObject );
+                        }
+                        isTelementryReady = true;
+                        break;
+                    case SimulationConstants.ON_DATA_UPDATED_SCORING:
+                        //System.out.println( "scoring" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        int numVehicles = in.readInt();
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onScoringInfoUpdated( numVehicles, simUserObject );
+                        }
+                        isScoringReady = true;
+                        break;
+                    case SimulationConstants.ON_DATA_UPDATED_WEATHER:
+                        //System.out.println( "weather" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onWeatherInfoUpdated( simUserObject );
+                        }
+                        isWeatherReady = true;
+                        break;
+                    case SimulationConstants.ON_DATA_UPDATED_COMMENTARY:
+                        //System.out.println( "commentary" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.onCommentaryRequestInfoUpdated( simUserObject );
+                        }
+                        break;
+                    case SimulationConstants.ON_VIEWPORT_CHANGED:
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        in.readShort();
+                        in.readShort();
+                        in.readShort();
+                        in.readShort();
+                        break;
+                    case SimulationConstants.BEFORE_RENDERED:
+                        //System.out.println( "render" );
+                        t0 = waitForTimeCode( t0, in.readLong(), control );
+                        synchronized ( syncMonitor )
+                        {
+                            eventsManager.beforeRender( (short)0, (short)0, (short)1920, (short)1080 );
+                        }
+                        if ( isGraphicsReady && isTelementryReady && isScoringReady && isWeatherReady )
+                        {
+                            if ( control != null )
+                                control.update();
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException( "Unexpected command value: " + code + " ('" + (char)code + "')" );
                 }
             }
-            finally
-            {
-                in.close();
-            }
+            
+            if ( !firstSessionStart )
+                eventsManager.onSessionEnded( simUserObject );
         }
         finally
         {
-            GameEventsManager.simulationMode = oldSimMode;
+            __GDPrivilegedAccess.simulationMode = oldSimMode;
+            StreamUtils.closeStream( in );
         }
     }
     
     public static void main( String[] args ) throws Throwable
     {
-        boolean oldSimMode = GameEventsManager.simulationMode;
-        GameEventsManager.simulationMode = true;
+        boolean oldSimMode = __GDPrivilegedAccess.simulationMode;
+        __GDPrivilegedAccess.simulationMode = true;
         
         try
         {
@@ -286,13 +334,25 @@ public class SimulationPlayer
             //String file = "D:\\rfdynhud_data";
             String file = "c:\\Spiele\\rFactor2\\Plugins\\rfDynHUD\\plugins\\simulation\\simdata";
             
-            SimulationPlayer.PlaybackUpdateInterface updateInterfce = new SimulationPlayer.PlaybackUpdateInterface()
+            SimulationPlayer.PlaybackControl control = new SimulationPlayer.PlaybackControl()
             {
                 @Override
-                public void update( boolean firstTime )
+                public float getTimeScale()
                 {
-                    if ( firstTime )
-                        ;//javax.swing.JOptionPane.showMessageDialog( null, "start" );
+                    return ( 0f );
+                }
+                
+                private boolean firstUpdate = true;
+                
+                @Override
+                public void update()
+                {
+                    if ( firstUpdate )
+                    {
+                        //javax.swing.JOptionPane.showMessageDialog( null, "start" );
+                        
+                        firstUpdate = false;
+                    }
                     
                     rfDynHUD.update();
                 }
@@ -304,13 +364,13 @@ public class SimulationPlayer
                 }
             };
             
-            SimulationPlayer.playback( eventsManager, null, new File( file ), true, updateInterfce );
+            SimulationPlayer.playback( eventsManager, null, new File( file ), control );
             
             eventsManager.onShutdown( System.nanoTime() );
         }
         finally
         {
-            GameEventsManager.simulationMode = oldSimMode;
+            __GDPrivilegedAccess.simulationMode = oldSimMode;
         }
     }
 }

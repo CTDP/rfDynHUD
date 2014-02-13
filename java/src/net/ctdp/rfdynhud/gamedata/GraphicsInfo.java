@@ -160,6 +160,12 @@ public abstract class GraphicsInfo
     {
     }
     
+    protected void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+            return;
+    }
+    
     /**
      * 
      * @param userObject (could be an instance of {@link EditorPresets}), if in editor mode
@@ -170,6 +176,9 @@ public abstract class GraphicsInfo
         this.updatedInTimeScope = gameData.isInCockpit();
         this.updateTimestamp = timestamp;
         this.updateId++;
+        
+        if ( userObject instanceof EditorPresets )
+            applyEditorPresets( (EditorPresets)userObject );
         
         if ( updateListeners != null )
         {

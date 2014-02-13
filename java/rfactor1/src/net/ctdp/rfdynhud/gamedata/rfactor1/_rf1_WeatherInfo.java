@@ -22,17 +22,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.render.ImageTemplate;
+import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.WeatherInfo;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-class _rf1_DrivingAids extends DrivingAids
+class _rf1_WeatherInfo extends WeatherInfo
 {
-    private static final int NUM_AIDS = 0;
+    private final _rf1_ScoringInfo scoringInfo;
     
     @Override
     protected void updateDataImpl( Object userObject, long timestamp )
@@ -92,112 +92,71 @@ class _rf1_DrivingAids extends DrivingAids
      * {@inheritDoc}
      */
     @Override
-    public final int getNumAids()
+    public final float getCloudDarkness()
     {
-        return ( NUM_AIDS );
+        return ( scoringInfo._getCloudDarkness() );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public final int getAidIndexTractionControl()
+    public final float getRainingSeverity()
     {
-        return ( -1 );
+        return ( scoringInfo._getRainingSeverity() );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public final int getAidIndexTractionAntiLockBrakes()
+    public final float getAmbientTemperatureK()
     {
-        return ( -1 );
+        return ( scoringInfo._getAmbientTemperatureK() );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public final int getAidIndexAutoShift()
+    public final float getTrackTemperatureK()
     {
-        return ( -1 );
+        return ( scoringInfo._getTrackTemperatureK() );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public final int getAidIndexInvulnerability()
+    public final TelemVect3 getWindSpeedMS( TelemVect3 speed )
     {
-        return ( -1 );
+        scoringInfo._getWindSpeedMS( speed );
+        
+        return ( speed );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public final String getAidName( int index )
+    public final float getOnPathWetness()
     {
-        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
+        return ( scoringInfo._getOnPathWetness() );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public final int getAidState( int index )
+    public final float getOffPathWetness()
     {
-        return ( -1 );
+        return ( scoringInfo._getOffPathWetness() );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getAidStateName( int index, int state )
-    {
-        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final int getMinState( int index )
-    {
-        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final int getMaxState( int index )
-    {
-        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final int getNumStates( int index )
-    {
-        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ImageTemplate getAidIcon( int index, int state )
-    {
-        throw new IllegalArgumentException( "There is no aid with the index " + index + ". Only " + getNumAids() + " available." );
-    }
-    
-    _rf1_DrivingAids( LiveGameData gameData )
+    _rf1_WeatherInfo( LiveGameData gameData )
     {
         super( gameData );
+        
+        this.scoringInfo = (_rf1_ScoringInfo)gameData.getScoringInfo();
     }
 }

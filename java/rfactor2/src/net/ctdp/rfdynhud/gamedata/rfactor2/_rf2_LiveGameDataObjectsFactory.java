@@ -19,22 +19,12 @@ package net.ctdp.rfdynhud.gamedata.rfactor2;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
-import net.ctdp.rfdynhud.gamedata.CommentaryRequestInfo;
-import net.ctdp.rfdynhud.gamedata.DrivingAids;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.ModInfo;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo;
-import net.ctdp.rfdynhud.gamedata.ScoringInfo;
-import net.ctdp.rfdynhud.gamedata.TelemetryData;
-import net.ctdp.rfdynhud.gamedata.TrackInfo;
-import net.ctdp.rfdynhud.gamedata.VehicleInfo;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.PluginINI;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -43,7 +33,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
 {
     static
     {
-        if ( ( __EDPrivilegedAccess.editorClassLoader == null ) && !GameEventsManager.simulationMode )
+        if ( ( __EDPrivilegedAccess.editorClassLoader == null ) && !__GDPrivilegedAccess.simulationMode )
         {
             try
             {
@@ -93,7 +83,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public GameFileSystem newGameFileSystem( PluginINI pluginIni )
+    public _rf2_GameFileSystem newGameFileSystem( PluginINI pluginIni )
     {
         return ( new _rf2_GameFileSystem( pluginIni ) );
     }
@@ -102,7 +92,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public ProfileInfo newProfileInfo( LiveGameData gameData )
+    public _rf2_ProfileInfo newProfileInfo( LiveGameData gameData )
     {
         return ( new _rf2_ProfileInfo( (_rf2_GameFileSystem)gameData.getFileSystem() ) );
     }
@@ -111,7 +101,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public ModInfo newModInfo( LiveGameData gameData )
+    public _rf2_ModInfo newModInfo( LiveGameData gameData )
     {
         return ( new _rf2_ModInfo( gameData.getProfileInfo() ) );
     }
@@ -120,7 +110,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public TrackInfo newTrackInfo( LiveGameData gameData )
+    public _rf2_TrackInfo newTrackInfo( LiveGameData gameData )
     {
         return ( new _rf2_TrackInfo( (_rf2_ProfileInfo)gameData.getProfileInfo() ) );
     }
@@ -129,7 +119,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleInfo newVehicleInfo( LiveGameData gameData )
+    public _rf2_VehicleInfo newVehicleInfo( LiveGameData gameData )
     {
         return ( new _rf2_VehicleInfo() );
     }
@@ -138,7 +128,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehiclePhysics newVehiclePhysics( LiveGameData gameData )
+    public _rf2_VehiclePhysics newVehiclePhysics( LiveGameData gameData )
     {
         return ( new _rf2_VehiclePhysics() );
     }
@@ -147,7 +137,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleSetup newVehicleSetup( LiveGameData gameData )
+    public _rf2_VehicleSetup newVehicleSetup( LiveGameData gameData )
     {
         return ( new _rf2_VehicleSetup() );
     }
@@ -156,7 +146,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public DrivingAids newDrivingAids( LiveGameData gameData )
+    public _rf2_DrivingAids newDrivingAids( LiveGameData gameData )
     {
         return ( new _rf2_DrivingAids( gameData ) );
     }
@@ -165,7 +155,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public CommentaryRequestInfo newCommentaryRequestInfo( LiveGameData gameData )
+    public _rf2_CommentaryRequestInfo newCommentaryRequestInfo( LiveGameData gameData )
     {
         return ( new _rf2_CommentaryRequestInfo( gameData ) );
     }
@@ -174,7 +164,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public GraphicsInfo newGraphicsInfo( LiveGameData gameData )
+    public _rf2_GraphicsInfo newGraphicsInfo( LiveGameData gameData )
     {
         return ( new _rf2_GraphicsInfo( gameData ) );
     }
@@ -183,7 +173,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public TelemetryData newTelemetryData( LiveGameData gameData )
+    public _rf2_TelemetryData newTelemetryData( LiveGameData gameData )
     {
         return ( new _rf2_TelemetryData( gameData ) );
     }
@@ -192,7 +182,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public ScoringInfo newScoringInfo( LiveGameData gameData )
+    public _rf2_ScoringInfo newScoringInfo( LiveGameData gameData )
     {
         return ( new _rf2_ScoringInfo( gameData ) );
     }
@@ -201,7 +191,16 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
      * {@inheritDoc}
      */
     @Override
-    public VehicleScoringInfo[] newVehicleScoringInfos( LiveGameData gameData, int count, VehicleScoringInfo[] toRecycle )
+    public _rf2_WeatherInfo newWeatherInfo( LiveGameData gameData )
+    {
+        return ( new _rf2_WeatherInfo( gameData ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public _rf2_VehicleScoringInfo[] newVehicleScoringInfos( LiveGameData gameData, int count, VehicleScoringInfo[] toRecycle )
     {
         byte[] buffer = new byte[ _rf2_VehicleScoringInfo.BUFFER_SIZE * count ];
         

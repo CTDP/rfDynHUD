@@ -799,16 +799,19 @@ public class WidgetsEditorPanel extends JPanel
             
             while ( checkOverlappingWidgetsAndTransferDirtyFlags( transformedSubRects, oldWidgetRects, oldWidgetSubTexRects ) );
             
-            if ( liveMode )
+            if ( !editor.getGameEventsManager().getWaitingForData( true ) )
             {
-                synchronized ( drawSyncMonitor )
+                if ( liveMode )
+                {
+                    synchronized ( drawSyncMonitor )
+                    {
+                        drawingManager.drawWidgets( gameData, isEditorMode, false, true );
+                    }
+                }
+                else
                 {
                     drawingManager.drawWidgets( gameData, isEditorMode, false, true );
                 }
-            }
-            else
-            {
-                drawingManager.drawWidgets( gameData, isEditorMode, false, true );
             }
             
             for ( int i = 0; i < n; i++ )

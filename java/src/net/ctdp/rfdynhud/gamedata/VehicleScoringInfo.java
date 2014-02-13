@@ -380,6 +380,10 @@ public abstract class VehicleScoringInfo
         }
         oldAverageLaptime = null;
         averageLaptime = null;
+        
+        editor_lastLaptime = null;
+        editor_currLaptime = null;
+        editor_fastestLaptime = null;
     }
     
     void onSessionStarted()

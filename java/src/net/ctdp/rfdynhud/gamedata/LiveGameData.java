@@ -46,6 +46,7 @@ public class LiveGameData
     
     private final TelemetryData telemetryData;
     private final ScoringInfo scoringInfo;
+    private final WeatherInfo weatherInfo;
     private final GraphicsInfo graphicsInfo;
     private final CommentaryRequestInfo commentaryInfo;
     
@@ -331,6 +332,7 @@ public class LiveGameData
             
             getTelemetryData().onCockpitEntered( timestamp );
             getScoringInfo().onCockpitEntered( timestamp );
+            getWeatherInfo().onCockpitEntered( timestamp );
             getSetup().onCockpitEntered( timestamp );
         }
         else if ( was && !isInCockpit )
@@ -352,6 +354,7 @@ public class LiveGameData
             
             getTelemetryData().onCockpitExited( timestamp );
             getScoringInfo().onCockpitExited( timestamp );
+            getWeatherInfo().onCockpitExited( timestamp );
             getSetup().onCockpitExited( timestamp );
         }
     }
@@ -425,6 +428,16 @@ public class LiveGameData
     }
     
     /**
+     * Gets the weather info.
+     * 
+     * @return the weather info.
+     */
+    public final WeatherInfo getWeatherInfo()
+    {
+        return ( weatherInfo );
+    }
+    
+    /**
      * Gets the graphics info.
      * 
      * @return the graphics info.
@@ -486,8 +499,12 @@ public class LiveGameData
     
     void applyEditorPresets( EditorPresets editorPresets )
     {
+        drivingAids.applyEditorPresets( editorPresets );
+        graphicsInfo.applyEditorPresets( editorPresets );
         telemetryData.applyEditorPresets( editorPresets );
         scoringInfo.applyEditorPresets( editorPresets );
+        weatherInfo.applyEditorPresets( editorPresets );
+        commentaryInfo.applyEditorPresets( editorPresets );
         setup.applyEditorPresets( editorPresets );
     }
     
@@ -513,6 +530,7 @@ public class LiveGameData
         this.drivingAids = gdFactory.newDrivingAids( this );
         this.telemetryData = gdFactory.newTelemetryData( this );
         this.scoringInfo = gdFactory.newScoringInfo( this );
+        this.weatherInfo = gdFactory.newWeatherInfo( this );
         this.graphicsInfo = gdFactory.newGraphicsInfo( this );
         this.commentaryInfo = gdFactory.newCommentaryRequestInfo( this );
         

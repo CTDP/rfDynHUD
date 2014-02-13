@@ -180,7 +180,7 @@ class _rf1_ScoringInfo extends ScoringInfo
         
         int numVehicles = getNumVehiclesImpl();
         
-        prepareDataUpdate( numVehicles, null, now );
+        prepareDataUpdate( numVehicles, editorPresets, now );
         
         for ( int i = 0; i < numVehicles; i++ )
         {
@@ -542,85 +542,6 @@ class _rf1_ScoringInfo extends ScoringInfo
         return ( ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, MAX_PLAYER_FILENAME_LENGTH ) );
     }
     
-    // weather - TODO: Deprecate here and move to new WeatherInfo class!
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getCloudDarkness()
-    {
-        // float mDarkCloud
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_CLOUD_DARKNESS ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getRainingSeverity()
-    {
-        // float mRaining
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_RAINING_SEVERITIY ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getAmbientTemperatureK()
-    {
-        // float mAmbientTemp
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_AMBIENT_TEMPERATURE ) - Convert.ZERO_KELVIN );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getTrackTemperatureK()
-    {
-        // float mTrackTemp
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_TRACK_TEMPERATURE ) - Convert.ZERO_KELVIN );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final void getWindSpeedMS( TelemVect3 speed )
-    {
-        // TelemVect3 mWind
-        
-        ByteUtil.readVectorF( buffer, OFFSET_WIND_SPEED, speed );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getOnPathWetness()
-    {
-        // float mOnPathWetness
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_ON_PATH_WETNESS ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final float getOffPathWetness()
-    {
-        // float mOffPathWetness
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_OFF_PATH_WETNESS ) );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -633,6 +554,55 @@ class _rf1_ScoringInfo extends ScoringInfo
         //    return ( getPlayersVehicleScoringInfo() );
         
         return ( (_rf1_VehicleScoringInfo)gi.getVehicleScoringInfoClosestToCamera() );
+    }
+    
+    final float _getCloudDarkness()
+    {
+        // float mDarkCloud
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_CLOUD_DARKNESS ) );
+    }
+    
+    final float _getRainingSeverity()
+    {
+        // float mRaining
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_RAINING_SEVERITIY ) );
+    }
+    
+    final float _getAmbientTemperatureK()
+    {
+        // float mAmbientTemp
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_AMBIENT_TEMPERATURE ) - Convert.ZERO_KELVIN );
+    }
+    
+    final float _getTrackTemperatureK()
+    {
+        // float mTrackTemp
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_TRACK_TEMPERATURE ) - Convert.ZERO_KELVIN );
+    }
+    
+    final void _getWindSpeedMS( TelemVect3 speed )
+    {
+        // TelemVect3 mWind
+        
+        ByteUtil.readVectorF( buffer, OFFSET_WIND_SPEED, speed );
+    }
+    
+    final float _getOnPathWetness()
+    {
+        // float mOnPathWetness
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_ON_PATH_WETNESS ) );
+    }
+    
+    final float _getOffPathWetness()
+    {
+        // float mOffPathWetness
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_OFF_PATH_WETNESS ) );
     }
     
     _rf1_ScoringInfo( LiveGameData gameData )

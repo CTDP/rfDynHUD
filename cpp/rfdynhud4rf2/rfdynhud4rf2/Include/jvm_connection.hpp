@@ -181,6 +181,7 @@ private:
     jmethodID onDrivingAidsUpdated;
     jmethodID onTelemetryDataUpdated;
     jmethodID onScoringInfoUpdated;
+    jmethodID onWeatherInfoUpdated;
     jmethodID onCommentaryRequestInfoUpdated;
     jmethodID onGraphicsInfoUpdated;
     jmethodID beforeRender;
