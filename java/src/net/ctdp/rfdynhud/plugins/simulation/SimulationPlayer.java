@@ -292,7 +292,7 @@ public class SimulationPlayer
                 public void update( boolean firstTime )
                 {
                     if ( firstTime )
-                        //javax.swing.JOptionPane.showMessageDialog( null, "start" );
+                        ;//javax.swing.JOptionPane.showMessageDialog( null, "start" );
                     
                     rfDynHUD.update();
                 }
