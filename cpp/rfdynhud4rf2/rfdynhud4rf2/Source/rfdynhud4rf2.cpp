@@ -614,7 +614,6 @@ void RFDynHUD4rf2InternalsPlugin::RenderScreenAfterOverlays( const ScreenInfoV01
  */
 void RFDynHUD4rf2InternalsPlugin::PreReset( const ScreenInfoV01 &info )
 {
-logg( ">>>>prereset" );
     if ( !sane )
         return;
     
@@ -627,7 +626,6 @@ logg( ">>>>prereset" );
  */
 void RFDynHUD4rf2InternalsPlugin::PostReset( const ScreenInfoV01 &info )
 {
-logg( ">>>>postreset" );
     if ( !sane )
         return;
     
