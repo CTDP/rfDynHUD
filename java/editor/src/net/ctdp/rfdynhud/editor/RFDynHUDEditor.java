@@ -58,6 +58,8 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.live.LiveCommunicator;
+import net.ctdp.rfdynhud.editor.live.SimulationControls;
+import net.ctdp.rfdynhud.editor.live.SimulationPlaybackControl;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
@@ -184,6 +186,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private String directorConnectionStrings = null;
     
     private LiveCommunicator liveMgr = null;
+    
+    private String liveConnectionStrings = null;
+    private File currentSimulationFile = null;
     
     private PropertiesEditor propsEditor;
     private HierarchicalTable<Property> editorTable;
@@ -558,6 +563,25 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
     }
     
+    private void writeLastSimulationFile( IniWriter writer ) throws Throwable
+    {
+        File file = currentSimulationFile;
+        
+        if ( ( file != null ) && file.exists() )
+        {
+            String filename = file.getAbsolutePath();
+            if ( filename.startsWith( gameData.getFileSystem().getGamePath() ) )
+            {
+                if ( filename.charAt( gameData.getFileSystem().getGamePath().length() ) == File.separatorChar )
+                    filename = filename.substring( gameData.getFileSystem().getGamePath().length() + 1 );
+                else
+                    filename = filename.substring( gameData.getFileSystem().getGamePath().length() );
+            }
+            
+            writer.writeSetting( "lastFile", filename );
+        }
+    }
+    
     private void writeLastImportFile( IniWriter writer ) throws Throwable
     {
         if ( lastImportFile != null )
@@ -618,6 +642,15 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             
             if ( directorConnectionStrings != null )
                 writer.writeSetting( "connectionStrings", directorConnectionStrings );
+            
+            writer.writeGroup( "Live" );
+            
+            if ( liveConnectionStrings != null )
+                writer.writeSetting( "connectionStrings", liveConnectionStrings );
+            
+            writer.writeGroup( "Simulation" );
+            
+            writeLastSimulationFile( writer );
         }
         catch ( Throwable t )
         {
@@ -969,6 +1002,20 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         else if ( key.equals( "connectionStrings" ) )
                         {
                             directorConnectionStrings = value;
+                        }
+                    }
+                    else if ( group.equals( "Live" ) )
+                    {
+                        if ( key.equals( "connectionStrings" ) )
+                        {
+                            liveConnectionStrings = value;
+                        }
+                    }
+                    else if ( group.equals( "Simulation" ) )
+                    {
+                        if ( key.equals( "lastFile" ) )
+                        {
+                            currentSimulationFile = new File( value );
                         }
                     }
                     
@@ -1571,12 +1618,32 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( true );
     }
     
+    public void mergeLiveConnectionString( String connectionString )
+    {
+        if ( this.liveConnectionStrings == null )
+        {
+            this.liveConnectionStrings = connectionString;
+        }
+        else
+        {
+            String[] connStrings = this.liveConnectionStrings.split( ";" );
+            
+            String newConnStrings = "";
+            for ( int i = 0; i < connStrings.length; i++ )
+            {
+                if ( !connStrings[i].equalsIgnoreCase( connectionString ) )
+                    newConnStrings += ";" + connStrings[i];
+            }
+            this.liveConnectionStrings = connectionString + newConnStrings;
+        }
+    }
+    
     public boolean switchToLiveMode()
     {
         if ( liveMgr == null )
             liveMgr = new LiveCommunicator( this, eventsManager );
         
-        if ( !liveMgr.startLiveMode( directorConnectionStrings ) )
+        if ( !liveMgr.startLiveMode( liveConnectionStrings ) )
         {
             switchToEditorMode();
             
@@ -1589,8 +1656,47 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private volatile boolean simulating = false;
     private volatile boolean simulating2 = false;
     
-    public boolean switchToSimulationMode()
+    private SimulationControls simControls = null;
+    
+    public void switchToSimulationMode()
     {
+        SimulationPlaybackControl control = new SimulationPlaybackControl()
+        {
+            @Override
+            public boolean isCancelled()
+            {
+                return ( cancelled || !simulating );
+            }
+        };
+        
+        int divLoc = mainSplit.getDividerLocation();
+        
+        if ( simControls == null )
+            simControls = new SimulationControls( this, control );
+        
+        simControls.setFile( currentSimulationFile );
+        
+        mainSplit.setRightComponent( simControls );
+        
+        mainSplit.setDividerLocation( divLoc );
+    }
+    
+    public boolean startSimulation( final File file, final SimulationPlaybackControl control )
+    {
+        if ( file == null )
+        {
+            JOptionPane.showMessageDialog( getMainWindow(), "No file given", "Error", JOptionPane.ERROR_MESSAGE );
+            return ( false );
+        }
+        
+        if ( !file.exists() )
+        {
+            JOptionPane.showMessageDialog( getMainWindow(), "File does not exist.", "Error", JOptionPane.ERROR_MESSAGE );
+            return ( false );
+        }
+        
+        currentSimulationFile = file;
+        
         getEditorPanel().liveMode = true;
         
         eventsManager.onSessionEnded( presets );
@@ -1641,35 +1747,23 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             @Override
             public void run()
             {
-                SimulationPlayer.PlaybackControl control = new SimulationPlayer.PlaybackControl()
-                {
-                    @Override
-                    public float getTimeScale()
-                    {
-                        return ( 1.0f );
-                    }
-                    
-                    @Override
-                    public void update()
-                    {
-                    }
-                    
-                    @Override
-                    public boolean isCancelled()
-                    {
-                        return ( !simulating );
-                    }
-                };
-                
-                String file = "c:\\Spiele\\rFactor2\\Plugins\\rfDynHUD\\plugins\\simulation\\simdata";
-                
                 try
                 {
-                    SimulationPlayer.playback( eventsManager, getEditorPanel().getDrawSyncMonitor(), new File( file ), control );
+                    SimulationPlayer.playback( eventsManager, getEditorPanel().getDrawSyncMonitor(), file, control );
                 }
                 catch ( Throwable t )
                 {
                     RFDHLog.exception( t );
+                }
+                finally
+                {
+                    if ( simControls != null )
+                        simControls.btnPlay.setEnabled( true );
+                    
+                    eventsManager.onSessionEnded( presets );
+                    eventsManager.onSessionStarted( presets );
+                    
+                    initTestGameData();
                 }
             }
         }.start();
@@ -1677,22 +1771,49 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( true );
     }
     
-    public boolean switchToEditorMode()
+    public void stopSimulation( boolean complete )
     {
+        if ( simulating )
+        {
+            simulating = false;
+            
+            if ( complete )
+            {
+                while ( simulating2 )
+                {
+                    try
+                    {
+                        Thread.sleep( 100L );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                    }
+                }
+                
+                eventsManager.onSessionEnded( presets );
+                eventsManager.onSessionStarted( presets );
+                
+                initTestGameData();
+            }
+        }
+    }
+    
+    public void switchToEditorMode()
+    {
+        if ( mainSplit.getRightComponent() != propsSplit )
+        {
+            int divLoc = mainSplit.getDividerLocation();
+            mainSplit.setRightComponent( propsSplit );
+            mainSplit.setDividerLocation( divLoc );
+        }
+        
         if ( directorMgr != null )
         {
             if ( !directorMgr.checkUnsavedChanges() )
-                return ( false );
+                return;
             
             directorMgr.close();
             //directorMgr = null;
-            
-            if ( mainSplit.getRightComponent() != propsSplit )
-            {
-                int divLoc = mainSplit.getDividerLocation();
-                mainSplit.setRightComponent( propsSplit );
-                mainSplit.setDividerLocation( divLoc );
-            }
         }
         
         if ( liveMgr != null )
@@ -1701,30 +1822,13 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 liveMgr.stop();
         }
         
-        if ( simulating )
-        {
-            simulating = false;
-            
-            while ( simulating2 )
-            {
-                try
-                {
-                    Thread.sleep( 100L );
-                }
-                catch ( InterruptedException e )
-                {
-                }
-            }
-            
-            eventsManager.onSessionEnded( presets );
-            eventsManager.onSessionStarted( presets );
-            
-            initTestGameData();
-        }
+        simControls = null;
+        
+        stopSimulation( true );
         
         repaintEditorPanel();
         
-        return ( true );
+        menuBar.afterSwitchedToEditorMode();
     }
     
     public void showInputBindingsGUI()

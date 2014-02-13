@@ -288,7 +288,7 @@ public class LiveCommunicator extends AbstractClientCommunicator implements  jav
         
         waitingForConnectionDialog.setVisible( false );
         
-        editor.mergeDirectorConnectionString( getLastConnectionString() );
+        editor.mergeLiveConnectionString( getLastConnectionString() );
         
         lastEnteredValidPassword = lastEnteredPassword;
         

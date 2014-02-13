@@ -1064,17 +1064,19 @@ public class EditorMenuBar extends JMenuBar
     
     private void switchToEditorMode()
     {
-        if ( editor.switchToEditorMode() )
+        editor.switchToEditorMode();
+    }
+    
+    public void afterSwitchedToEditorMode()
+    {
+        for ( Component c : directorMenu.getMenuComponents() )
         {
-            for ( Component c : directorMenu.getMenuComponents() )
-            {
-                c.setEnabled( c == toDirectorModeItem );
-            }
-            
-            for ( Component c : liveMenu.getMenuComponents() )
-            {
-                c.setEnabled( c == toLiveModeItem || c == toSimulationModeItem );
-            }
+            c.setEnabled( c == toDirectorModeItem );
+        }
+        
+        for ( Component c : liveMenu.getMenuComponents() )
+        {
+            c.setEnabled( c == toLiveModeItem || c == toSimulationModeItem );
         }
     }
     
@@ -1208,17 +1210,16 @@ public class EditorMenuBar extends JMenuBar
     
     private void switchToSimulationMode()
     {
-        if ( editor.switchToSimulationMode() )
+        editor.switchToSimulationMode();
+        
+        for ( Component c : directorMenu.getMenuComponents() )
         {
-            for ( Component c : directorMenu.getMenuComponents() )
-            {
-                c.setEnabled( false );
-            }
-            
-            for ( Component c : liveMenu.getMenuComponents() )
-            {
-                c.setEnabled( c == toEditorModeFromLiveItem );
-            }
+            c.setEnabled( false );
+        }
+        
+        for ( Component c : liveMenu.getMenuComponents() )
+        {
+            c.setEnabled( c == toEditorModeFromLiveItem );
         }
     }
     

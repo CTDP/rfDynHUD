@@ -104,7 +104,7 @@ public class SimulationPlayer
             {
                 float timeScale = control.getTimeScale();
                 if ( timeScale != 1.0f )
-                    waitTime = (long)( waitTime * control.getTimeScale() );
+                    waitTime = (long)( waitTime / timeScale );
             }
             waitTime = Math.min( waitTime, 1000L );
             
