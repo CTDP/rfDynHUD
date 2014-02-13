@@ -53,6 +53,9 @@ public abstract class AbstractServerCommunicator implements Runnable
     private final ByteArrayOutputStream eventsBuffer0 = new ByteArrayOutputStream();
     private final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
     
+    private boolean commandStarted = false;
+    private int startedCommand = 0;
+    
     public final boolean isRunning()
     {
         return ( running );
@@ -222,18 +225,24 @@ public abstract class AbstractServerCommunicator implements Runnable
             }
         }
     }
-
-    public void writeCommand( int v )
+    
+    public void startCommand( int code )
     {
         if ( !running )
             return;
         
         synchronized ( eventsBuffer )
         {
+            if ( commandStarted )
+                throw new IllegalStateException( "Another command (" + ( startedCommand - DataSenderConstants.OFFSET ) + ") has been started, but not ended." );
+            
+            startedCommand = code;
+            commandStarted = true;
+            
             try
             {
-                //plugin.debug( "Writing command " + v );
-                eventsBuffer.writeInt( v );
+                //plugin.debug( "Writing command " + code );
+                eventsBuffer.writeInt( code );
             }
             catch ( IOException e )
             {
@@ -242,12 +251,35 @@ public abstract class AbstractServerCommunicator implements Runnable
         }
     }
 
-    private void _writeCommand( int v ) throws IOException
+    private void _writeCommand( int code ) throws IOException
     {
-        //plugin.debug( "Writing command " + v );
-        eventsBuffer.writeInt( v );
+        //plugin.debug( "Writing command " + code );
+        eventsBuffer.writeInt( code );
     }
-
+    
+    public void endCommand()
+    {
+        if ( !running )
+            return;
+        
+        synchronized ( eventsBuffer )
+        {
+            if ( !commandStarted )
+                throw new IllegalStateException( "No command had been started." );
+            
+            startedCommand = 0;
+            commandStarted = false;
+            
+            // TODO: Signal to flush the buffer!
+        }
+    }
+    
+    public void writeSimpleCommand( int code )
+    {
+        startCommand( code );
+        endCommand();
+    }
+    
     public void writeLong( long v )
     {
         if ( !running )

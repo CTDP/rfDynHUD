@@ -27,6 +27,7 @@ import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
+import net.ctdp.rfdynhud.gamedata.WeatherInfo;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -36,7 +37,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DataSenderPlugin extends AbstractDataSenderPlugin implements GraphicsInfo.GraphicsInfoUpdateListener, TelemetryData.TelemetryDataUpdateListener, DrivingAids.DrivingAidStateChangeListener, CommentaryRequestInfo.CommentaryInfoUpdateListener
+public class DataSenderPlugin extends AbstractDataSenderPlugin implements GraphicsInfo.GraphicsInfoUpdateListener, TelemetryData.TelemetryDataUpdateListener, WeatherInfo.WeatherInfoUpdateListener, DrivingAids.DrivingAidStateChangeListener, CommentaryRequestInfo.CommentaryInfoUpdateListener
 {
     private static final String INI_FILENAME = "datasender.ini";
     
@@ -91,6 +92,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         
         gameData.getGraphicsInfo().registerListener( this );
         gameData.getTelemetryData().registerListener( this );
+        gameData.getScoringInfo().registerListener( this );
+        gameData.getWeatherInfo().registerListener( this );
         gameData.getDrivingAids().registerListener( this );
         gameData.getCommentaryRequestInfo().registerListener( this );
     }
@@ -102,6 +105,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         
         gameData.getGraphicsInfo().unregisterListener( this );
         gameData.getTelemetryData().unregisterListener( this );
+        gameData.getScoringInfo().unregisterListener( this );
+        gameData.getWeatherInfo().unregisterListener( this );
         gameData.getDrivingAids().unregisterListener( this );
         gameData.getCommentaryRequestInfo().unregisterListener( this );
     }
@@ -143,7 +148,7 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
     
     private void sendGraphicsInfo( GraphicsInfo graphicsInfo )
     {
-        communicator.writeCommand( DataSenderConstants.GRAPHICS_INFO );
+        communicator.startCommand( DataSenderConstants.GRAPHICS_INFO );
         
         try
         {
@@ -153,6 +158,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         {
             log( e );
         }
+        
+        communicator.endCommand();
     }
     
     private long nextGraphicsInfoSendTime = -( Long.MAX_VALUE / 2L );
@@ -178,21 +185,36 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
     {
     }
     
+    private void sendTelemetryData( TelemetryData telemData )
+    {
+        communicator.startCommand( DataSenderConstants.TELEMETRY_DATA );
+        
+        try
+        {
+            telemData.writeToStream( communicator.getOutputStream() );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+        
+        communicator.endCommand();
+    }
+    
     @SuppressWarnings( "unused" )
     private long nextTelemDataSendTime = -( Long.MAX_VALUE / 2L );
     @SuppressWarnings( "unused" )
     private int telemDataCounter = 0;
     
-    private void sendTelemetryData( TelemetryData telemData )
+    @Override
+    public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        communicator.writeCommand( DataSenderConstants.TELEMETRY_DATA );
-        
-        try
+        if ( communicator.isConnected() )
         {
             long now = System.nanoTime();
             //if ( ( ( telemDataCounter % 5 ) == 0 ) || ( now >= nextTelemDataSendTime ) )
             {
-                telemData.writeToStream( communicator.getOutputStream() );
+                sendTelemetryData( gameData.getTelemetryData() );
                 
                 telemDataCounter = 1;
                 
@@ -205,24 +227,11 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
             }
             */
         }
-        catch ( IOException e )
-        {
-            log( e );
-        }
-    }
-    
-    @Override
-    public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( communicator.isConnected() )
-        {
-            //sendTelemetryData( gameData.getTelemetryData() );
-        }
     }
     
     private void sendScoringInfo( ScoringInfo scoringInfo )
     {
-        communicator.writeCommand( DataSenderConstants.SCORING_INFO );
+        communicator.startCommand( DataSenderConstants.SCORING_INFO );
         
         communicator.writeInt( scoringInfo.getNumVehicles() );
         
@@ -234,6 +243,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         {
             log( e );
         }
+        
+        communicator.endCommand();
     }
     
     @Override
@@ -247,9 +258,34 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         }
     }
     
+    private void sendWeatherInfo( WeatherInfo weatherInfo )
+    {
+        communicator.startCommand( DataSenderConstants.SCORING_INFO );
+        
+        try
+        {
+            weatherInfo.writeToStream( communicator.getOutputStream() );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+        }
+        
+        communicator.endCommand();
+    }
+    
+    @Override
+    public void onWeatherInfoUpdated( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( communicator.isConnected() )
+        {
+            sendWeatherInfo( gameData.getWeatherInfo() );
+        }
+    }
+    
     private void sendDrivingAids( DrivingAids drivingAids )
     {
-        communicator.writeCommand( DataSenderConstants.DRIVING_AIDS );
+        communicator.startCommand( DataSenderConstants.DRIVING_AIDS );
         
         try
         {
@@ -259,6 +295,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         {
             log( e );
         }
+        
+        communicator.endCommand();
     }
     
     @Override
@@ -275,16 +313,17 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( DataSenderConstants.DRIVING_AIDS_STATE_CHANGED );
+            communicator.startCommand( DataSenderConstants.DRIVING_AIDS_STATE_CHANGED );
             communicator.writeInt( aidIndex );
             communicator.writeInt( oldState );
             communicator.writeInt( newState );
+            communicator.endCommand();
         }
     }
     
     private void sendCommentaryRequestInfo( CommentaryRequestInfo commentaryRequestInfo )
     {
-        communicator.writeCommand( DataSenderConstants.COMMENTARY_REQUEST_INFO );
+        communicator.startCommand( DataSenderConstants.COMMENTARY_REQUEST_INFO );
         
         try
         {
@@ -294,6 +333,8 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         {
             log( e );
         }
+        
+        communicator.endCommand();
     }
     
     @Override

@@ -27,7 +27,8 @@ public interface DataSenderConstants extends net.ctdp.rfdynhud.plugins.datasende
     public static final int GRAPHICS_INFO = OFFSET + 2100;
     public static final int TELEMETRY_DATA = OFFSET + 2200;
     public static final int SCORING_INFO = OFFSET + 2300;
-    public static final int DRIVING_AIDS = OFFSET + 2400;
-    public static final int DRIVING_AIDS_STATE_CHANGED = OFFSET + 2410;
-    public static final int COMMENTARY_REQUEST_INFO = OFFSET + 2500;
+    public static final int WEATHER_INFO = OFFSET + 2300;
+    public static final int DRIVING_AIDS = OFFSET + 250;
+    public static final int DRIVING_AIDS_STATE_CHANGED = OFFSET + 2510;
+    public static final int COMMENTARY_REQUEST_INFO = OFFSET + 2600;
 }

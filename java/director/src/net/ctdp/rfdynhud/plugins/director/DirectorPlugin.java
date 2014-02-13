@@ -168,7 +168,7 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        communicator.writeCommand( DirectorConstants.DRIVERS_LIST );
+        communicator.startCommand( DirectorConstants.DRIVERS_LIST );
         
         int n = scoringInfo.getNumVehicles();
         communicator.writeShort( n );
@@ -177,6 +177,8 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
         {
             sendDriversName( scoringInfo.getVehicleScoringInfo( i ), false );
         }
+        
+        communicator.endCommand();
     }
     
     @Override
@@ -208,7 +210,7 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        communicator.writeCommand( DirectorConstants.DRIVERS_POSITIONS );
+        communicator.startCommand( DirectorConstants.DRIVERS_POSITIONS );
         
         int n = scoringInfo.getNumVehicles();
         communicator.writeShort( n );
@@ -220,6 +222,8 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
             communicator.writeInt( vsi.getDriverId() );
             //communicator.writeShort( vsi.getPlace( false ) );
         }
+        
+        communicator.endCommand();
     }
     
     @Override

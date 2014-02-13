@@ -162,7 +162,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_PITS_ENTERED );
+            communicator.writeSimpleCommand( CommunicatorConstants.ON_PITS_ENTERED );
         }
     }
     
@@ -171,7 +171,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_PITS_EXITED );
+            communicator.writeSimpleCommand( CommunicatorConstants.ON_PITS_EXITED );
         }
     }
     
@@ -180,7 +180,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_GARAGE_ENTERED );
+            communicator.writeSimpleCommand( CommunicatorConstants.ON_GARAGE_ENTERED );
         }
     }
     
@@ -189,7 +189,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_GARAGE_EXITED );
+            communicator.writeSimpleCommand( CommunicatorConstants.ON_GARAGE_EXITED );
         }
     }
     
@@ -198,9 +198,10 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_VEHICLE_CONTROL_CHANGED );
+            communicator.startCommand( CommunicatorConstants.ON_VEHICLE_CONTROL_CHANGED );
             communicator.writeInt( viewedVSI.getDriverId() );
             communicator.writeByte( viewedVSI.getVehicleControl().ordinal() );
+            communicator.endCommand();
         }
     }
     
@@ -218,9 +219,10 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_LAP_STARTED );
+            communicator.startCommand( CommunicatorConstants.ON_LAP_STARTED );
             communicator.writeInt( vsi.getDriverId() );
             communicator.writeShort( vsi.getCurrentLap() );
+            communicator.endCommand();
         }
     }
     
@@ -229,8 +231,9 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_SESSION_STARTED );
+            communicator.startCommand( CommunicatorConstants.ON_SESSION_STARTED );
             communicator.writeByte( gameData.getScoringInfo().getSessionType().ordinal() );
+            communicator.endCommand();
         }
     }
     
@@ -241,7 +244,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
         
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_COCKPIT_ENTERED );
+            communicator.writeSimpleCommand( CommunicatorConstants.ON_COCKPIT_ENTERED );
         }
     }
     
@@ -250,8 +253,9 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_GAME_PAUSE_STATE_CHANGED );
+            communicator.startCommand( CommunicatorConstants.ON_GAME_PAUSE_STATE_CHANGED );
             communicator.writeBoolean( isPaused );
+            communicator.endCommand();
         }
     }
     
@@ -262,7 +266,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
         
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_COCKPIT_EXITED );
+            communicator.writeSimpleCommand( CommunicatorConstants.ON_COCKPIT_EXITED );
         }
     }
     
@@ -276,8 +280,9 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_PLAYER_JOINED );
+            communicator.startCommand( CommunicatorConstants.ON_PLAYER_JOINED );
             sendDriversName( joinedVSI, true );
+            communicator.endCommand();
         }
     }
     
@@ -286,8 +291,9 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.ON_PLAYER_LEFT );
+            communicator.startCommand( CommunicatorConstants.ON_PLAYER_LEFT );
             communicator.writeInt( vsiID.intValue() );
+            communicator.endCommand();
         }
     }
     
@@ -296,8 +302,9 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( communicator.isConnected() )
         {
-            communicator.writeCommand( CommunicatorConstants.SESSION_TIME );
+            communicator.startCommand( CommunicatorConstants.SESSION_TIME );
             communicator.writeLong( gameData.getScoringInfo().getSessionNanos() );
+            communicator.endCommand();
         }
     }
 }
