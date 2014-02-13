@@ -51,6 +51,9 @@ public abstract class AbstractClientCommunicator implements Runnable
     private final ByteArrayOutputStream eventsBuffer0 = new ByteArrayOutputStream();
     private final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
     
+    private boolean commandInProgress = false;
+    private int currentCommand = 0;
+    
     public final DataOutputStream getOutputStream()
     {
         if ( !isConnected() )
@@ -260,6 +263,60 @@ public abstract class AbstractClientCommunicator implements Runnable
         }
     }
     
+    public void startCommand( int code )
+    {
+        if ( !running )
+            return;
+        
+        synchronized ( eventsBuffer )
+        {
+            if ( commandInProgress )
+                throw new IllegalStateException( "Another command (" + ( currentCommand - DataSenderConstants.OFFSET ) + ") has been started, but not ended." );
+            
+            currentCommand = code;
+            commandInProgress = true;
+            
+            try
+            {
+                //plugin.debug( "Writing command " + code );
+                eventsBuffer.writeInt( code );
+            }
+            catch ( IOException e )
+            {
+                log( e );
+            }
+        }
+    }
+    
+    /*
+    private void _writeCommand( int code ) throws IOException
+    {
+        //plugin.debug( "Writing command " + code );
+        eventsBuffer.writeInt( code );
+    }
+    */
+    
+    public void endCommand()
+    {
+        if ( !running )
+            return;
+        
+        synchronized ( eventsBuffer )
+        {
+            if ( !commandInProgress )
+                throw new IllegalStateException( "No command had been started." );
+            
+            currentCommand = 0;
+            commandInProgress = false;
+        }
+    }
+    
+    public void writeSimpleCommand( int code )
+    {
+        startCommand( code );
+        endCommand();
+    }
+    
     /**
      * Attempts to query a password hash.
      * 
@@ -318,7 +375,7 @@ public abstract class AbstractClientCommunicator implements Runnable
         
         int code = in.readInt();
         
-        //manager.debug( "Received command code: ", code - DirectorConstants.OFFSET );
+        //debug( "Received command code: ", code - CommunicatorConstants.OFFSET );
         
         switch ( code )
         {
@@ -331,8 +388,9 @@ public abstract class AbstractClientCommunicator implements Runnable
                     return ( running );
                 }
                 
-                writeInt( CommunicatorConstants.PASSWORD_HASH );
+                startCommand( CommunicatorConstants.PASSWORD_HASH );
                 write( passwordHash );
+                endCommand();
                 break;
             case CommunicatorConstants.PASSWORD_MISMATCH:
                 byte[] passwordHash2 = onPasswordRequested();
@@ -343,8 +401,9 @@ public abstract class AbstractClientCommunicator implements Runnable
                     return ( running );
                 }
                 
-                writeInt( CommunicatorConstants.PASSWORD_HASH );
+                startCommand( CommunicatorConstants.PASSWORD_HASH );
                 write( passwordHash2 );
+                endCommand();
                 break;
             case CommunicatorConstants.CONNECTION_ESTEBLISHED:
                 onConnectionEsteblished( in.readBoolean() );
@@ -457,12 +516,13 @@ public abstract class AbstractClientCommunicator implements Runnable
         {
             synchronized ( eventsBuffer )
             {
-                if ( eventsBuffer0.size() > 0 )
+                if ( !commandInProgress && ( eventsBuffer0.size() > 0 ) )
                 {
                     try
                     {
                         //System.out.println( "Sending " + eventsBuffer0.size() + " bytes." );
                         eventsBuffer0.writeTo( out );
+                        out.flush(); // Don't know, if that'S necessary.
                         eventsBuffer0.reset();
                     }
                     catch ( IOException e )

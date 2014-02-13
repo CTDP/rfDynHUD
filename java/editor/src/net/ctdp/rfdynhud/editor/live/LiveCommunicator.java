@@ -457,81 +457,49 @@ public class LiveCommunicator extends AbstractClientCommunicator implements  jav
         switch ( code )
         {
             case LiveConstants.GRAPHICS_INFO:
-                in.skipBytes( 260 );
-                /*
-                try
+                //in.skipBytes( 260 );
+                synchronized ( syncMonitor )
                 {
-                    synchronized ( syncMonitor )
-                    {
-                        //gameData.getGraphicsInfo().readFromStream( in, null );
-                        gdss.in = in;
-                        eventsManager.onGraphicsInfoUpdated( gdss );
-                        gdss.in = null;
-                    }
+                    gdss.in = in;
+                    eventsManager.onGraphicsInfoUpdated( gdss );
+                    gdss.in = null;
                 }
-                catch ( IOException e )
-                {
-                    log( e );
-                }
-                */
                 return ( true );
             case LiveConstants.TELEMETRY_DATA:
-                in.skipBytes( 1888 );
-                /*
-                try
+                //in.skipBytes( 1888 );
+                synchronized ( syncMonitor )
                 {
-                    synchronized ( syncMonitor )
-                    {
-                        gameData.getTelemetryData().readFromStream( in, null );
-                        gdss.in = in;
-                        eventsManager.onTelementryDataUpdated( gdss );
-                        gdss.in = null;
-                    }
+                    gdss.in = in;
+                    eventsManager.onTelemetryDataUpdated( gdss );
+                    gdss.in = null;
                 }
-                catch ( IOException e )
-                {
-                    log( e );
-                }
-                */
                 return ( true );
             case LiveConstants.SCORING_INFO:
                 int numVehicles = in.readInt();
                 //in.skipBytes( 540 + numVehicles * 584 );
-                //try
+                synchronized ( syncMonitor )
                 {
-                    synchronized ( syncMonitor )
-                    {
-                        //gameData.getScoringInfo().readFromStream( in, null );
-                        gdss.in = in;
-                        eventsManager.onScoringInfoUpdated( numVehicles, gdss );
-                        gdss.in = null;
-                    }
+                    gdss.in = in;
+                    eventsManager.onScoringInfoUpdated( numVehicles, gdss );
+                    gdss.in = null;
                 }
-                /*
-                catch ( IOException e )
+                return ( true );
+            case LiveConstants.WEATHER_INFO:
+                synchronized ( syncMonitor )
                 {
-                    log( e );
+                    gdss.in = in;
+                    eventsManager.onWeatherInfoUpdated( gdss );
+                    gdss.in = null;
                 }
-                */
                 return ( true );
             case LiveConstants.DRIVING_AIDS:
                 //in.skipBytes( 40 );
-                //try
+                synchronized ( syncMonitor )
                 {
-                    synchronized ( syncMonitor )
-                    {
-                        //gameData.getDrivingAids().readFromStream( in, null );
-                        gdss.in = in;
-                        eventsManager.onDrivingAidsUpdated( gdss );
-                        gdss.in = null;
-                    }
+                    gdss.in = in;
+                    eventsManager.onDrivingAidsUpdated( gdss );
+                    gdss.in = null;
                 }
-                /*
-                catch ( IOException e )
-                {
-                    log( e );
-                }
-                */
                 return ( true );
             case LiveConstants.DRIVING_AIDS_STATE_CHANGED:
                 int aidIndex = in.readInt();
@@ -540,22 +508,12 @@ public class LiveCommunicator extends AbstractClientCommunicator implements  jav
                 return ( true );
             case LiveConstants.COMMENTARY_REQUEST_INFO:
                 //in.skipBytes( 60 );
-                //try
+                synchronized ( syncMonitor )
                 {
-                    synchronized ( syncMonitor )
-                    {
-                        //gameData.getCommentaryRequestInfo().readFromStream( in, null );
-                        gdss.in = in;
-                        eventsManager.onCommentaryRequestInfoUpdated( gdss );
-                        gdss.in = null;
-                    }
+                    gdss.in = in;
+                    eventsManager.onCommentaryRequestInfoUpdated( gdss );
+                    gdss.in = null;
                 }
-                /*
-                catch ( IOException e )
-                {
-                    log( e );
-                }
-                */
                 return ( true );
         }
         

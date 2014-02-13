@@ -53,8 +53,8 @@ public abstract class AbstractServerCommunicator implements Runnable
     private final ByteArrayOutputStream eventsBuffer0 = new ByteArrayOutputStream();
     private final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
     
-    private boolean commandStarted = false;
-    private int startedCommand = 0;
+    private boolean commandInProgress = false;
+    private int currentCommand = 0;
     
     public final boolean isRunning()
     {
@@ -233,11 +233,11 @@ public abstract class AbstractServerCommunicator implements Runnable
         
         synchronized ( eventsBuffer )
         {
-            if ( commandStarted )
-                throw new IllegalStateException( "Another command (" + ( startedCommand - DataSenderConstants.OFFSET ) + ") has been started, but not ended." );
+            if ( commandInProgress )
+                throw new IllegalStateException( "Another command (" + ( currentCommand - DataSenderConstants.OFFSET ) + ") has been started, but not ended." );
             
-            startedCommand = code;
-            commandStarted = true;
+            currentCommand = code;
+            commandInProgress = true;
             
             try
             {
@@ -250,7 +250,7 @@ public abstract class AbstractServerCommunicator implements Runnable
             }
         }
     }
-
+    
     private void _writeCommand( int code ) throws IOException
     {
         //plugin.debug( "Writing command " + code );
@@ -264,13 +264,11 @@ public abstract class AbstractServerCommunicator implements Runnable
         
         synchronized ( eventsBuffer )
         {
-            if ( !commandStarted )
+            if ( !commandInProgress )
                 throw new IllegalStateException( "No command had been started." );
             
-            startedCommand = 0;
-            commandStarted = false;
-            
-            // TODO: Signal to flush the buffer!
+            currentCommand = 0;
+            commandInProgress = false;
         }
     }
     
@@ -333,7 +331,7 @@ public abstract class AbstractServerCommunicator implements Runnable
     {
         int code = in.readInt();
         
-        //plugin.debug( "Received command code: ", code - DataSenderConstants.OFFSET );
+        //plugin.debug( "Received command code: ", code - CommunicatorConstants.OFFSET );
         
         switch ( code )
         {
@@ -411,11 +409,12 @@ public abstract class AbstractServerCommunicator implements Runnable
         {
             synchronized ( eventsBuffer )
             {
-                if ( eventsBuffer0.size() > 0 )
+                if ( !commandInProgress && ( eventsBuffer0.size() > 0 ) )
                 {
                     try
                     {
                         eventsBuffer0.writeTo( out );
+                        out.flush(); // Don't know, if that'S necessary.
                         eventsBuffer0.reset();
                     }
                     catch ( SocketException e )

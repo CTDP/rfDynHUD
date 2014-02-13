@@ -92,7 +92,7 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         
         gameData.getGraphicsInfo().registerListener( this );
         gameData.getTelemetryData().registerListener( this );
-        gameData.getScoringInfo().registerListener( this );
+        //gameData.getScoringInfo().registerListener( this );
         gameData.getWeatherInfo().registerListener( this );
         gameData.getDrivingAids().registerListener( this );
         gameData.getCommentaryRequestInfo().registerListener( this );
@@ -105,7 +105,7 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
         
         gameData.getGraphicsInfo().unregisterListener( this );
         gameData.getTelemetryData().unregisterListener( this );
-        gameData.getScoringInfo().unregisterListener( this );
+        //gameData.getScoringInfo().unregisterListener( this );
         gameData.getWeatherInfo().unregisterListener( this );
         gameData.getDrivingAids().unregisterListener( this );
         gameData.getCommentaryRequestInfo().unregisterListener( this );
@@ -260,7 +260,7 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
     
     private void sendWeatherInfo( WeatherInfo weatherInfo )
     {
-        communicator.startCommand( DataSenderConstants.SCORING_INFO );
+        communicator.startCommand( DataSenderConstants.WEATHER_INFO );
         
         try
         {
