@@ -259,6 +259,25 @@ public abstract class TelemetryData
                 this.engineBaseMaxRPM = bmr;
             }
             
+            this.engineRPM = -1L;
+            
+            VehicleScoringInfo playerVSI = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+            
+            if ( playerVSI != null ) // This can happen when scoring info has not yet been updated!
+            {
+                playerVSI.engineRPM = getEngineRPM();
+                playerVSI.engineMaxRPM = getEngineBaseMaxRPM();
+                playerVSI.engineBoostMapping = getEngineBoostMapping();
+                playerVSI.gear = getCurrentGear();
+            }
+            
+            this.fuelLoad = -1L;
+            
+            if ( userObject instanceof EditorPresets )
+                applyEditorPresets( (EditorPresets)userObject );
+            
+            onDataUpdatedImpl( userObject, timestamp );
+            
             if ( updateListeners != null )
             {
                 for ( int i = 0; i < updateListeners.length; i++ )
@@ -273,21 +292,6 @@ public abstract class TelemetryData
                     }
                 }
             }
-            
-            VehicleScoringInfo playerVSI = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
-            
-            if ( playerVSI != null ) // This can happen when scoring info has not yet been updated!
-            {
-                playerVSI.engineRPM = getEngineRPM();
-                playerVSI.engineMaxRPM = getEngineBaseMaxRPM();
-                playerVSI.engineBoostMapping = getEngineBoostMapping();
-                playerVSI.gear = getCurrentGear();
-            }
-            
-            if ( userObject instanceof EditorPresets )
-                applyEditorPresets( (EditorPresets)userObject );
-            
-            onDataUpdatedImpl( userObject, timestamp );
         }
         catch ( Throwable t )
         {
@@ -407,6 +411,8 @@ public abstract class TelemetryData
         return ( engineBoostMapping );
     }
     
+    // TODO: move EngineLifetimeRecorder to rfactor1/2 package and add it from the implementation class. Make getEngineLifetime() abstract.
+    
     /**
      * Gets the currently remaining engine's lifetime in seconds.
      * When you enter the cockpit the value will be the result of
@@ -418,6 +424,8 @@ public abstract class TelemetryData
     {
         return ( engineLifetime );
     }
+    
+    // TODO: Make getBrakeDiscThicknessM() abstract and move manager to rfactor1/2 package.
     
     /**
      * Gets the current brake disc thickness in meters.
@@ -471,6 +479,8 @@ public abstract class TelemetryData
         return ( getBrakeDiscThicknessM( wheel ) );
     }
     
+    // TODO: Make getFuelUsageLastLapL() and getFuelUsageAverageL() abstract and move manager to rfactor1/2 package.
+    
     /**
      * Gets the fuel usage of the last (timed) lap in liters.
      * 
@@ -488,7 +498,7 @@ public abstract class TelemetryData
      */
     public final float getFuelUsageLastLapGal()
     {
-        return ( fuelUsageLastLap * Convert.LITERS_TO_GALONS );
+        return ( getFuelUsageLastLapL() * Convert.LITERS_TO_GALONS );
     }
     
     /**
@@ -521,7 +531,7 @@ public abstract class TelemetryData
      */
     public final float getFuelUsageAverageGal()
     {
-        return ( fuelUsageAverage * Convert.LITERS_TO_GALONS );
+        return ( getFuelUsageAverageL() * Convert.LITERS_TO_GALONS );
     }
     
     /**
@@ -628,9 +638,9 @@ public abstract class TelemetryData
 //        return ( data.getScalarVelocity() );
     
     /**
-     * @deprecated replaced by {@link #getScalarVelocityMih()}
+     * @deprecated replaced by {@link #getScalarVelocityMS()}
      * 
-     * @return m/h
+     * @return m/s
      */
     @Deprecated
     public final float getScalarVelocityMPS()
@@ -645,9 +655,9 @@ public abstract class TelemetryData
      */
     public final float getScalarVelocityMih()
     {
-        float mps = getScalarVelocityMPS();
+        float ms = getScalarVelocityMS();
         
-        return ( mps * SpeedUnits.Convert.MS_TO_MIH );
+        return ( ms * SpeedUnits.Convert.MS_TO_MIH );
     }
     
     /**
@@ -668,9 +678,9 @@ public abstract class TelemetryData
      */
     public final float getScalarVelocityKmh()
     {
-        float mps = getScalarVelocityMPS();
+        float ms = getScalarVelocityMS();
         
-        return ( mps * SpeedUnits.Convert.MS_TO_KMH );
+        return ( ms * SpeedUnits.Convert.MS_TO_KMH );
     }
     
     /**
@@ -937,9 +947,6 @@ public abstract class TelemetryData
      */
     public final float getFuelGal()
     {
-        if ( fuelLoad >= 0f )
-            return ( fuelLoad * Convert.LITERS_TO_GALONS );
-        
         return ( getFuelL() * Convert.LITERS_TO_GALONS );
     }
     
@@ -1007,6 +1014,8 @@ public abstract class TelemetryData
      * @return whether any parts (besides wheels) have been detached
      */
     public abstract boolean isAnythingDetached();
+    
+    // TODO: Create a more general API approach here.
     
     /**
      * Gets dent severity at 8 locations around the car (0=none, 1=some, 2=more).
@@ -1237,8 +1246,6 @@ public abstract class TelemetryData
      */
     public final float getBrakeTemperatureC( Wheel wheel )
     {
-        // float mBrakeTemp
-        
         return ( getBrakeTemperatureK( wheel ) + Convert.ZERO_KELVIN );
     }
     
@@ -1251,8 +1258,6 @@ public abstract class TelemetryData
      */
     public final float getBrakeTemperatureF( Wheel wheel )
     {
-        // float mBrakeTemp
-        
         return ( Convert.celsius2Fahrehheit( getBrakeTemperatureC( wheel ) ) );
     }
     
@@ -1447,15 +1452,6 @@ public abstract class TelemetryData
      * @return current tire wear.
      */
     public abstract float getTireWear( Wheel wheel );
-    
-    /**
-     * Gets the material prefixes from the TDF file.
-     * 
-     * @param wheel the queried wheel
-     * 
-     * @return the material prefixes from the TDF file.
-     */
-    public abstract String getTerrainName( Wheel wheel );
     
     /**
      * Gets surface type under the tire.

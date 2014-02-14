@@ -99,7 +99,7 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
             
             try
             {
-                this.communicator = new Communicator( this, Integer.parseInt( port ), password );
+                this.communicator = new DirectorCommunicator( this, Integer.parseInt( port ), password );
             }
             catch ( Throwable t )
             {

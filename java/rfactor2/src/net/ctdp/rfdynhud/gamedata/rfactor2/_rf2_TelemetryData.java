@@ -1513,9 +1513,12 @@ class _rf2_TelemetryData extends TelemetryData
     }
     
     /**
-     * {@inheritDoc}
+     * Gets the material prefixes from the TDF file.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the material prefixes from the TDF file.
      */
-    @Override
     public final String getTerrainName( Wheel wheel )
     {
         // char mTerrainName[16]

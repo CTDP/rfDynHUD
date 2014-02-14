@@ -17,304 +17,41 @@
  */
 package net.ctdp.rfdynhud.plugins.datasender;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.Arrays;
 
 import org.jagatoo.util.strings.MD5Util;
 
 /**
- * Connects to the editor via a socket and sends/receives data (server side).
+ * Connects via a socket using TCP and sends/receives data (server side).
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class AbstractServerCommunicator implements Runnable
+public abstract class AbstractServerCommunicator extends AbstractCommunicator
 {
-    private final AbstractDataSenderPlugin plugin;
-    private final int port;
     private final byte[] passwordHash;
     
-    private ServerSocket serverSocket = null;
+    private boolean connected = false;
     
-    private volatile boolean running = false;
-    private volatile boolean connected = false;
-    private volatile boolean restart = true;
-    private volatile boolean closeRequested = false;
+    /**
+     * Gets the server's name for use in connection requests.
+     * 
+     * @return a 32 bytes array.
+     */
+    protected abstract byte[] getServerName();
     
-    private volatile boolean waitingForConnection = false;
+    protected abstract boolean isRunning();
     
-    private final ByteArrayOutputStream eventsBuffer0 = new ByteArrayOutputStream();
-    private final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
-    
-    private boolean commandInProgress = false;
-    private int currentCommand = 0;
-    
-    public final boolean isRunning()
-    {
-        return ( running );
-    }
-    
+    @Override
     public final boolean isConnected()
     {
         return ( connected );
     }
     
-    public final DataOutputStream getOutputStream()
-    {
-        if ( !isConnected() )
-            return ( null );
-        
-        return ( eventsBuffer );
-    }
+    protected abstract boolean isInCockpit();
     
-    public void write( int b )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing byte " + b );
-                eventsBuffer.write( b );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void write( byte[] b )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing " + b.length + " bytes " );
-                eventsBuffer.write( b );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void write( byte[] b, int off, int len )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing " + len + " bytes" );
-                eventsBuffer.write( b, off, len );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void writeBoolean( boolean v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing boolean " + v );
-                eventsBuffer.writeBoolean( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void writeByte( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing byte " + v );
-                eventsBuffer.writeByte( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void writeShort( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing short " + v );
-                eventsBuffer.writeShort( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void writeChar( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing char " + v );
-                eventsBuffer.writeChar( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void writeInt( int v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing int " + v );
-                eventsBuffer.writeInt( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-    
-    public void startCommand( int code )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            if ( commandInProgress )
-                throw new IllegalStateException( "Another command (" + ( currentCommand - DataSenderConstants.OFFSET ) + ") has been started, but not ended." );
-            
-            currentCommand = code;
-            commandInProgress = true;
-            
-            try
-            {
-                //plugin.debug( "Writing command " + code );
-                eventsBuffer.writeInt( code );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-    
-    private void _writeCommand( int code ) throws IOException
-    {
-        //plugin.debug( "Writing command " + code );
-        eventsBuffer.writeInt( code );
-    }
-    
-    public void endCommand()
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            if ( !commandInProgress )
-                throw new IllegalStateException( "No command had been started." );
-            
-            currentCommand = 0;
-            commandInProgress = false;
-        }
-    }
-    
-    public void writeSimpleCommand( int code )
-    {
-        startCommand( code );
-        endCommand();
-    }
-    
-    public void writeLong( long v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing long " + v );
-                eventsBuffer.writeLong( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-
-    public void writeFloat( float v )
-    {
-        if ( !running )
-            return;
-        
-        synchronized ( eventsBuffer )
-        {
-            try
-            {
-                //plugin.debug( "Writing float " + v );
-                eventsBuffer.writeFloat( v );
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
+    protected abstract void onConnectionEsteblished();
     
     /**
      * 
@@ -327,7 +64,7 @@ public abstract class AbstractServerCommunicator implements Runnable
      */
     protected abstract boolean readDatagram( final int code, DataInputStream in ) throws IOException;
     
-    private void readInput( DataInputStream in ) throws IOException
+    protected final void readInput( DataInputStream in ) throws IOException
     {
         int code = in.readInt();
         
@@ -336,16 +73,27 @@ public abstract class AbstractServerCommunicator implements Runnable
         switch ( code )
         {
             case CommunicatorConstants.CONNECTION_REQUEST:
+                byte[] serverName = getServerName();
+                if ( serverName == null )
+                    throw new Error( "Wrong implementation: getServerName() returned a null value." );
+                if ( serverName.length != 32 )
+                    throw new Error( "Wrong implementation: getServerName() returned an array of length " + serverName.length + ". Must be 32." );
+                startCommandImpl( CommunicatorConstants.SERVER_NAME );
+                eventsBuffer.write( serverName );
+                endCommandImpl();
+                break;
+            case CommunicatorConstants.CONNECTION_REQUEST2:
                 if ( passwordHash == null )
                 {
-                    _writeCommand( CommunicatorConstants.CONNECTION_ESTEBLISHED );
-                    eventsBuffer.writeBoolean( plugin.isInCockpit() );
+                    startCommandImpl( CommunicatorConstants.CONNECTION_ESTEBLISHED );
+                    eventsBuffer.writeBoolean( isInCockpit() );
+                    endCommandImpl();
                     connected = true;
-                    plugin.onConnectionEsteblished();
+                    onConnectionEsteblished();
                 }
                 else
                 {
-                    _writeCommand( CommunicatorConstants.REQUEST_PASSWORD );
+                    writeSimpleCommandImpl( CommunicatorConstants.REQUEST_PASSWORD );
                 }
                 break;
             case CommunicatorConstants.PASSWORD_HASH:
@@ -354,14 +102,15 @@ public abstract class AbstractServerCommunicator implements Runnable
                 
                 if ( Arrays.equals( bytes, passwordHash ) )
                 {
-                    _writeCommand( CommunicatorConstants.CONNECTION_ESTEBLISHED );
-                    eventsBuffer.writeBoolean( plugin.isInCockpit() );
+                    startCommandImpl( CommunicatorConstants.CONNECTION_ESTEBLISHED );
+                    eventsBuffer.writeBoolean( isInCockpit() );
+                    endCommandImpl();
                     connected = true;
-                    plugin.onConnectionEsteblished();
+                    onConnectionEsteblished();
                 }
                 else
                 {
-                    _writeCommand( CommunicatorConstants.PASSWORD_MISMATCH );
+                    writeSimpleCommandImpl( CommunicatorConstants.PASSWORD_MISMATCH );
                 }
                 break;
             case CommunicatorConstants.CONNECTION_CLOSED:
@@ -369,201 +118,23 @@ public abstract class AbstractServerCommunicator implements Runnable
                 break;
             default:
                 if ( !readDatagram( code, in ) )
-                    plugin.log( "WARNING: Unknown command code read: " + code );
+                    log( "WARNING: Unknown command code read: " + code );
         }
     }
     
-    @Override
-    public void run()
+    public abstract void connect();
+    
+    protected abstract void close( boolean restart );
+    
+    public final void close()
     {
-        running = true;
-        closeRequested = false;
-        
-        Socket socket = null;
-        DataInputStream in = null;
-        OutputStream out = null;
-        
-        try
-        {
-            if ( serverSocket == null )
-            {
-                serverSocket = new ServerSocket( port );
-                serverSocket.setReuseAddress( true );
-            }
-            waitingForConnection = true;
-            socket = serverSocket.accept();
-            waitingForConnection = false;
-            in = new DataInputStream( new BufferedInputStream( socket.getInputStream() ) );
-            out = socket.getOutputStream();
-        }
-        catch ( Throwable t )
-        {
-            running = false;
-            plugin.log( t );
-            return;
-        }
-        
-        //connected = true;
-        
-        while ( running && socket.isConnected() && !socket.isClosed() && !socket.isInputShutdown() && !socket.isOutputShutdown() )
-        {
-            synchronized ( eventsBuffer )
-            {
-                if ( !commandInProgress && ( eventsBuffer0.size() > 0 ) )
-                {
-                    try
-                    {
-                        eventsBuffer0.writeTo( out );
-                        out.flush(); // Don't know, if that'S necessary.
-                        eventsBuffer0.reset();
-                    }
-                    catch ( SocketException e )
-                    {
-                        if ( !closeRequested )
-                        {
-                            plugin.log( "Connection closed unexpectedly" );
-                            plugin.log( e );
-                            close( true );
-                        }
-                        break;
-                    }
-                    catch ( IOException e )
-                    {
-                        plugin.log( e );
-                    }
-                }
-            }
-            
-            if ( closeRequested )
-            {
-                try
-                {
-                    running = false;
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>> 24 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>> 16 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>>  8 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>>  0 ) & 0xFF );
-                }
-                catch ( SocketException e )
-                {
-                    break;
-                }
-                catch ( IOException e )
-                {
-                    plugin.log( e );
-                }
-            }
-            
-            try
-            {
-                if ( in.available() >= 4 )
-                {
-                    //plugin.debug( "in.available: ", in.available() );
-                    readInput( in );
-                }
-            }
-            catch ( SocketException e )
-            {
-                if ( !closeRequested )
-                {
-                    plugin.log( "Connection closed unexpectedly" );
-                    plugin.log( e );
-                    close( true );
-                }
-                break;
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-            
-            try
-            {
-                Thread.sleep( 10L );
-            }
-            catch ( InterruptedException e )
-            {
-                plugin.log( e );
-            }
-        }
-        
-        running = false;
-        connected = false;
-        closeRequested = false;
-        
-        try
-        {
-            socket.close();
-            socket = null;
-        }
-        catch ( IOException e )
-        {
-            plugin.log( e );
-        }
-        
-        synchronized ( eventsBuffer )
-        {
-            eventsBuffer0.reset();
-        }
-        
-        if ( restart )
-        {
-            try
-            {
-                Thread.sleep( 200L );
-            }
-            catch ( InterruptedException e )
-            {
-            }
-            
-            new Thread( this ).start();
-        }
+        close( false );
     }
     
-    public void connect()
-    {
-        if ( running )
-            return;
-        
-        new Thread( this ).start();
-    }
+    protected abstract void onConnectionClosed();
     
-    public void close( boolean restart )
+    public AbstractServerCommunicator( String password )
     {
-        if ( connected )
-        {
-            plugin.onConnectionClosed();
-            plugin.debug( "Connection closed normally" );
-            
-            closeRequested = true;
-        }
-        else
-        {
-            running = false;
-        }
-        
-        this.restart = restart;
-        
-        if ( waitingForConnection )
-        {
-            try
-            {
-                // Create dummy connection to close the waiting socket.
-                Socket socket2 = new Socket( "localhost", port );
-                socket2.close();
-            }
-            catch ( IOException e )
-            {
-                plugin.log( e );
-            }
-        }
-    }
-    
-    public AbstractServerCommunicator( AbstractDataSenderPlugin plugin, int port, String password )
-    {
-        this.plugin = plugin;
-        this.port = port;
-        
         this.passwordHash = ( ( password == null ) || password.equals( "" ) ) ? null : MD5Util.md5Bytes( password );
     }
 }

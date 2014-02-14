@@ -126,7 +126,7 @@ public abstract class AbstractDataSenderPlugin extends GameEventsPlugin implemen
     {
         if ( enabled && ( communicator != null ) )
         {
-            communicator.close( false );
+            communicator.close();
         }
         
         unregisterListeners( eventsManager, gameData, isEditorMode, widgetsManager );

@@ -20,15 +20,61 @@ package net.ctdp.rfdynhud.plugins.datasender;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import org.jagatoo.logging.LogLevel;
+
 /**
  * Connects to the editor via a socket and sends/receives data.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class Communicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractServerCommunicator
+public class DataSenderCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator
 {
-    @SuppressWarnings( "unused" )
     private final DataSenderPlugin plugin;
+    
+    private static final byte[] SERVER_NAME = createServerName( "DataSender".getBytes() );
+    
+    @Override
+    protected byte[] getServerName()
+    {
+        return ( SERVER_NAME );
+    }
+    
+    @Override
+    protected void log( LogLevel logLevel, Object... message )
+    {
+        plugin.log( logLevel, message );
+    }
+    
+    @Override
+    protected void log( Object... message )
+    {
+        plugin.log( message );
+    }
+    
+    @Override
+    protected void debug( Object... message )
+    {
+        plugin.debug( message );
+    }
+    
+    @Override
+    protected boolean isInCockpit()
+    {
+        return ( plugin.isInCockpit() );
+    }
+    
+    @Override
+    protected void onConnectionEsteblished()
+    {
+        plugin.onConnectionEsteblished();
+    }
+    
+    @Override
+    protected void onConnectionClosed()
+    {
+        plugin.onConnectionClosed();
+        plugin.debug( "Connection closed normally" );
+    }
     
     @Override
     protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
@@ -36,9 +82,9 @@ public class Communicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractS
         return ( false );
     }
     
-    public Communicator( DataSenderPlugin plugin, int port, String password )
+    public DataSenderCommunicator( DataSenderPlugin plugin, int port, String password )
     {
-        super( plugin, port, password );
+        super( port, password );
         
         this.plugin = plugin;
     }

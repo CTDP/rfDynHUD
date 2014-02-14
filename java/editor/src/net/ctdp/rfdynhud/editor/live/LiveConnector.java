@@ -60,7 +60,7 @@ public class LiveConnector extends JDialog
     {
         try
         {
-            LiveCommunicator.parseConnectionString( getConnectionString() );
+            LiveClientCommunicator.parseConnectionString( getConnectionString() );
             
             isCancelled = false;
             setVisible( false );

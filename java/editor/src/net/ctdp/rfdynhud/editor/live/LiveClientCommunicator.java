@@ -24,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -39,7 +40,6 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleControl;
-import net.ctdp.rfdynhud.plugins.datasender.AbstractClientCommunicator;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.logging.LogLevel;
@@ -50,8 +50,10 @@ import org.jagatoo.util.strings.MD5Util;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class LiveCommunicator extends AbstractClientCommunicator implements  java.awt.event.AWTEventListener
+public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractTCPClientCommunicator implements java.awt.event.AWTEventListener
 {
+    private static final byte[] SERVER_NAME = net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator.createServerName( "DataSender".getBytes() );
+    
     private final RFDynHUDEditor editor;
     
     private final GameEventsManager eventsManager;
@@ -222,6 +224,12 @@ public class LiveCommunicator extends AbstractClientCommunicator implements  jav
         waitingForConnectionDialog = null;
         
         close();
+    }
+    
+    @Override
+    protected boolean checkServerName( byte[] serverName )
+    {
+        return ( Arrays.equals( SERVER_NAME, serverName ) );
     }
     
     @Override
@@ -520,7 +528,7 @@ public class LiveCommunicator extends AbstractClientCommunicator implements  jav
         return ( false );
     }
     
-    public LiveCommunicator( RFDynHUDEditor editor, GameEventsManager eventsManager )
+    public LiveClientCommunicator( RFDynHUDEditor editor, GameEventsManager eventsManager )
     {
         this.editor = editor;
         

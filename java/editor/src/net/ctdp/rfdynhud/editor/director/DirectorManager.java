@@ -73,7 +73,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
 {
     private final RFDynHUDEditor editor;
     
-    private final DirectorCommunicator communicator = new DirectorCommunicator( this );
+    private final DirectorClientCommunicator communicator = new DirectorClientCommunicator( this );
     
     private long sessionTime = -1L;
     private boolean isTimeDecreasing = false;

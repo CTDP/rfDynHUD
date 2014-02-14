@@ -60,7 +60,7 @@ public class DirectorConnector extends JDialog
     {
         try
         {
-            DirectorCommunicator.parseConnectionString( getConnectionString() );
+            DirectorClientCommunicator.parseConnectionString( getConnectionString() );
             
             isCancelled = false;
             setVisible( false );

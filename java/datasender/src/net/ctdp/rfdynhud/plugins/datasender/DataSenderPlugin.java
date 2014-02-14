@@ -75,7 +75,7 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements Graphi
             
             try
             {
-                this.communicator = new Communicator( this, Integer.parseInt( port ), password );
+                this.communicator = new DataSenderCommunicator( this, Integer.parseInt( port ), password );
             }
             catch ( Throwable t )
             {

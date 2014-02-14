@@ -26,13 +26,15 @@ public interface CommunicatorConstants
 {
     public static final int OFFSET = 0xFFFF;
     
-    public static final int CONNECTION_REQUEST = OFFSET + 1;
-    public static final int REQUEST_PASSWORD = OFFSET + 2;
-    public static final int PASSWORD_HASH = OFFSET + 3;
-    public static final int PASSWORD_MISMATCH = OFFSET + 4;
-    public static final int CONNECTION_REFUSED = OFFSET + 5;
-    public static final int CONNECTION_ESTEBLISHED = OFFSET + 6;
-    public static final int CONNECTION_CLOSED = OFFSET + 7;
+    public static final int CONNECTION_REQUEST = OFFSET + 10;
+    public static final int CONNECTION_REQUEST2 = OFFSET + 11;
+    public static final int SERVER_NAME = OFFSET + 20;
+    public static final int REQUEST_PASSWORD = OFFSET + 30;
+    public static final int PASSWORD_HASH = OFFSET + 40;
+    public static final int PASSWORD_MISMATCH = OFFSET + 50;
+    public static final int CONNECTION_REFUSED = OFFSET + 60;
+    public static final int CONNECTION_ESTEBLISHED = OFFSET + 70;
+    public static final int CONNECTION_CLOSED = OFFSET + 80;
     
     public static final int ON_PITS_ENTERED = OFFSET + 1000;
     public static final int ON_PITS_EXITED = OFFSET + 1001;

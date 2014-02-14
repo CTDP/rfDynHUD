@@ -57,7 +57,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
-import net.ctdp.rfdynhud.editor.live.LiveCommunicator;
+import net.ctdp.rfdynhud.editor.live.LiveClientCommunicator;
 import net.ctdp.rfdynhud.editor.live.SimulationControls;
 import net.ctdp.rfdynhud.editor.live.SimulationPlaybackControl;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
@@ -185,7 +185,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private File currentDirectorStatesSetsFile = null;
     private String directorConnectionStrings = null;
     
-    private LiveCommunicator liveMgr = null;
+    private LiveClientCommunicator liveMgr = null;
     
     private String liveConnectionStrings = null;
     private File currentSimulationFile = null;
@@ -1641,7 +1641,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     public boolean switchToLiveMode()
     {
         if ( liveMgr == null )
-            liveMgr = new LiveCommunicator( this, eventsManager );
+            liveMgr = new LiveClientCommunicator( this, eventsManager );
         
         if ( !liveMgr.startLiveMode( liveConnectionStrings ) )
         {
