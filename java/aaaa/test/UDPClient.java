@@ -15,7 +15,7 @@ public class UDPClient
     public static void main( String[] args ) throws Exception
     {
     	address = InetAddress.getByName(args.length > 0 ? args[0] : "localhost");
-    	port = 4445;
+    	port = 12345;
 		socket = new DatagramSocket();
 		System.out.println("Sending data...");
 		send("This is a test".getBytes());
