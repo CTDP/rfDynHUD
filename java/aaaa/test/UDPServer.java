@@ -65,6 +65,11 @@ public class UDPServer
                     
                     dumpDatagram( buffer, datagram.getLength() );
                 }
+                catch ( SocketException e )
+                {
+                    if ( running )
+                        e.printStackTrace();
+                }
                 catch ( IOException e )
                 {
                     e.printStackTrace();
@@ -80,6 +85,8 @@ public class UDPServer
                     break;
                 }
             }
+            
+            socket = null;
         }
     };
     
@@ -104,6 +111,7 @@ public class UDPServer
     public UDPServer() throws SocketException
     {
         socket = new DatagramSocket( PORT );
+        socket.setReuseAddress( true );
     }
     
     public static void main( String[] args ) throws Throwable
@@ -112,7 +120,7 @@ public class UDPServer
         
         server.start();
         
-        Thread.sleep( 60000 );
+        Thread.sleep( 10000 );
         
         server.stop();
     }
