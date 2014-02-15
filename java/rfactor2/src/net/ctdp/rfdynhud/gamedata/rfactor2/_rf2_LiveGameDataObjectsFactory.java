@@ -112,7 +112,7 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     @Override
     public _rf2_TrackInfo newTrackInfo( LiveGameData gameData )
     {
-        return ( new _rf2_TrackInfo( (_rf2_ProfileInfo)gameData.getProfileInfo() ) );
+        return ( new _rf2_TrackInfo( (_rf2_ProfileInfo)gameData.getProfileInfo(), (_rf2_TelemetryData)gameData.getTelemetryData() ) );
     }
     
     /**

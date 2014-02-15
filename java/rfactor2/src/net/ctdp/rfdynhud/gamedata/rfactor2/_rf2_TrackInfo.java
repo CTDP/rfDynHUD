@@ -31,8 +31,8 @@ class _rf2_TrackInfo extends TrackInfo
 {
     @SuppressWarnings( "unused" )
     private final _rf2_ProfileInfo profileInfo;
+    private final _rf2_TelemetryData telemData;
     
-    private String trackName = null;
     private int raceLaps = -1;
     private File aiwFile = null;
     private Track lastTrack = null;
@@ -191,7 +191,6 @@ class _rf2_TrackInfo extends TrackInfo
     {
         super.reset();
         
-        this.trackName = null;
         this.raceLaps = -1;
         this.aiwFile = null;
         this.lastTrack = null;
@@ -220,7 +219,6 @@ class _rf2_TrackInfo extends TrackInfo
         this.trackFolder = trackFolder;
         */
         
-        this.trackName = null;
         this.raceLaps = -1;
         
         this.aiwFile = null;
@@ -233,13 +231,7 @@ class _rf2_TrackInfo extends TrackInfo
     @Override
     public final String getTrackName()
     {
-        if ( trackName == null )
-        {
-            // TODO
-            //readTrackHeader( getTrackFolder(), null );
-        }
-        
-        return ( trackName );
+        return ( telemData.getTrackName() );
     }
     
     /**
@@ -302,11 +294,13 @@ class _rf2_TrackInfo extends TrackInfo
      * Create a new instance.
      * 
      * @param profileInfo
+     * @param telemData
      */
-    public _rf2_TrackInfo( _rf2_ProfileInfo profileInfo )
+    public _rf2_TrackInfo( _rf2_ProfileInfo profileInfo, _rf2_TelemetryData telemData )
     {
         super( profileInfo );
         
         this.profileInfo = profileInfo;
+        this.telemData = telemData;
     }
 }
