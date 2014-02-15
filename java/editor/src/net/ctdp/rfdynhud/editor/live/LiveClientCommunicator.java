@@ -319,7 +319,7 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
                     
                     try
                     {
-                        Thread.sleep( 500L );
+                        Thread.sleep( 100L );
                     }
                     catch ( InterruptedException e )
                     {
