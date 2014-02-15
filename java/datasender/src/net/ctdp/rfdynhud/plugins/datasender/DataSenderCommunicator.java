@@ -27,16 +27,16 @@ import org.jagatoo.logging.LogLevel;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DataSenderCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator
+public class DataSenderCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractUDPServerCommunicator
 {
     private final DataSenderPlugin plugin;
     
-    private static final byte[] SERVER_NAME = createServerName( "DataSender".getBytes() );
+    private static final byte[] SERVER_IDENTIFIER = createServerName( "DataSender".getBytes() );
     
     @Override
     protected byte[] getServerName()
     {
-        return ( SERVER_NAME );
+        return ( SERVER_IDENTIFIER );
     }
     
     @Override
@@ -77,7 +77,7 @@ public class DataSenderCommunicator extends net.ctdp.rfdynhud.plugins.datasender
     }
     
     @Override
-    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
+    protected boolean readDatagram( final short code, DataInputStream in ) throws IOException
     {
         return ( false );
     }

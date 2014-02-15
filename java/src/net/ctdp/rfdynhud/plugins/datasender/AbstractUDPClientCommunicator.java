@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.jagatoo.util.streams.LimitedInputStream;
+
 /**
  * Connects to the editor via a socket and sends/receives data (client side).
  * 
@@ -55,7 +57,7 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
     private final Stack<DatagramPacket> datagrams = new Stack<DatagramPacket>();
     
     private boolean commandInProgress = false;
-    private int currentCommand = 0;
+    private short currentCommand = 0;
     
     public final String getLastConnectionString()
     {
@@ -75,12 +77,12 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
     }
     
     @Override
-    protected void startCommandImpl( int code )
+    protected void startCommandImpl( short code )
     {
         synchronized ( eventsBuffer )
         {
             if ( commandInProgress )
-                throw new IllegalStateException( "Another command (" + ( currentCommand - CommunicatorConstants.OFFSET ) + ") has been started, but not ended." );
+                throw new IllegalStateException( "Another command (" + currentCommand + ") has been started, but not ended." );
             
             currentCommand = code;
             commandInProgress = true;
@@ -88,7 +90,7 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
             try
             {
                 eventsBuffer.writeLong( datagramOrdinal++ );
-                eventsBuffer.writeInt( code );
+                eventsBuffer.writeShort( code );
             }
             catch ( IOException e )
             {
@@ -127,6 +129,26 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
         }
     }
     
+    private DatagramPacket getDatagramForSimpleCommand( short code )
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream( baos );
+        
+        try
+        {
+            dos.writeLong( datagramOrdinal++ );
+            dos.writeShort( code );
+            dos.close();
+            
+            return ( new DatagramPacket( baos.toByteArray(), baos.size(), serverAddress, serverPort ) );
+        }
+        catch ( IOException e )
+        {
+            log( e );
+            
+            return ( null );
+        }
+    }
     
     private final Runnable sender = new Runnable()
     {
@@ -135,6 +157,10 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
         @Override
         public void run()
         {
+            datagramsCopy.clear();
+            
+            datagramsCopy.add( getDatagramForSimpleCommand( CommunicatorConstants.CONNECTION_REQUEST ) );
+            
             while ( running )
             {
                 DatagramPacket closeDatagram = null;
@@ -144,17 +170,10 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
                     // If close requested, send a close datagram.
                     if ( closeRequested )
                     {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        DataOutputStream dos = new DataOutputStream( baos );
+                        closeDatagram = getDatagramForSimpleCommand( CommunicatorConstants.CONNECTION_CLOSED );
                         
-                        try
+                        if ( closeDatagram != null )
                         {
-                            dos.writeLong( datagramOrdinal++ );
-                            dos.writeInt( CommunicatorConstants.CONNECTION_CLOSED );
-                            dos.close();
-                            
-                            closeDatagram = new DatagramPacket( baos.toByteArray(), baos.size(), serverAddress, serverPort );
-                            
                             running = false;
                             closeRequested = false;
                             
@@ -162,10 +181,6 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
                             datagrams.clear();
                             
                             datagramsCopy.add( closeDatagram );
-                        }
-                        catch ( IOException e )
-                        {
-                            log( e );
                         }
                     }
                     else if ( !datagrams.isEmpty() )
@@ -266,7 +281,8 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
         {
             byte[] buffer = new byte[ 1024 * 1024 ];
             ByteArrayInputStream bais = new ByteArrayInputStream( buffer );
-            DataInputStream din = new DataInputStream( bais );
+            LimitedInputStream lin = new LimitedInputStream( bais, buffer.length );
+            DataInputStream din = new DataInputStream( lin );
             DatagramPacket datagram = new DatagramPacket( buffer, buffer.length );
             
             while ( running )
@@ -276,10 +292,15 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
                     socket.receive( datagram );
                     
                     bais.reset();
+                    lin.resetLimit( datagram.getLength() );
                     
-                    while ( din.available() >= 4 )
+                    while ( din.available() >= 10 )
                     {
                         //plugin.debug( "in.available: ", din.available() );
+                        
+                        @SuppressWarnings( "unused" )
+                        long receivedDatagramOrdinal = din.readLong();
+                        
                         readInput( din );
                     }
                 }
@@ -374,7 +395,8 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
         {
             if ( socket == null )
             {
-                socket = new DatagramSocket( serverPort );
+                //socket = new DatagramSocket( serverPort );
+                socket = new DatagramSocket();
                 socket.setReuseAddress( true );
             }
             
@@ -386,7 +408,6 @@ public abstract class AbstractUDPClientCommunicator extends AbstractClientCommun
             log( t );
             return;
         }
-        
         
         running = true;
         closeRequested = false;

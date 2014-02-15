@@ -50,9 +50,9 @@ import org.jagatoo.util.strings.MD5Util;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractTCPClientCommunicator implements java.awt.event.AWTEventListener
+public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractUDPClientCommunicator implements LiveConstants, java.awt.event.AWTEventListener
 {
-    private static final byte[] SERVER_NAME = net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator.createServerName( "DataSender".getBytes() );
+    private static final byte[] SERVER_IDENTIFIER = createServerName( "DataSender".getBytes() );
     
     private final RFDynHUDEditor editor;
     
@@ -229,7 +229,7 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
     @Override
     protected boolean checkServerName( byte[] serverName )
     {
-        return ( Arrays.equals( SERVER_NAME, serverName ) );
+        return ( Arrays.equals( SERVER_IDENTIFIER, serverName ) );
     }
     
     @Override
@@ -460,11 +460,11 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
     
     @SuppressWarnings( "unused" )
     @Override
-    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
+    protected boolean readDatagram( final short code, DataInputStream in ) throws IOException
     {
         switch ( code )
         {
-            case LiveConstants.GRAPHICS_INFO:
+            case GRAPHICS_INFO:
                 //in.skipBytes( 260 );
                 synchronized ( syncMonitor )
                 {
@@ -473,7 +473,7 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
                     gdss.in = null;
                 }
                 return ( true );
-            case LiveConstants.TELEMETRY_DATA:
+            case TELEMETRY_DATA:
                 //in.skipBytes( 1888 );
                 synchronized ( syncMonitor )
                 {
@@ -482,7 +482,7 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
                     gdss.in = null;
                 }
                 return ( true );
-            case LiveConstants.SCORING_INFO:
+            case SCORING_INFO:
                 int numVehicles = in.readInt();
                 //in.skipBytes( 540 + numVehicles * 584 );
                 synchronized ( syncMonitor )
@@ -492,7 +492,7 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
                     gdss.in = null;
                 }
                 return ( true );
-            case LiveConstants.WEATHER_INFO:
+            case WEATHER_INFO:
                 synchronized ( syncMonitor )
                 {
                     gdss.in = in;
@@ -500,7 +500,7 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
                     gdss.in = null;
                 }
                 return ( true );
-            case LiveConstants.DRIVING_AIDS:
+            case DRIVING_AIDS:
                 //in.skipBytes( 40 );
                 synchronized ( syncMonitor )
                 {
@@ -509,12 +509,12 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
                     gdss.in = null;
                 }
                 return ( true );
-            case LiveConstants.DRIVING_AIDS_STATE_CHANGED:
+            case DRIVING_AIDS_STATE_CHANGED:
                 int aidIndex = in.readInt();
                 int oldState = in.readInt();
                 int newState = in.readInt();
                 return ( true );
-            case LiveConstants.COMMENTARY_REQUEST_INFO:
+            case COMMENTARY_REQUEST_INFO:
                 //in.skipBytes( 60 );
                 synchronized ( syncMonitor )
                 {
