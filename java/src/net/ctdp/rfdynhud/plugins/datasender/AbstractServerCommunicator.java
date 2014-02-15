@@ -62,30 +62,30 @@ public abstract class AbstractServerCommunicator extends AbstractCommunicator
      * 
      * @throws IOException
      */
-    protected abstract boolean readDatagram( final int code, DataInputStream in ) throws IOException;
+    protected abstract boolean readDatagram( final short code, DataInputStream in ) throws IOException;
     
     protected final void readInput( DataInputStream in ) throws IOException
     {
-        int code = in.readInt();
+        short code = in.readShort();
         
         //plugin.debug( "Received command code: ", code - CommunicatorConstants.OFFSET );
         
         switch ( code )
         {
-            case CommunicatorConstants.CONNECTION_REQUEST:
+            case CONNECTION_REQUEST:
                 byte[] serverName = getServerName();
                 if ( serverName == null )
                     throw new Error( "Wrong implementation: getServerName() returned a null value." );
                 if ( serverName.length != 32 )
                     throw new Error( "Wrong implementation: getServerName() returned an array of length " + serverName.length + ". Must be 32." );
-                startCommandImpl( CommunicatorConstants.SERVER_NAME );
-                eventsBuffer.write( serverName );
+                startCommandImpl( SERVER_NAME );
+                writeImpl( serverName );
                 endCommandImpl();
                 break;
-            case CommunicatorConstants.CONNECTION_REQUEST2:
+            case CONNECTION_REQUEST2:
                 if ( passwordHash == null )
                 {
-                    startCommandImpl( CommunicatorConstants.CONNECTION_ESTEBLISHED );
+                    startCommandImpl( CONNECTION_ESTEBLISHED );
                     eventsBuffer.writeBoolean( isInCockpit() );
                     endCommandImpl();
                     connected = true;
@@ -93,16 +93,16 @@ public abstract class AbstractServerCommunicator extends AbstractCommunicator
                 }
                 else
                 {
-                    writeSimpleCommandImpl( CommunicatorConstants.REQUEST_PASSWORD );
+                    writeSimpleCommandImpl( REQUEST_PASSWORD );
                 }
                 break;
-            case CommunicatorConstants.PASSWORD_HASH:
+            case PASSWORD_HASH:
                 byte[] bytes = new byte[ 16 ];
                 in.read( bytes );
                 
                 if ( Arrays.equals( bytes, passwordHash ) )
                 {
-                    startCommandImpl( CommunicatorConstants.CONNECTION_ESTEBLISHED );
+                    startCommandImpl( CONNECTION_ESTEBLISHED );
                     eventsBuffer.writeBoolean( isInCockpit() );
                     endCommandImpl();
                     connected = true;
@@ -110,10 +110,10 @@ public abstract class AbstractServerCommunicator extends AbstractCommunicator
                 }
                 else
                 {
-                    writeSimpleCommandImpl( CommunicatorConstants.PASSWORD_MISMATCH );
+                    writeSimpleCommandImpl( PASSWORD_MISMATCH );
                 }
                 break;
-            case CommunicatorConstants.CONNECTION_CLOSED:
+            case CONNECTION_CLOSED:
                 close( true );
                 break;
             default:

@@ -22,25 +22,23 @@ import java.io.IOException;
 
 import org.jagatoo.logging.LogLevel;
 
-import net.ctdp.rfdynhud.editor.director.DirectorConstants;
-
 /**
  * Connects to the editor via a socket and sends/receives data.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator
+public class DirectorCommunicator extends net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator implements DirectorConstants
 {
     private final DirectorPlugin plugin;
     
     private byte[] configData = null;
     
-    private static final byte[] SERVER_NAME = createServerName( "Director".getBytes() );
+    private static final byte[] SERVER_IDENTIFIER = createServerName( "Director".getBytes() );
     
     @Override
     protected byte[] getServerName()
     {
-        return ( SERVER_NAME );
+        return ( SERVER_IDENTIFIER );
     }
     
     @Override
@@ -127,17 +125,17 @@ public class DirectorCommunicator extends net.ctdp.rfdynhud.plugins.datasender.A
     }
     
     @Override
-    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
+    protected boolean readDatagram( final short code, DataInputStream in ) throws IOException
     {
         switch ( code )
         {
-            case DirectorConstants.WIDGETS_CONFIGURATION:
+            case WIDGETS_CONFIGURATION:
                 readWidgetsConfig( in );
                 return ( true );
-            case DirectorConstants.RESET_WIDGET_STATES:
+            case RESET_WIDGET_STATES:
                 plugin.onWidgetStatesReset();
                 return ( true );
-            case DirectorConstants.WIDGET_STATE:
+            case WIDGET_STATE:
                 readWidgetState( in );
                 return ( true );
         }

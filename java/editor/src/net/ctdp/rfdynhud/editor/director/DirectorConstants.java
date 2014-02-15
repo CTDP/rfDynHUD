@@ -24,9 +24,9 @@ package net.ctdp.rfdynhud.editor.director;
  */
 public interface DirectorConstants extends net.ctdp.rfdynhud.plugins.datasender.CommunicatorConstants
 {
-    public static final int WIDGETS_CONFIGURATION = OFFSET + 10000;
-    public static final int RESET_WIDGET_STATES = OFFSET + 10001;
-    public static final int WIDGET_STATE = OFFSET + 10002;
-    public static final int DRIVERS_LIST = OFFSET + 10003;
-    public static final int DRIVERS_POSITIONS = OFFSET + 10004;
+    public static final short WIDGETS_CONFIGURATION = 10000;
+    public static final short RESET_WIDGET_STATES = 10001;
+    public static final short WIDGET_STATE = 10002;
+    public static final short DRIVERS_LIST = 10003;
+    public static final short DRIVERS_POSITIONS = 10004;
 }

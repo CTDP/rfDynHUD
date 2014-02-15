@@ -42,7 +42,7 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
     private volatile boolean waitingForConnection = false;
     
     private boolean commandInProgress = false;
-    private int currentCommand = 0;
+    private short currentCommand = 0;
     private boolean commandEnded = false;
     
     public final String getLastConnectionString()
@@ -63,19 +63,19 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
     }
     
     @Override
-    protected void startCommandImpl( int code )
+    protected void startCommandImpl( short code )
     {
         synchronized ( eventsBuffer )
         {
             if ( commandInProgress )
-                throw new IllegalStateException( "Another command (" + ( currentCommand - CommunicatorConstants.OFFSET ) + ") has been started, but not ended." );
+                throw new IllegalStateException( "Another command (" + currentCommand + ") has been started, but not ended." );
             
             currentCommand = code;
             commandInProgress = true;
             
             try
             {
-                eventsBuffer.writeInt( code );
+                eventsBuffer.writeShort( code );
             }
             catch ( IOException e )
             {
@@ -116,10 +116,8 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
             in = new DataInputStream( new BufferedInputStream( socket.getInputStream() ) );
             out = socket.getOutputStream();
             
-            out.write( ( CommunicatorConstants.CONNECTION_REQUEST >>> 24 ) & 0xFF );
-            out.write( ( CommunicatorConstants.CONNECTION_REQUEST >>> 16 ) & 0xFF );
-            out.write( ( CommunicatorConstants.CONNECTION_REQUEST >>>  8 ) & 0xFF );
-            out.write( ( CommunicatorConstants.CONNECTION_REQUEST >>>  0 ) & 0xFF );
+            out.write( ( CONNECTION_REQUEST >>>  8 ) & 0xFF );
+            out.write( ( CONNECTION_REQUEST >>>  0 ) & 0xFF );
         }
         catch ( UnknownHostException e )
         {
@@ -167,10 +165,8 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
             {
                 try
                 {
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>> 24 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>> 16 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>>  8 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>>  0 ) & 0xFF );
+                    out.write( ( CONNECTION_CLOSED >>>  8 ) & 0xFF );
+                    out.write( ( CONNECTION_CLOSED >>>  0 ) & 0xFF );
                     running = false;
                 }
                 catch ( IOException e )
@@ -182,7 +178,7 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
             
             try
             {
-                if ( in.available() >= 4 )
+                if ( in.available() >= 2 )
                 {
                     running = readInput( in ) && running;
                 }
@@ -258,7 +254,7 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
         {
         }
         
-        writeInt( CommunicatorConstants.CONNECTION_REQUEST );
+        writeShort( CONNECTION_REQUEST );
         */
     }
     

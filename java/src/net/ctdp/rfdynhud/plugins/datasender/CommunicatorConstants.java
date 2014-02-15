@@ -24,30 +24,28 @@ package net.ctdp.rfdynhud.plugins.datasender;
  */
 public interface CommunicatorConstants
 {
-    public static final int OFFSET = 0xFFFF;
+    public static final short CONNECTION_REQUEST = 10;
+    public static final short CONNECTION_REQUEST2 = 11;
+    public static final short SERVER_NAME = 20;
+    public static final short REQUEST_PASSWORD = 30;
+    public static final short PASSWORD_HASH = 40;
+    public static final short PASSWORD_MISMATCH = 50;
+    public static final short CONNECTION_REFUSED = 60;
+    public static final short CONNECTION_ESTEBLISHED = 70;
+    public static final short CONNECTION_CLOSED = 80;
     
-    public static final int CONNECTION_REQUEST = OFFSET + 10;
-    public static final int CONNECTION_REQUEST2 = OFFSET + 11;
-    public static final int SERVER_NAME = OFFSET + 20;
-    public static final int REQUEST_PASSWORD = OFFSET + 30;
-    public static final int PASSWORD_HASH = OFFSET + 40;
-    public static final int PASSWORD_MISMATCH = OFFSET + 50;
-    public static final int CONNECTION_REFUSED = OFFSET + 60;
-    public static final int CONNECTION_ESTEBLISHED = OFFSET + 70;
-    public static final int CONNECTION_CLOSED = OFFSET + 80;
+    public static final short ON_PITS_ENTERED = 1000;
+    public static final short ON_PITS_EXITED = 1001;
+    public static final short ON_GARAGE_ENTERED = 1002;
+    public static final short ON_GARAGE_EXITED = 1003;
+    public static final short ON_VEHICLE_CONTROL_CHANGED = 1004;
+    public static final short ON_LAP_STARTED = 1005;
+    public static final short ON_SESSION_STARTED = 1006;
+    public static final short ON_COCKPIT_ENTERED = 1007;
+    public static final short ON_GAME_PAUSE_STATE_CHANGED = 1008;
+    public static final short ON_COCKPIT_EXITED = 1009;
+    public static final short ON_PLAYER_JOINED = 1010;
+    public static final short ON_PLAYER_LEFT = 1011;
     
-    public static final int ON_PITS_ENTERED = OFFSET + 1000;
-    public static final int ON_PITS_EXITED = OFFSET + 1001;
-    public static final int ON_GARAGE_ENTERED = OFFSET + 1002;
-    public static final int ON_GARAGE_EXITED = OFFSET + 1003;
-    public static final int ON_VEHICLE_CONTROL_CHANGED = OFFSET + 1004;
-    public static final int ON_LAP_STARTED = OFFSET + 1005;
-    public static final int ON_SESSION_STARTED = OFFSET + 1006;
-    public static final int ON_COCKPIT_ENTERED = OFFSET + 1007;
-    public static final int ON_GAME_PAUSE_STATE_CHANGED = OFFSET + 1008;
-    public static final int ON_COCKPIT_EXITED = OFFSET + 1009;
-    public static final int ON_PLAYER_JOINED = OFFSET + 1010;
-    public static final int ON_PLAYER_LEFT = OFFSET + 1011;
-    
-    public static final int SESSION_TIME = OFFSET + 2000;
+    public static final short SESSION_TIME = 2000;
 }

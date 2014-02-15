@@ -42,10 +42,20 @@ public class LimitedInputStream extends InputStream
     private final InputStream in;
     private long numRemainingBytes;
     
+    public void resetLimit( long limit )
+    {
+        this.numRemainingBytes = limit;
+    }
+    
     @Override
     public int available() throws IOException
     {
-        return ( in.available() );
+        long avail = Math.min( in.available(), numRemainingBytes );
+        
+        if ( avail > Integer.MAX_VALUE )
+            return ( Integer.MAX_VALUE );
+        
+        return ( (int)avail );
     }
     
     @Override

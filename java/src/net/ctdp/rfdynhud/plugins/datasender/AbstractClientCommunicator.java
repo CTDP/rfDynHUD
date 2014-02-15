@@ -82,19 +82,19 @@ public abstract class AbstractClientCommunicator extends AbstractCommunicator
     
     protected abstract void onSessionTimeReceived( long time );
     
-    protected abstract boolean readDatagram( final int code, DataInputStream in ) throws IOException;
+    protected abstract boolean readDatagram( final short code, DataInputStream in ) throws IOException;
     
     protected final boolean readInput( DataInputStream in ) throws IOException
     {
         boolean running = this.isRunning();
         
-        int code = in.readInt();
+        short code = in.readShort();
         
         //debug( "Received command code: ", code - CommunicatorConstants.OFFSET );
         
         switch ( code )
         {
-            case CommunicatorConstants.SERVER_NAME:
+            case SERVER_NAME:
                 // FIXME: This may block!
                 byte[] serverName = new byte[ 32 ];
                 in.readFully( serverName );
@@ -102,9 +102,10 @@ public abstract class AbstractClientCommunicator extends AbstractCommunicator
                 if ( !checkServerName( serverName ) )
                     close();
                 else
-                writeSimpleCommand( CommunicatorConstants.CONNECTION_REQUEST2 );
+                writeSimpleCommandImpl( CONNECTION_REQUEST2 );
                 break;
-            case CommunicatorConstants.REQUEST_PASSWORD:
+            case REQUEST_PASSWORD:
+            case PASSWORD_MISMATCH:
                 byte[] passwordHash = onPasswordRequested();
                 
                 if ( passwordHash == null )
@@ -113,76 +114,63 @@ public abstract class AbstractClientCommunicator extends AbstractCommunicator
                     return ( running );
                 }
                 
-                startCommand( CommunicatorConstants.PASSWORD_HASH );
-                write( passwordHash );
-                endCommand();
+                startCommandImpl( PASSWORD_HASH );
+                writeImpl( passwordHash );
+                endCommandImpl();
                 break;
-            case CommunicatorConstants.PASSWORD_MISMATCH:
-                byte[] passwordHash2 = onPasswordRequested();
-                
-                if ( passwordHash2 == null )
-                {
-                    close();
-                    return ( running );
-                }
-                
-                startCommand( CommunicatorConstants.PASSWORD_HASH );
-                write( passwordHash2 );
-                endCommand();
-                break;
-            case CommunicatorConstants.CONNECTION_ESTEBLISHED:
+            case CONNECTION_ESTEBLISHED:
                 onConnectionEsteblished( in.readBoolean() );
                 break;
-            case CommunicatorConstants.CONNECTION_REFUSED:
+            case CONNECTION_REFUSED:
                 onConnectionRefused( "Connection refused" );
                 close();
                 break;
-            case CommunicatorConstants.CONNECTION_CLOSED:
+            case CONNECTION_CLOSED:
                 close();
                 running = false;
                 break;
-            case CommunicatorConstants.ON_SESSION_STARTED:
+            case ON_SESSION_STARTED:
                 SessionType sessionType = SessionType.values()[in.readByte() & 0xFF];
                 onSessionStarted( sessionType );
                 break;
-            case CommunicatorConstants.ON_PITS_ENTERED:
+            case ON_PITS_ENTERED:
                 onPitsEntered();
                 break;
-            case CommunicatorConstants.ON_PITS_EXITED:
+            case ON_PITS_EXITED:
                 onPitsExited();
                 break;
-            case CommunicatorConstants.ON_GARAGE_ENTERED:
+            case ON_GARAGE_ENTERED:
                 onGarageEntered();
                 break;
-            case CommunicatorConstants.ON_GARAGE_EXITED:
+            case ON_GARAGE_EXITED:
                 onGarageExited();
                 break;
-            case CommunicatorConstants.ON_VEHICLE_CONTROL_CHANGED:
+            case ON_VEHICLE_CONTROL_CHANGED:
                 int driverID1 = in.readInt();
                 VehicleControl control = VehicleControl.values()[in.readByte() & 0xFF];
                 onVehicleControlChanged( driverID1, control );
                 break;
-            case CommunicatorConstants.ON_LAP_STARTED:
+            case ON_LAP_STARTED:
                 int driverID2 = in.readInt();
                 short lap = in.readShort();
                 onLapStarted( driverID2, lap );
                 break;
-            case CommunicatorConstants.ON_COCKPIT_ENTERED:
+            case ON_COCKPIT_ENTERED:
                 onCockpitEntered();
                 break;
-            case CommunicatorConstants.ON_COCKPIT_EXITED:
+            case ON_COCKPIT_EXITED:
                 onCockpitExited();
                 break;
-            case CommunicatorConstants.ON_GAME_PAUSE_STATE_CHANGED:
+            case ON_GAME_PAUSE_STATE_CHANGED:
                 onGamePauseStateChanged( in.readBoolean() );
                 break;
-            case CommunicatorConstants.ON_PLAYER_JOINED:
+            case ON_PLAYER_JOINED:
                 readJoinedDriver( in );
                 break;
-            case CommunicatorConstants.ON_PLAYER_LEFT:
+            case ON_PLAYER_LEFT:
                 onPlayerLeft( in.readInt() );
                 break;
-            case CommunicatorConstants.SESSION_TIME:
+            case SESSION_TIME:
                 onSessionTimeReceived( in.readLong() );
                 break;
             default:

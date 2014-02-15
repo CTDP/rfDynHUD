@@ -43,7 +43,7 @@ import org.jagatoo.util.streams.LimitedInputStream;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsRenderListener
+public class DirectorPlugin extends AbstractDataSenderPlugin implements DirectorConstants, WidgetsRenderListener
 {
     private static final String INI_FILENAME = "director.ini";
     private static final String DEFAULT_NO_CONFIG_RECEIVED_MESSAGE = "No configuration received so far.";
@@ -168,7 +168,7 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        communicator.startCommand( DirectorConstants.DRIVERS_LIST );
+        communicator.startCommand( DRIVERS_LIST );
         
         int n = scoringInfo.getNumVehicles();
         communicator.writeShort( n );
@@ -210,7 +210,7 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements WidgetsR
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        communicator.startCommand( DirectorConstants.DRIVERS_POSITIONS );
+        communicator.startCommand( DRIVERS_POSITIONS );
         
         int n = scoringInfo.getNumVehicles();
         communicator.writeShort( n );

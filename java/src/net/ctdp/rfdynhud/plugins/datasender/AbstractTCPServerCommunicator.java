@@ -44,7 +44,7 @@ public abstract class AbstractTCPServerCommunicator extends AbstractServerCommun
     private volatile boolean waitingForConnection = false;
     
     private boolean commandInProgress = false;
-    private int currentCommand = 0;
+    private short currentCommand = 0;
     private boolean commandEnded = false;
     
     @Override
@@ -54,19 +54,19 @@ public abstract class AbstractTCPServerCommunicator extends AbstractServerCommun
     }
     
     @Override
-    protected void startCommandImpl( int code )
+    protected void startCommandImpl( short code )
     {
         synchronized ( eventsBuffer )
         {
             if ( commandInProgress )
-                throw new IllegalStateException( "Another command (" + ( currentCommand - CommunicatorConstants.OFFSET ) + ") has been started, but not ended." );
+                throw new IllegalStateException( "Another command (" + currentCommand + ") has been started, but not ended." );
             
             currentCommand = code;
             commandInProgress = true;
             
             try
             {
-                eventsBuffer.writeInt( code );
+                eventsBuffer.writeShort( code );
             }
             catch ( IOException e )
             {
@@ -177,10 +177,8 @@ public abstract class AbstractTCPServerCommunicator extends AbstractServerCommun
                 try
                 {
                     running = false;
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>> 24 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>> 16 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>>  8 ) & 0xFF );
-                    out.write( ( CommunicatorConstants.CONNECTION_CLOSED >>>  0 ) & 0xFF );
+                    out.write( ( CONNECTION_CLOSED >>>  8 ) & 0xFF );
+                    out.write( ( CONNECTION_CLOSED >>>  0 ) & 0xFF );
                 }
                 catch ( SocketException e )
                 {
@@ -194,7 +192,7 @@ public abstract class AbstractTCPServerCommunicator extends AbstractServerCommun
             
             try
             {
-                if ( in.available() >= 4 )
+                if ( in.available() >= 2 )
                 {
                     //plugin.debug( "in.available: ", in.available() );
                     readInput( in );

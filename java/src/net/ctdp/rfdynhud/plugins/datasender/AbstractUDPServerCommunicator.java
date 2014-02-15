@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.jagatoo.util.streams.LimitedInputStream;
+
 /**
  * Connects via a socket using UDP and sends/receives data (server side).
  * 
@@ -54,7 +56,7 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
     private final Stack<DatagramPacket> datagrams = new Stack<DatagramPacket>();
     
     private boolean commandInProgress = false;
-    private int currentCommand = 0;
+    private short currentCommand = 0;
     
     @Override
     public final boolean isRunning()
@@ -63,12 +65,12 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
     }
     
     @Override
-    protected void startCommandImpl( int code )
+    protected void startCommandImpl( short code )
     {
         synchronized ( eventsBuffer )
         {
             if ( commandInProgress )
-                throw new IllegalStateException( "Another command (" + ( currentCommand - CommunicatorConstants.OFFSET ) + ") has been started, but not ended." );
+                throw new IllegalStateException( "Another command (" + currentCommand + ") has been started, but not ended." );
             
             currentCommand = code;
             commandInProgress = true;
@@ -76,7 +78,7 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
             try
             {
                 eventsBuffer.writeLong( datagramOrdinal++ );
-                eventsBuffer.writeInt( code );
+                eventsBuffer.writeShort( code );
             }
             catch ( IOException e )
             {
@@ -122,6 +124,8 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
         @Override
         public void run()
         {
+            datagramsCopy.clear();
+            
             while ( running )
             {
                 if ( clientAddress != null )
@@ -139,7 +143,7 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
                             try
                             {
                                 dos.writeLong( datagramOrdinal++ );
-                                dos.writeInt( CommunicatorConstants.CONNECTION_CLOSED );
+                                dos.writeShort( CONNECTION_CLOSED );
                                 dos.close();
                                 
                                 closeDatagram = new DatagramPacket( baos.toByteArray(), baos.size(), clientAddress, clientPort );
@@ -256,14 +260,18 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
         {
             byte[] buffer = new byte[ 1024 * 1024 ];
             ByteArrayInputStream bais = new ByteArrayInputStream( buffer );
-            DataInputStream din = new DataInputStream( bais );
+            LimitedInputStream lin = new LimitedInputStream( bais, buffer.length );
+            DataInputStream din = new DataInputStream( lin );
             DatagramPacket datagram = new DatagramPacket( buffer, buffer.length );
             
             while ( running )
             {
                 try
                 {
+log( "receiving..." );
                     socket.receive( datagram );
+                    
+log( "received a packet from: " + datagram.getAddress() + ":" + datagram.getPort() + " or length " + datagram.getLength() );
                     
                     if ( clientAddress == null )
                     {
@@ -272,9 +280,13 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
                     }
                     
                     bais.reset();
+                    lin.resetLimit( datagram.getLength() );
                     
-                    while ( din.available() >= 4 )
+                    while ( din.available() >= 10 )
                     {
+                        @SuppressWarnings( "unused" )
+                        long receivedDatagramOrdinal = din.readLong();
+                        
                         //plugin.debug( "in.available: ", din.available() );
                         readInput( din );
                     }
@@ -356,7 +368,6 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
             log( t );
             return;
         }
-        
         
         running = true;
         closeRequested = false;

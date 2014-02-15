@@ -38,9 +38,9 @@ import org.jagatoo.logging.LogLevel;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
+public class DirectorClientCommunicator extends AbstractTCPClientCommunicator implements DirectorConstants
 {
-    private static final byte[] SERVER_NAME = net.ctdp.rfdynhud.plugins.datasender.AbstractTCPServerCommunicator.createServerName( "Director".getBytes() );
+    private static final byte[] SERVER_IDENTIFIER = createServerName( "Director".getBytes() );
     
     private final DirectorManager manager;
     
@@ -73,7 +73,7 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
         {
             try
             {
-                os.writeInt( DirectorConstants.WIDGETS_CONFIGURATION );
+                startCommand( WIDGETS_CONFIGURATION );
                 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ConfigurationSaver.saveConfiguration( widgetsConfig, res.getResolutionString(), 0, 0, 0, 0, baos, true );
@@ -82,6 +82,8 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
                 
                 //baos.writeTo( eventsBuffer0 );
                 baos.writeTo( os );
+                
+                endCommand();
             }
             catch ( IOException e )
             {
@@ -101,7 +103,7 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
         {
             try
             {
-                os.writeInt( DirectorConstants.WIDGET_STATE );
+                startCommand( WIDGET_STATE );
                 
                 os.writeByte( widgetName.length() );
                 os.write( widgetName.getBytes() );
@@ -132,6 +134,8 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
                 os.writeShort( ws.getPosY() );
                 os.writeInt( ws.getForDriverID() );
                 os.writeInt( ws.getCompareDriverID() );
+                
+                endCommand();
             }
             catch ( IOException e )
             {
@@ -176,7 +180,7 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
     @Override
     protected boolean checkServerName( byte[] serverName )
     {
-        return ( Arrays.equals( SERVER_NAME, serverName ) );
+        return ( Arrays.equals( SERVER_IDENTIFIER, serverName ) );
     }
     
     @Override
@@ -282,7 +286,7 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator
     }
     
     @Override
-    protected boolean readDatagram( final int code, DataInputStream in ) throws IOException
+    protected boolean readDatagram( final short code, DataInputStream in ) throws IOException
     {
         switch ( code )
         {

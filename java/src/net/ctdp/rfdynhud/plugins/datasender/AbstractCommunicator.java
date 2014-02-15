@@ -27,7 +27,7 @@ import org.jagatoo.logging.LogLevel;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class AbstractCommunicator
+public abstract class AbstractCommunicator implements CommunicatorConstants
 {
     protected final CopyableByteArrayOutputStream eventsBuffer0 = new CopyableByteArrayOutputStream();
     protected final DataOutputStream eventsBuffer = new DataOutputStream( eventsBuffer0 );
@@ -81,11 +81,8 @@ public abstract class AbstractCommunicator
         }
     }
 
-    public void write( byte[] b )
+    protected void writeImpl( byte[] b )
     {
-        if ( !isConnected() )
-            throw new IllegalStateException( "Connection not yet esteblished." );
-        
         synchronized ( eventsBuffer )
         {
             try
@@ -97,6 +94,14 @@ public abstract class AbstractCommunicator
                 log( e );
             }
         }
+    }
+
+    public final void write( byte[] b )
+    {
+        if ( !isConnected() )
+            throw new IllegalStateException( "Connection not yet esteblished." );
+        
+        writeImpl( b );
     }
 
     public void write( byte[] b, int off, int len )
@@ -261,9 +266,9 @@ public abstract class AbstractCommunicator
         }
     }
     
-    protected abstract void startCommandImpl( int code );
+    protected abstract void startCommandImpl( short code );
     
-    public final void startCommand( int code )
+    public final void startCommand( short code )
     {
         if ( !isConnected() )
             throw new IllegalStateException( "Connection not yet esteblished." );
@@ -281,13 +286,13 @@ public abstract class AbstractCommunicator
         endCommandImpl();
     }
     
-    protected final void writeSimpleCommandImpl( int code )
+    protected final void writeSimpleCommandImpl( short code )
     {
         startCommandImpl( code );
         endCommandImpl();
     }
     
-    public final void writeSimpleCommand( int code )
+    public final void writeSimpleCommand( short code )
     {
         if ( !isConnected() )
             throw new IllegalStateException( "Connection not yet esteblished." );
