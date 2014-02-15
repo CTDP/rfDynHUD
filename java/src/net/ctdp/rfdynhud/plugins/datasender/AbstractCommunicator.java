@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.jagatoo.logging.LogLevel;
+import org.jagatoo.util.streams.CopyableByteArrayOutputStream;
 
 /**
  * Sends/receives data.
