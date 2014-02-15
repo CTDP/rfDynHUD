@@ -362,13 +362,13 @@ public class LiveClientCommunicator extends net.ctdp.rfdynhud.plugins.datasender
     @Override
     protected void onCockpitEntered()
     {
-        eventsManager.onCockpitEntered( null );
+        //eventsManager.onCockpitEntered( null );
     }
     
     @Override
     protected void onCockpitExited()
     {
-        eventsManager.onCockpitExited( null );
+        //eventsManager.onCockpitExited( null );
     }
     
     @Override

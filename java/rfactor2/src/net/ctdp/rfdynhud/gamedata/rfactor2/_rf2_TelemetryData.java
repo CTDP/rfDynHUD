@@ -296,6 +296,41 @@ class _rf2_TelemetryData extends TelemetryData
         out.write( buffer, 0, BUFFER_SIZE );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final float getEngineLifetime()
+    {
+        // TODO: Implement something!
+        
+        return ( gameData.getPhysics().getEngine().getSafeLifetimeTotal( 1.0 ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final float getBrakeDiscThicknessM( Wheel wheel )
+    {
+        // TODO: Implement something!
+        
+        switch ( wheel )
+        {
+            case FRONT_LEFT:
+                return ( gameData.getSetup().getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness() );
+            case FRONT_RIGHT:
+                return ( gameData.getSetup().getWheelAndTire( Wheel.FRONT_RIGHT ).getBrakeDiscThickness() );
+            case REAR_LEFT:
+                return ( gameData.getSetup().getWheelAndTire( Wheel.REAR_LEFT ).getBrakeDiscThickness() );
+            case REAR_RIGHT:
+                return ( gameData.getSetup().getWheelAndTire( Wheel.REAR_RIGHT ).getBrakeDiscThickness() );
+        }
+        
+        // Unreachable code!
+        return ( 0f );
+    }
+    
     /*
      * ################################
      * TelemInfoV01

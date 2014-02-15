@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.SurfaceType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
+import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -123,6 +124,12 @@ class _rf1_TelemetryData extends TelemetryData
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
     private static final java.net.URL DEFAULT_VALUES = _rf1_TelemetryData.class.getClassLoader().getResource( _rf1_TelemetryData.class.getPackage().getName().replace( '.', '/' ) + "/data/game_data/telemetry_data" );
+    
+    float engineLifetime = 0.0f;
+    float brakeDiscThicknessFL = 0.0f;
+    float brakeDiscThicknessFR = 0.0f;
+    float brakeDiscThicknessRL = 0.0f;
+    float brakeDiscThicknessRR = 0.0f;
     
     private static native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
     
@@ -229,6 +236,67 @@ class _rf1_TelemetryData extends TelemetryData
     public void writeToStream( OutputStream out ) throws IOException
     {
         out.write( buffer, 0, BUFFER_SIZE );
+    }
+    
+    @Override
+    protected void applyEditorPresets( EditorPresets editorPresets )
+    {
+        super.applyEditorPresets( editorPresets );
+        
+        if ( editorPresets == null )
+            return;
+        
+        this.engineLifetime = editorPresets.getEngineLifetime();
+        
+        this.brakeDiscThicknessFL = editorPresets.getBrakeDiscThicknessFL();
+        this.brakeDiscThicknessFR = editorPresets.getBrakeDiscThicknessFR();
+        this.brakeDiscThicknessRL = editorPresets.getBrakeDiscThicknessRL();
+        this.brakeDiscThicknessRR = editorPresets.getBrakeDiscThicknessRR();
+    }
+    
+    @Override
+    protected void onCockpitEntered( long timestamp )
+    {
+        super.onCockpitEntered( timestamp );
+        
+        this.engineLifetime = gameData.getPhysics().getEngine().getSafeLifetimeTotal( 1.0 );
+        
+        VehicleSetup setup = gameData.getSetup();
+        this.brakeDiscThicknessFL = setup.getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness();
+        this.brakeDiscThicknessFR = setup.getWheelAndTire( Wheel.FRONT_RIGHT ).getBrakeDiscThickness();
+        this.brakeDiscThicknessRL = setup.getWheelAndTire( Wheel.REAR_LEFT ).getBrakeDiscThickness();
+        this.brakeDiscThicknessRR = setup.getWheelAndTire( Wheel.REAR_RIGHT ).getBrakeDiscThickness();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final float getEngineLifetime()
+    {
+        return ( engineLifetime );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final float getBrakeDiscThicknessM( Wheel wheel )
+    {
+        switch ( wheel )
+        {
+            case FRONT_LEFT:
+                return ( brakeDiscThicknessFL );
+            case FRONT_RIGHT:
+                return ( brakeDiscThicknessFR );
+            case REAR_LEFT:
+                return ( brakeDiscThicknessRL );
+            case REAR_RIGHT:
+                return ( brakeDiscThicknessRR );
+        }
+        
+        // Unreachable code!
+        return ( 0f );
     }
     
     /**
@@ -1070,5 +1138,7 @@ class _rf1_TelemetryData extends TelemetryData
     _rf1_TelemetryData( LiveGameData gameData )
     {
         super( gameData );
+        
+        registerListener( _rf1_LifetimeManager.INSTANCE );
     }
 }

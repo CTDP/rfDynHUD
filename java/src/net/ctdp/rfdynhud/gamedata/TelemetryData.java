@@ -58,12 +58,6 @@ public abstract class TelemetryData
     private int engineBoostMapping = 5;
     private boolean tempBoostFlag = false;
     
-    float engineLifetime = 0.0f;
-    float brakeDiscThicknessFL = 0.0f;
-    float brakeDiscThicknessFR = 0.0f;
-    float brakeDiscThicknessRL = 0.0f;
-    float brakeDiscThicknessRR = 0.0f;
-    
     private float fuelLoad = -1f;
     
     float fuelUsageLastLap = -1f;
@@ -148,7 +142,7 @@ public abstract class TelemetryData
      * 
      * @param isEditorMode
      */
-    void onSessionStarted( boolean isEditorMode )
+    protected void onSessionStarted( boolean isEditorMode )
     {
         this.updatedInTimeScope = false;
         this.updateTimestamp = -1L;
@@ -158,7 +152,7 @@ public abstract class TelemetryData
      * 
      * @param timestamp
      */
-    void onSessionEnded( long timestamp )
+    protected void onSessionEnded( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
@@ -167,7 +161,7 @@ public abstract class TelemetryData
      * 
      * @param timestamp
      */
-    void onCockpitEntered( long timestamp )
+    protected void onCockpitEntered( long timestamp )
     {
         this.updatedInTimeScope = true;
     }
@@ -176,7 +170,7 @@ public abstract class TelemetryData
      * 
      * @param timestamp
      */
-    void onCockpitExited( long timestamp )
+    protected void onCockpitExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
@@ -202,13 +196,6 @@ public abstract class TelemetryData
         
         this.engineRPM = editorPresets.getEngineRPM();
         playerVSI.engineRPM = editorPresets.getEngineRPM();
-        
-        this.engineLifetime = editorPresets.getEngineLifetime();
-        
-        this.brakeDiscThicknessFL = editorPresets.getBrakeDiscThicknessFL();
-        this.brakeDiscThicknessFR = editorPresets.getBrakeDiscThicknessFR();
-        this.brakeDiscThicknessRL = editorPresets.getBrakeDiscThicknessRL();
-        this.brakeDiscThicknessRR = editorPresets.getBrakeDiscThicknessRR();
         
         this.fuelLoad = editorPresets.getFuelLoad();
     }
@@ -411,8 +398,6 @@ public abstract class TelemetryData
         return ( engineBoostMapping );
     }
     
-    // TODO: move EngineLifetimeRecorder to rfactor1/2 package and add it from the implementation class. Make getEngineLifetime() abstract.
-    
     /**
      * Gets the currently remaining engine's lifetime in seconds.
      * When you enter the cockpit the value will be the result of
@@ -420,12 +405,7 @@ public abstract class TelemetryData
      * 
      * @return the currently remaining engine's lifetime in seconds.
      */
-    public final float getEngineLifetime()
-    {
-        return ( engineLifetime );
-    }
-    
-    // TODO: Make getBrakeDiscThicknessM() abstract and move manager to rfactor1/2 package.
+    public abstract float getEngineLifetime();
     
     /**
      * Gets the current brake disc thickness in meters.
@@ -434,23 +414,7 @@ public abstract class TelemetryData
      * 
      * @return the current brake disc thickness in meters.
      */
-    public final float getBrakeDiscThicknessM( Wheel wheel )
-    {
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( brakeDiscThicknessFL );
-            case FRONT_RIGHT:
-                return ( brakeDiscThicknessFR );
-            case REAR_LEFT:
-                return ( brakeDiscThicknessRL );
-            case REAR_RIGHT:
-                return ( brakeDiscThicknessRR );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
-    }
+    public abstract float getBrakeDiscThicknessM( Wheel wheel );
     
     /**
      * Gets the current brake disc thickness in inch.
@@ -479,14 +443,12 @@ public abstract class TelemetryData
         return ( getBrakeDiscThicknessM( wheel ) );
     }
     
-    // TODO: Make getFuelUsageLastLapL() and getFuelUsageAverageL() abstract and move manager to rfactor1/2 package.
-    
     /**
      * Gets the fuel usage of the last (timed) lap in liters.
      * 
      * @return the fuel usage of the last (timed) lap in liters.
      */
-    public final float getFuelUsageLastLapL()
+    public float getFuelUsageLastLapL()
     {
         return ( fuelUsageLastLap );
     }
@@ -519,7 +481,7 @@ public abstract class TelemetryData
      * 
      * @return the average fuel usage of all recorded (timed) laps in liters.
      */
-    public final float getFuelUsageAverageL()
+    public float getFuelUsageAverageL()
     {
         return ( fuelUsageAverage );
     }
@@ -1015,7 +977,7 @@ public abstract class TelemetryData
      */
     public abstract boolean isAnythingDetached();
     
-    // TODO: Create a more general API approach here.
+    // TODO: Create a more general API approach here. See VehicleDamageInfo
     
     /**
      * Gets dent severity at 8 locations around the car (0=none, 1=some, 2=more).
@@ -1489,6 +1451,5 @@ public abstract class TelemetryData
         this.gameData = gameData;
         
         registerListener( TopspeedRecorder.MASTER_TOPSPEED_RECORDER );
-        registerListener( LifetimeManager.INSTANCE );
     }
 }

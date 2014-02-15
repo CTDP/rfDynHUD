@@ -707,7 +707,7 @@ public abstract class ScoringInfo
      * @param timestamp
      * @param isEditorMode
      */
-    final void onSessionStarted( long timestamp, boolean isEditorMode )
+    protected void onSessionStarted( long timestamp, boolean isEditorMode )
     {
         this.sessionId++;
         this.sessionStartTimestamp = timestamp;
@@ -723,7 +723,7 @@ public abstract class ScoringInfo
      * 
      * @param timestamp
      */
-    final void onSessionEnded( long timestamp )
+    protected void onSessionEnded( long timestamp )
     {
         this.sessionRunning = false;
         this.updatedInTimeScope = false;
@@ -757,7 +757,7 @@ public abstract class ScoringInfo
         return ( sessionStartTimestamp );
     }
     
-    final void onCockpitEntered( long timestamp )
+    protected void onCockpitEntered( long timestamp )
     {
         this.cockpitEnteredTimestamp = timestamp;
         this.cockpitEnteredId++;
@@ -768,7 +768,7 @@ public abstract class ScoringInfo
      * 
      * @param timestamp
      */
-    final void onCockpitExited( long timestamp )
+    protected void onCockpitExited( long timestamp )
     {
         this.updatedInTimeScope = false;
     }
