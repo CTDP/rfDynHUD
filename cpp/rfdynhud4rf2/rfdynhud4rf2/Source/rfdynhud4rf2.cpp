@@ -443,16 +443,6 @@ bool RFDynHUD4rf2InternalsPlugin::WantsToViewVehicle( CameraControlInfoV01& camC
     return ( false );
 }
 
-/**
- * MESSAGE BOX INPUT
- * 
- * set message and return true
- */
-bool RFDynHUD4rf2InternalsPlugin::WantsToDisplayMessage( MessageInfoV01& msgInfo )
-{
-    return ( false );
-}
-
 void ensureD3DManager( void* d3dDevice, const unsigned short resX, const unsigned short resY, const unsigned char colorDepth, const bool isWindowed, const unsigned short refreshRate, const HWND hWnd )
 {
     if ( d3dManager == NULL )

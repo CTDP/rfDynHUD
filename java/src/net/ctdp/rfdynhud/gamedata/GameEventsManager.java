@@ -277,7 +277,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * 
      * @param force force reload ignoring, whether it is already in action?
      */
-    protected abstract void reloadConfigAndSetupTextureImpl( boolean force );
+    protected abstract void reloadConfigImpl( boolean force );
     
     /**
      * 
@@ -291,7 +291,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         try
         {
             if ( !__GDPrivilegedAccess.simulationMode && ( __EDPrivilegedAccess.editorClassLoader == null ) )
-                reloadConfigAndSetupTextureImpl( force );
+                reloadConfigImpl( force );
             
             if ( texturesRequested )
             {
@@ -654,7 +654,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * 
      * @return the result back again.
      */
-    protected byte onGarageExisted( byte result, boolean isEditorMode )
+    protected byte onGarageExited( byte result, boolean isEditorMode )
     {
         eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
         
@@ -736,7 +736,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
             {
                 this.isInGarage = false;
                 
-                result = onGarageExisted( result, isEditorMode );
+                result = onGarageExited( result, isEditorMode );
             }
             else if ( !this.isInGarage && isInGarage )
             {
@@ -796,10 +796,15 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         eventsDispatcher.fireOnTrackChanged( gameData.getTrackInfo().getTrackName(), gameData, isEditorMode );
     }
     
-    protected static byte mergeResults( byte result1, byte result2 )
+    protected byte mergeResults( byte result1, byte result2 )
     {
         if ( ( result1 == 0 ) || ( result2 == 0 ) )
+        {
+            if ( ( result1 == 2 ) || ( result2 == 2 ) )
+                texturesRequested = true;
+            
             return ( 0 );
+        }
         
         if ( ( result1 == 2 ) || ( result2 == 2 ) )
             return ( 2 );
@@ -1288,7 +1293,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
             RFDHLog.exception( t );
         }
         
-        result = mergeResults( result, checkWaitingData( false, false ) );
+        result = mergeResults( result, checkWaitingData( userObject instanceof EditorPresets, false ) );
         
         //RFDHLog.println( ">>> /onGraphicsInfoUpdated(), result: " + result );
         return ( result );

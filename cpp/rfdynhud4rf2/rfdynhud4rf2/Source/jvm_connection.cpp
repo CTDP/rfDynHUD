@@ -681,6 +681,7 @@ char JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated( const long numVehicl
     char result1 = env->CallByteMethod( gameEventsManager, onScoringInfoUpdated, (jint)numVehicles, scoringInfoAddressKeeper );
     char result2 = env->CallByteMethod( gameEventsManager, onWeatherInfoUpdated, NULL );
     
+    /*
     if ( ( result1 == 0 ) || ( result2 == 0 ) )
         return ( 0 );
     
@@ -688,6 +689,8 @@ char JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated( const long numVehicl
         return ( 2 );
     
     return ( 1 );
+    */
+    return ( result2 );
 }
 
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor2__1rf2_1ScoringInfo_fetchData( JNIEnv* env, jclass ScoringInfo, jint numVehicles, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer, jlong sourceBufferAddress2, jint sourceBufferSize2, jbyteArray targetBuffer2 )

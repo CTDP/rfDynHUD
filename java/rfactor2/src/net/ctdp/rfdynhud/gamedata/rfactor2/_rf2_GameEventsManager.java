@@ -43,7 +43,7 @@ class _rf2_GameEventsManager extends GameEventsManager
     private float lastSessionTime = 0f;
     
     @Override
-    protected void reloadConfigAndSetupTextureImpl( boolean force )
+    protected void reloadConfigImpl( boolean force )
     {
         boolean isEditorMode = false;
         
