@@ -268,10 +268,7 @@ public abstract class AbstractUDPServerCommunicator extends AbstractServerCommun
             {
                 try
                 {
-log( "receiving..." );
                     socket.receive( datagram );
-                    
-log( "received a packet from: " + datagram.getAddress() + ":" + datagram.getPort() + " or length " + datagram.getLength() );
                     
                     if ( clientAddress == null )
                     {
@@ -369,6 +366,7 @@ log( "received a packet from: " + datagram.getAddress() + ":" + datagram.getPort
             return;
         }
         
+        connected = true;
         running = true;
         closeRequested = false;
         
