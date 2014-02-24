@@ -90,7 +90,7 @@ public abstract class AbstractClientCommunicator extends AbstractCommunicator
         
         short code = in.readShort();
         
-        //debug( "Received command code: ", code - CommunicatorConstants.OFFSET );
+        //debug( "Received command code: ", code );
         
         switch ( code )
         {

@@ -121,18 +121,21 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
         }
         catch ( UnknownHostException e )
         {
+            waitingForConnection = false;
             onConnectionRefused( "Connection refused (unknown host)" );
             running = false;
             return;
         }
         catch ( IOException e )
         {
+            waitingForConnection = false;
             onConnectionRefused( "Connection refused" );
             running = false;
             return;
         }
         catch ( Throwable t )
         {
+            waitingForConnection = false;
             log( t );
             running = false;
             return;
@@ -243,19 +246,28 @@ public abstract class AbstractTCPClientCommunicator extends AbstractClientCommun
         this.port = (Integer)parsed[1];
         
         if ( !running )
+        {
             new Thread( this ).start();
-        
-        /*
-        try
-        {
-            Thread.sleep( 100L );
+            
+            try
+            {
+                Thread.sleep( 100L );
+            }
+            catch ( InterruptedException e )
+            {
+            }
+            
+            while ( running && !connected )
+            {
+                try
+                {
+                    Thread.sleep( 10L );
+                }
+                catch ( InterruptedException e )
+                {
+                }
+            }
         }
-        catch ( InterruptedException e )
-        {
-        }
-        
-        writeShort( CONNECTION_REQUEST );
-        */
     }
     
     @Override

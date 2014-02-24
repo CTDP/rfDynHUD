@@ -93,7 +93,10 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements Director
             String port = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", isEditorMode ? "offlinePort" : "port", null );
             
             if ( ( port == null ) || ( port.length() == 0 ) )
+            {
                 setEnabled( false );
+                return;
+            }
             
             String password = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", "password", "" );
             
@@ -105,6 +108,7 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements Director
             {
                 log( t );
                 setEnabled( false );
+                return;
             }
             
             String noConfigFoundMessage = AbstractIniParser.parseIniValue( iniFile, "DIRECTOR", "noConfigMessage", DEFAULT_NO_CONFIG_RECEIVED_MESSAGE );

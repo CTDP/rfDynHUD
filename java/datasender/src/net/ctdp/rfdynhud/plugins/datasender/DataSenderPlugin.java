@@ -69,7 +69,10 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements DataSe
             String port = AbstractIniParser.parseIniValue( iniFile, "DATASENDER", isEditorMode ? "offlinePort" : "port", null );
             
             if ( ( port == null ) || ( port.length() == 0 ) )
+            {
                 setEnabled( false );
+                return;
+            }
             
             String password = AbstractIniParser.parseIniValue( iniFile, "DATASENDER", "password", "" );
             
@@ -81,6 +84,7 @@ public class DataSenderPlugin extends AbstractDataSenderPlugin implements DataSe
             {
                 log( t );
                 setEnabled( false );
+                return;
             }
         }
     }
