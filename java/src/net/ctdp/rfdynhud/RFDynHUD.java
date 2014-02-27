@@ -226,6 +226,15 @@ public class RFDynHUD
     {
         //Logger.setStdStreams();
         
+        try
+        {
+            gdFactory.init( false, __GDPrivilegedAccess.simulationMode );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
         RFDHLog.println( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
         
         RFDHLog.println( "    Detected game \"" + gdFactory.getGameId() + "\" (supported)." );

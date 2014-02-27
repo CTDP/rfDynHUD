@@ -18,13 +18,11 @@
 package net.ctdp.rfdynhud.gamedata.rfactor1;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata._LiveGameDataObjectsFactory;
-import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.PluginINI;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -33,17 +31,23 @@ public class _rf1_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
 {
     public static final String GAME_ID = "rFactor1";
     
-    static
+    private static final String NATIVE_LIB_NAME = "rfdynhud4rf1";
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init( boolean isEditorMode, boolean isSimulationMode )
     {
-        if ( ( __EDPrivilegedAccess.editorClassLoader == null ) && !__GDPrivilegedAccess.simulationMode )
+        if ( !isEditorMode && !isSimulationMode )
         {
             try
             {
-                System.loadLibrary( "rfdynhud4rf1" );
+                System.loadLibrary( NATIVE_LIB_NAME );
             }
             catch ( UnsatisfiedLinkError e )
             {
-                RFDHLog.error( "[ERROR] Couldn't find rfdynhud4rf1.dll" );
+                RFDHLog.error( "[ERROR] Couldn't find " + NATIVE_LIB_NAME + ".dll" );
             }
             catch ( Throwable t )
             {

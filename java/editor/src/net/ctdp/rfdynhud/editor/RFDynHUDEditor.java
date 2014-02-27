@@ -1986,6 +1986,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     {
         try
         {
+            gdFactory.init( true, __GDPrivilegedAccess.simulationMode );
+            
             initGameDataObjects( gdFactory );
             
             FontUtils.loadCustomFonts( gameData.getFileSystem() );
@@ -2097,7 +2099,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
         catch ( Throwable t )
         {
-            t.printStackTrace();
+            RFDHLog.exception( t );
             
             System.exit( 1 );
         }

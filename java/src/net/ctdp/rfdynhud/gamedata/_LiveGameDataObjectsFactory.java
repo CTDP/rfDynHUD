@@ -6,6 +6,8 @@ import net.ctdp.rfdynhud.util.PluginINI;
 
 public interface _LiveGameDataObjectsFactory
 {
+    public abstract void init( boolean isEditorMode, boolean isSimulationMode );
+    
     /**
      * @return a String, identifying the used simulation.
      */
