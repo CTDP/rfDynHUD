@@ -546,6 +546,14 @@ class _rf1_ScoringInfo extends ScoringInfo
      * {@inheritDoc}
      */
     @Override
+    public void setViewedVehicleScoringInfo( VehicleScoringInfo vsi, int cameraType )
+    {
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected final _rf1_VehicleScoringInfo getViewedVehicleScoringInfoImpl()
     {
         GraphicsInfo gi = gameData.getGraphicsInfo();

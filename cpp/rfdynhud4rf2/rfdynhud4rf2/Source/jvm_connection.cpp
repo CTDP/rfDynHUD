@@ -728,9 +728,34 @@ char JVMTelemtryUpdateFunctions::call_onGraphicsInfoUpdated( void* buffer, const
     return ( env->CallByteMethod( gameEventsManager, onGraphicsInfoUpdated, graphicsInfoAddressKeeper ) );
 }
 
+long nextViewedVehicle = -1;
+long nextCameraType = -1;
+bool JVMTelemtryUpdateFunctions::getNextViewedVehicle( long* _nextViewedVehicle, long* _nextCameraType )
+{
+    bool result = ( nextViewedVehicle != -1 );
+    
+    *_nextViewedVehicle = nextViewedVehicle;
+    *_nextCameraType = nextCameraType;
+    
+    nextViewedVehicle = -1;
+    nextCameraType = -1;
+    
+    return ( result );
+}
+
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_gamedata_rfactor2__1rf2_1GraphicsInfo_fetchData( JNIEnv* env, jclass GraphicsInfo, jlong sourceBufferAddress, jint sourceBufferSize, jbyteArray targetBuffer )
 {
     void* buffer = env->GetPrimitiveArrayCritical( targetBuffer, &isCopy );
+    if ( ( (char*)buffer )[259] == 1 )
+    {
+        nextViewedVehicle = *( (long*)( ( (char*)buffer ) + 124 ) );
+        nextCameraType = *( (long*)( ( (char*)buffer ) + 128 ) );
+    }
+    else
+    {
+        nextViewedVehicle = -1;
+        nextCameraType = -1;
+    }
     memcpy( buffer, (void*)(long)sourceBufferAddress, (unsigned int)sourceBufferSize );
     env->ReleasePrimitiveArrayCritical( targetBuffer, buffer, 0 );
 }

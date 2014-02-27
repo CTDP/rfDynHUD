@@ -57,11 +57,28 @@ class _rf2_GraphicsInfo extends GraphicsInfo
     
     private final ScoringInfo scoringInfo;
     
+    private int nextSlotId = -1;
+    private int nextCameraType = -1;
+    
     private static native void fetchData( final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer );
     
     @Override
     protected void updateDataImpl( Object userObject, long timestamp )
     {
+        if ( nextSlotId == -1 )
+        {
+            ByteUtil.writeBoolean( false, buffer, BUFFER_SIZE - 1 );
+        }
+        else
+        {
+            ByteUtil.writeLong( nextSlotId, buffer, OFFSET_SLOT_ID );
+            ByteUtil.writeLong( nextCameraType, buffer, OFFSET_CAMERA_TYPE );
+            ByteUtil.writeBoolean( true, buffer, BUFFER_SIZE - 1 );
+        }
+        
+        nextSlotId = -1;
+        nextCameraType = -1;
+        
         if ( userObject instanceof _rf2_DataAddressKeeper )
         {
             _rf2_DataAddressKeeper ak = (_rf2_DataAddressKeeper)userObject;
@@ -268,12 +285,31 @@ class _rf2_GraphicsInfo extends GraphicsInfo
      *   <li>1005+ = (currently unsupported, in the future may be able to set/get specific trackside camera)</li>
      * </ul>
      * 
-     * @return the currently viewed vehicle slot (-1 if invalid).
-     * TODO: [API] Add to public interface!
+     * @return the currently used camera type (-1 if invalid).
      */
+    @Override
     public final int getCameraType()
     {
-        return ( (int)ByteUtil.readLong( buffer, OFFSET_CAMERA_TYPE ) );
+        int type = (int)ByteUtil.readLong( buffer, OFFSET_CAMERA_TYPE );
+        
+        if ( type == 0 )
+            type = 1;
+        else if ( type == 1 )
+            type = 0;
+        
+        return ( type );
+    }
+    
+    void setViewedVehicleScoringInfo( _rf2_VehicleScoringInfo vsi, int cameraType )
+    {
+        nextSlotId = vsi.getSlotId();
+        
+        if ( cameraType == 0 )
+            nextCameraType = 1;
+        else if ( cameraType == 1 )
+            nextCameraType = 0;
+        else
+            nextCameraType = cameraType;
     }
     
     _rf2_GraphicsInfo( LiveGameData gameData )

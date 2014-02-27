@@ -236,6 +236,15 @@ class _rf1_GraphicsInfo extends GraphicsInfo
         return ( new java.awt.Color( (int)( red * 255f ), (int)( green * 255f ), (int)( blue * 255f ) ) );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final int getCameraType()
+    {
+        return ( -1 );
+    }
+    
     _rf1_GraphicsInfo( LiveGameData gameData )
     {
         super( gameData );

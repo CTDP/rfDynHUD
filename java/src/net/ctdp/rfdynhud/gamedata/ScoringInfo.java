@@ -1320,6 +1320,21 @@ public abstract class ScoringInfo
         this.viewedVSI = null;
     }
     
+    /**
+     * Sets the viewed vehicle (updated on the next frame).<br />
+     * This operation can be ignored, if the underlying sim doesn't support it.
+     * 
+     * @param vsi the next viewed vehicle
+     * @param cameraType the new camera type
+     * 
+     * @see GraphicsInfo#CAMERA_TYPE_COCKPIT
+     * @see GraphicsInfo#CAMERA_TYPE_TV_COCKPIT
+     * @see GraphicsInfo#CAMERA_TYPE_NOSECAM
+     * @see GraphicsInfo#CAMERA_TYPE_SWINGMAN
+     * @see GraphicsInfo#CAMERA_TYPE_TRACKSIDE
+     */
+    public abstract void setViewedVehicleScoringInfo( VehicleScoringInfo vsi, int cameraType );
+    
     void setControlledViewedVSI( VehicleScoringInfo controlledViewedVSI )
     {
         this.controlledViewedVSI = controlledViewedVSI;

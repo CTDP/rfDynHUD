@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.GameDataStreamSource;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -84,6 +85,8 @@ class _rf2_ScoringInfo extends ScoringInfo
     private final byte[] buffer = new byte[ BUFFER_SIZE ];
     
     private static final java.net.URL DEFAULT_VALUES = _rf2_ScoringInfo.class.getClassLoader().getResource( _rf2_ScoringInfo.class.getPackage().getName().replace( '.', '/' ) + "/data/game_data/scoring_info" );
+    
+    private final _rf2_GraphicsInfo graphicsInfo;
     
     private static native void fetchData( final int numVehicles, final long sourceBufferAddress, final int sourceBufferSize, final byte[] targetBuffer, final long sourceBufferAddress2, final int sourceBufferSize2, final byte[] targetBuffer2 );
     
@@ -512,6 +515,15 @@ class _rf2_ScoringInfo extends ScoringInfo
      * {@inheritDoc}
      */
     @Override
+    public void setViewedVehicleScoringInfo( VehicleScoringInfo vsi, int cameraType )
+    {
+        graphicsInfo.setViewedVehicleScoringInfo( (_rf2_VehicleScoringInfo)vsi, cameraType );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected final _rf2_VehicleScoringInfo getViewedVehicleScoringInfoImpl()
     {
         _rf2_GraphicsInfo gi = (_rf2_GraphicsInfo)gameData.getGraphicsInfo();
@@ -585,5 +597,7 @@ class _rf2_ScoringInfo extends ScoringInfo
     _rf2_ScoringInfo( LiveGameData gameData )
     {
         super( gameData );
+        
+        this.graphicsInfo = (_rf2_GraphicsInfo)gameData.getGraphicsInfo();
     }
 }

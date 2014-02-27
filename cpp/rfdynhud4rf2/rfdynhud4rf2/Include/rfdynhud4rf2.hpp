@@ -79,9 +79,6 @@ public:
     
     virtual bool WantsToViewVehicle( CameraControlInfoV01& camControl );   // set ID and camera type and return true
     
-    // MESSAGE BOX INPUT
-    virtual bool WantsToDisplayMessage( MessageInfoV01& msgInfo );         // set message and return true
-    
     virtual void SetEnvironment( const EnvironmentInfoV01& info );         // may be called whenever the environment changes
     
     // SCREEN INFO NOTIFICATIONS

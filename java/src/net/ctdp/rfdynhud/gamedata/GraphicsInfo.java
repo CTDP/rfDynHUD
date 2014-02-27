@@ -30,6 +30,12 @@ import net.ctdp.rfdynhud.util.RFDHLog;
  */
 public abstract class GraphicsInfo
 {
+    public static final int CAMERA_TYPE_COCKPIT = 0;
+    public static final int CAMERA_TYPE_TV_COCKPIT = 1;
+    public static final int CAMERA_TYPE_NOSECAM = 2;
+    public static final int CAMERA_TYPE_SWINGMAN = 3;
+    public static final int CAMERA_TYPE_TRACKSIDE = 4;
+    
     private long updateTimestamp = -1L;
     private long updateId = 0L;
     private boolean updatedInTimeScope = false;
@@ -306,6 +312,27 @@ public abstract class GraphicsInfo
         
         return ( viewedVSI );
     }
+    
+    /**
+     * <p>
+     * Gets the currently used camera type.
+     * </p>
+     * <p>
+     * Possible values:
+     * </p>
+     * <ul>
+     *   <li>0 = cockpit</li>
+     *   <li>1 = TV cockpit</li>
+     *   <li>2 = nosecam</li>
+     *   <li>3 = swingman</li>
+     *   <li>4 = trackside (nearest)</li>
+     *   <li>5..1004 = onboardXXX</li>
+     *   <li>1005+ = (currently unsupported, in the future may be able to set/get specific trackside camera)</li>
+     * </ul>
+     * 
+     * @return the currently used camera type or <code>-1</code>, if unknown.
+     */
+    public abstract int getCameraType();
     
     protected GraphicsInfo( LiveGameData gameData )
     {

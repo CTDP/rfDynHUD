@@ -69,9 +69,9 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator im
         
         DataOutputStream os = getOutputStream();
         
-        synchronized ( os )
+        try
         {
-            try
+            synchronized ( os )
             {
                 startCommand( WIDGETS_CONFIGURATION );
                 
@@ -85,10 +85,10 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator im
                 
                 endCommand();
             }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-            }
+        }
+        catch ( Throwable t )
+        {
+            log( t );
         }
     }
     
@@ -99,9 +99,10 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator im
         
         DataOutputStream os = getOutputStream();
         
-        synchronized ( os )
+        
+        try
         {
-            try
+            synchronized ( os )
             {
                 startCommand( WIDGET_STATE );
                 
@@ -117,18 +118,15 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator im
                     os.writeLong( Long.MIN_VALUE );
                     os.writeLong( Long.MIN_VALUE + 1 );
                 }
+                else if ( manager.isTimeDecreasing() )
+                {
+                    os.writeLong( ws.getVisibleStart() - ws.getVisibleTime() );
+                    os.writeLong( ws.getVisibleStart() );
+                }
                 else
                 {
-                    if ( manager.isTimeDecreasing() )
-                    {
-                        os.writeLong( ws.getVisibleStart() - ws.getVisibleTime() );
-                        os.writeLong( ws.getVisibleStart() );
-                    }
-                    else
-                    {
-                        os.writeLong( ws.getVisibleStart() );
-                        os.writeLong( ws.getVisibleStart() + ws.getVisibleTime() );
-                    }
+                    os.writeLong( ws.getVisibleStart() );
+                    os.writeLong( ws.getVisibleStart() + ws.getVisibleTime() );
                 }
                 os.writeShort( ws.getPosX() );
                 os.writeShort( ws.getPosY() );
@@ -137,10 +135,10 @@ public class DirectorClientCommunicator extends AbstractTCPClientCommunicator im
                 
                 endCommand();
             }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-            }
+        }
+        catch ( Throwable t )
+        {
+            log( t );
         }
     }
     

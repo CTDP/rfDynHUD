@@ -64,6 +64,8 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements Director
     private byte[] configData = null;
     private int configLength = -1;
     
+    private WidgetsConfiguration lastLoadedWidgetsConfig = null;
+    
     public DirectorPlugin( File baseFolder )
     {
         super( "Director", baseFolder, new File( baseFolder, INI_FILENAME ) );
@@ -166,6 +168,24 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements Director
         
         loader.setNoConfigFoundMessage( originalNoConfigFoundMessage );
         eventsManager.setConfigurationCandidatesIterator( defaultCandidatesIterator );
+        
+        if ( lastLoadedWidgetsConfig != null )
+        {
+            try
+            {
+                for ( int i = 0; i < lastLoadedWidgetsConfig.getNumWidgets(); i++ )
+                {
+                    Widget widget = lastLoadedWidgetsConfig.getWidget( i );
+                    
+                    if ( widget.getWidgetController() instanceof DirectorWidgetController )
+                        widget.setWidgetController( null );
+                }
+            }
+            catch ( Throwable t )
+            {
+                log( t );
+            }
+        }
     }
     
     private void sendDriversList( LiveGameData gameData )
@@ -285,6 +305,8 @@ public class DirectorPlugin extends AbstractDataSenderPlugin implements Director
                 
                 widgetControllersMap.put( widget.getName(), controller );
             }
+            
+            lastLoadedWidgetsConfig = widgetsConfig;
         }
     }
     

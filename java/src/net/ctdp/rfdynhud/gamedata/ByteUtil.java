@@ -48,9 +48,19 @@ public class ByteUtil
     public static final int SHIFT_HLH = 8 + 32;
     public static final int SHIFT_HLL = 0 + 32;
     
+    public static final void writeByte( final byte value, byte[] buffer, final int offset )
+    {
+        buffer[ offset ] = value;
+    }
+    
     public static final byte readByte( final byte[] buffer, final int offset )
     {
         return ( buffer[ offset ] );
+    }
+    
+    public static final void writeUnsignedByte( final short value, byte[] buffer, final int offset )
+    {
+        buffer[ offset ] = (byte)value;
     }
     
     public static final short readUnsignedByte( final byte[] buffer, final int offset )
@@ -58,9 +68,20 @@ public class ByteUtil
         return ( (short)( buffer[ offset ] & 0xFF ) );
     }
     
+    public static final void writeBoolean( final boolean value, byte[] buffer, final int offset )
+    {
+        buffer[ offset ] = value ? (byte)1 : (byte)0;
+    }
+    
     public static final boolean readBoolean( final byte[] buffer, final int offset )
     {
         return ( ( buffer[ offset ] & 0xFF ) != 0 );
+    }
+    
+    public static final void writeShort( final int value, byte[] buffer, final int offset )
+    {
+        buffer[ offset + 0 ] = (byte)( ( value >> ByteUtil.SHIFT2_H ) & 0xFF );
+        buffer[ offset + 1 ] = (byte)( ( value >> ByteUtil.SHIFT2_L ) & 0xFF );
     }
     
     public static final short readShort( final byte[] buffer, final int offset )
@@ -73,14 +94,32 @@ public class ByteUtil
         return ( ( ( buffer[ offset + 0 ] & 0xFF ) << ByteUtil.SHIFT2_H ) | ( ( buffer[ offset + 1 ] & 0xFF ) << ByteUtil.SHIFT2_L ) );
     }
     
+    public static final void writeInt( final int value, byte[] buffer, final int offset )
+    {
+        buffer[ offset + 0 ] = (byte)( ( value >> ByteUtil.SHIFT4_HH ) & 0xFF );
+        buffer[ offset + 1 ] = (byte)( ( value >> ByteUtil.SHIFT4_HL ) & 0xFF );
+        buffer[ offset + 2 ] = (byte)( ( value >> ByteUtil.SHIFT4_LH ) & 0xFF );
+        buffer[ offset + 3 ] = (byte)( ( value >> ByteUtil.SHIFT4_LL ) & 0xFF );
+    }
+    
     public static final int readInt( final byte[] buffer, final int offset )
     {
         return ( ( ( buffer[ offset + 0 ] & 0xFF ) << ByteUtil.SHIFT4_HH ) | ( ( buffer[ offset + 1 ] & 0xFF ) << ByteUtil.SHIFT4_HL ) | ( ( buffer[ offset + 2 ] & 0xFF ) << ByteUtil.SHIFT4_LH ) | ( ( buffer[ offset + 3 ] & 0xFF ) << ByteUtil.SHIFT4_LL ) );
     }
     
+    public static final void writeUnsignedInt( final long value, byte[] buffer, final int offset )
+    {
+        writeInt( (int)value, buffer, offset );
+    }
+    
     public static final long readUnsignedInt( final byte[] buffer, final int offset )
     {
         return ( readInt( buffer, offset ) );
+    }
+    
+    public static final void writeLong( final long value, byte[] buffer, final int offset )
+    {
+        writeInt( (int)value, buffer, offset );
     }
     
     public static final long readLong( final byte[] buffer, final int offset )
@@ -95,11 +134,32 @@ public class ByteUtil
         return ( readInt( buffer, offset ) );
     }
     
+    public static final void writeFloat( final float value, byte[] buffer, final int offset )
+    {
+        int i = Float.floatToIntBits( value );
+        
+        writeInt( i, buffer, offset );
+    }
+    
     public static final float readFloat( final byte[] buffer, final int offset )
     {
         int i = readInt( buffer, offset );
         
         return ( Float.intBitsToFloat( i ) );
+    }
+    
+    public static final void writeDouble( final double value, byte[] buffer, final int offset )
+    {
+        long l = Double.doubleToLongBits( value );
+        
+        buffer[offset + 7] = (byte)( ( l >> 56 ) & 0xFF );
+        buffer[offset + 6] = (byte)( ( l >> 48 ) & 0xFF );
+        buffer[offset + 5] = (byte)( ( l >> 40 ) & 0xFF );
+        buffer[offset + 4] = (byte)( ( l >> 32 ) & 0xFF );
+        buffer[offset + 3] = (byte)( ( l >> 24 ) & 0xFF );
+        buffer[offset + 2] = (byte)( ( l >> 16 ) & 0xFF );
+        buffer[offset + 1] = (byte)( ( l >> 8 ) & 0xFF );
+        buffer[offset + 0] = (byte)( ( l >> 0 ) & 0xFF );
     }
     
     public static final double readDouble( final byte[] buffer, final int offset )
@@ -126,14 +186,14 @@ public class ByteUtil
         */
         
         long l = (
-                   ( (long)( buffer[offset + 7] & 0xff ) << 56 ) |
-                   ( (long)( buffer[offset + 6] & 0xff ) << 48 ) |
-                   ( (long)( buffer[offset + 5] & 0xff ) << 40 ) |
-                   ( (long)( buffer[offset + 4] & 0xff ) << 32 ) |
-                   ( (long)( buffer[offset + 3] & 0xff ) << 24 ) |
-                   ( (long)( buffer[offset + 2] & 0xff ) << 16 ) |
-                   ( (long)( buffer[offset + 1] & 0xff ) <<  8 ) |
-                   ( ( buffer[offset + 0] & 0xff ) )
+                   ( (long)( buffer[offset + 7] & 0xFF ) << 56 ) |
+                   ( (long)( buffer[offset + 6] & 0xFF ) << 48 ) |
+                   ( (long)( buffer[offset + 5] & 0xFF ) << 40 ) |
+                   ( (long)( buffer[offset + 4] & 0xFF ) << 32 ) |
+                   ( (long)( buffer[offset + 3] & 0xFF ) << 24 ) |
+                   ( (long)( buffer[offset + 2] & 0xFF ) << 16 ) |
+                   ( (long)( buffer[offset + 1] & 0xFF ) <<  8 ) |
+                   ( ( buffer[offset + 0] & 0xFF ) )
                  );
         
         

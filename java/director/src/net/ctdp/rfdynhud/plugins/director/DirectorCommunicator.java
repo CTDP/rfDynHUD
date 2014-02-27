@@ -20,6 +20,8 @@ package net.ctdp.rfdynhud.plugins.director;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.util.RFDHLog;
+
 import org.jagatoo.logging.LogLevel;
 
 /**
@@ -127,6 +129,7 @@ public class DirectorCommunicator extends net.ctdp.rfdynhud.plugins.datasender.A
     @Override
     protected boolean readDatagram( final short code, DataInputStream in ) throws IOException
     {
+        RFDHLog.println( "datagram: " + code );
         switch ( code )
         {
             case WIDGETS_CONFIGURATION:

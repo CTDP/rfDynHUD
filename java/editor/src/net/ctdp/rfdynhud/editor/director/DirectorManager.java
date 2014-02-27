@@ -525,7 +525,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
         if ( wss == null )
             return;
         
-        communicator.startCommand( DirectorConstants.RESET_WIDGET_STATES );
+        communicator.writeSimpleCommand( DirectorConstants.RESET_WIDGET_STATES );
         
         for ( int i = 0; i < wss.getNumStates(); i++ )
         {
@@ -541,8 +541,6 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
             
             sendWidgetState( ews );
         }
-        
-        communicator.endCommand();
         
         if ( !quietMode )
             JOptionPane.showMessageDialog( editor.getMainWindow(), "Applied Widget States." );

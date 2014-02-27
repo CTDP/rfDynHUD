@@ -209,6 +209,8 @@ public:
 
     char call_onGraphicsInfoUpdated( void* buffer, const unsigned int size );
 
+    bool getNextViewedVehicle( long* nextViewedVehicle, long* nextCameraType );
+    
     char call_beforeRender( const unsigned short viewportX, const unsigned short viewportY, const unsigned short viewportWidth, const unsigned short viewportHeight );
     
     

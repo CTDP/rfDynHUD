@@ -440,6 +440,17 @@ void RFDynHUD4rf2InternalsPlugin::UpdateGraphics( const GraphicsInfoV02& info )
  */
 bool RFDynHUD4rf2InternalsPlugin::WantsToViewVehicle( CameraControlInfoV01& camControl )
 {
+    long nextViewedVehicle = -1;
+    long nextCameraType = -1;
+    
+    if ( global.jvmConn.telemFuncs.getNextViewedVehicle( &nextViewedVehicle, &nextCameraType ) )
+    {
+        camControl.mID = nextViewedVehicle;
+        camControl.mCameraType = nextCameraType;
+        
+        return ( true );
+    }
+    
     return ( false );
 }
 
