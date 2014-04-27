@@ -534,11 +534,11 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
         
         this.waitingForRender = waitingForRender || !isEditorMode;
         this.waitingForGraphics = waitingForGraphics || !isEditorMode;
-        this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
-        this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
-        this.waitingForWeather = waitingForWeather || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
+        this.waitingForTelemetry = waitingForTelemetry || ( !isEditorMode && ( currentSessionIsRace != Boolean.FALSE ) );
+        this.waitingForScoring = waitingForScoring || ( !isEditorMode && ( currentSessionIsRace != Boolean.FALSE ) );
+        this.waitingForWeather = waitingForWeather || ( !isEditorMode && ( currentSessionIsRace != Boolean.FALSE ) );
         this.waitingForGarageStartLocation = true;
-        this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
+        this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //!isEditorMode;
         this.setupReloadTryTime = now + 5000000000L;
         this.waitingForData = !isEditorMode;
         this.needsOnVehicleControlChangedEvent = true;

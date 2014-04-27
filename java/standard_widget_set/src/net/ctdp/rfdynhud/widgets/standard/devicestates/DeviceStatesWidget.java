@@ -740,7 +740,7 @@ public class DeviceStatesWidget extends Widget
                             continue;
                         }
                         
-                        if ( isEditorMode || ( dsv == DeviceStateValue.always ) || ( dsv.state.intValue() != state2 ) )
+                        if ( ( isEditorMode || ( dsv == DeviceStateValue.always ) || ( dsv.state.intValue() != state2 ) ) && ( telemData.getIgnitionStatus() != null ) )
                         {
                             TextureImage2D background;
                             TextureImage2D icon;

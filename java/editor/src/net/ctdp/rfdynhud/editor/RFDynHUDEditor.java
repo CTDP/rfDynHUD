@@ -2136,7 +2136,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                     editor.loadFallbackConfig();
             }
             
-            editor.eventsManager.onCockpitEntered( true );
+            editor.eventsManager.onCockpitEntered( presets );
             
             __GDPrivilegedAccess.applyEditorPresets( presets, gameData );
             
