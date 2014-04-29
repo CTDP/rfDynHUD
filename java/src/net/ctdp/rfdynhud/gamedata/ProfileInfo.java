@@ -39,6 +39,40 @@ public abstract class ProfileInfo
         IMPERIAL,
         ;
         
+        public static final String TEMPERATURE_UNIT_GLYPHS_KELVIN = "°K";
+        public static final String TEMPERATURE_UNIT_GLYPHS_CELSIUS = "°C";
+        public static final String TEMPERATURE_UNIT_GLYPHS_FAHRENHEIT = "°F";
+        
+        public static final String SPACE_UNIT_GLYPHS_LITERS = "L";
+        public static final String SPACE_UNIT_GLYPHS_GALLONS = "gal";
+        
+        public static final String PRESSURE_UNIT_GLYPHS_KPA = "kpa";
+        public static final String PRESSURE_UNIT_GLYPHS_PSI = "psi";
+        
+        public final String getTemperatureUnitGlyphs()
+        {
+            if ( this == IMPERIAL )
+                return ( TEMPERATURE_UNIT_GLYPHS_FAHRENHEIT );
+            
+            return ( TEMPERATURE_UNIT_GLYPHS_CELSIUS );
+        }
+        
+        public final String getSpaceUnitGlyphs()
+        {
+            if ( this == IMPERIAL )
+                return ( SPACE_UNIT_GLYPHS_GALLONS );
+            
+            return ( SPACE_UNIT_GLYPHS_LITERS );
+        }
+        
+        public final String getPressureUnitGlyphs()
+        {
+            if ( this == IMPERIAL )
+                return ( PRESSURE_UNIT_GLYPHS_PSI );
+            
+            return ( PRESSURE_UNIT_GLYPHS_KPA );
+        }
+        
         public static final class Convert
         {
             /**
@@ -154,6 +188,17 @@ public abstract class ProfileInfo
          */
         @Deprecated
         public static final SpeedUnits KPH = KMH;
+        
+        public static final String SPEED_UNIT_KMH = "km/h";
+        public static final String SPEED_UNIT_MIH = "mi/h";
+        
+        public final String getSpeedUnitGlyphs()
+        {
+            if ( this == MIH )
+                return ( SPEED_UNIT_MIH );
+            
+            return ( SPEED_UNIT_KMH );
+        }
         
         public static final class Convert
         {
