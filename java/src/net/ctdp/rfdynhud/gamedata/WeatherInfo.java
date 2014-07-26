@@ -340,7 +340,7 @@ public abstract class WeatherInfo
      */
     public final float getTrackTemperatureC()
     {
-        return ( getTrackTemperature() + Convert.ZERO_KELVIN );
+        return ( getTrackTemperatureK() + Convert.ZERO_KELVIN );
     }
     
     /**

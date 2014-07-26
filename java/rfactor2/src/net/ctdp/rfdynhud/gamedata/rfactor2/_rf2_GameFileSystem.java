@@ -49,9 +49,12 @@ class _rf2_GameFileSystem extends GameFileSystem
         File f = pluginFolder.getParentFile().getParentFile();
         String exeFilename = pluginINI.getGeneralExeFilename();
         if ( exeFilename == null )
-            exeFilename = "Core\\rFactor2.exe";
+            exeFilename = "rFactor2.exe";
         
         while ( !new File( f, exeFilename ).exists() && !isRoot( f ) )
+            f = f.getParentFile();
+        
+        if ( f.getName().equalsIgnoreCase( "Bin32" ) || f.getName().equalsIgnoreCase( "Bin64" ) )
             f = f.getParentFile();
         
         if ( new File( f, exeFilename ).exists() )
@@ -60,7 +63,7 @@ class _rf2_GameFileSystem extends GameFileSystem
         if ( isRoot( pluginFolder ) )
             return ( pluginFolder.getAbsoluteFile() );
         
-        return ( pluginFolder.getParentFile().getParentFile().getAbsoluteFile() );
+        return ( pluginFolder.getParentFile().getParentFile().getParentFile().getAbsoluteFile() );
     }
     
     public final File getGameUserDataFolder()

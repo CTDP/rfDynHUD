@@ -31,7 +31,8 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
 {
     public static final String GAME_ID = "rFactor2";
     
-    private static final String NATIVE_LIB_NAME = "rfdynhud4rf2";
+    private static final String NATIVE_LIB_NAME_32 = "rfdynhud4rf2_32bit";
+    private static final String NATIVE_LIB_NAME_64 = "rfdynhud4rf2_64bit";
     
     /**
      * {@inheritDoc}
@@ -41,13 +42,25 @@ public class _rf2_LiveGameDataObjectsFactory implements _LiveGameDataObjectsFact
     {
         if ( !isEditorMode && !isSimulationMode )
         {
+            String native_lib_name = null;
+            
             try
             {
-                System.loadLibrary( NATIVE_LIB_NAME );
+                String bitness_ = System.getProperty( "sun.arch.data.model" );
+                int bitness = -1;
+                if ( bitness_ != null )
+                    bitness = Integer.parseInt( bitness_ );
+                RFDHLog.printlnEx( "System bitness: " + ( bitness < 0 ? "N/A" : bitness + " bit" ) );
+                if ( bitness == 32 )
+                    native_lib_name = NATIVE_LIB_NAME_32;
+                else if ( bitness == 64 )
+                    native_lib_name = NATIVE_LIB_NAME_64;
+                
+                System.loadLibrary( native_lib_name );
             }
             catch ( UnsatisfiedLinkError e )
             {
-                RFDHLog.error( "[ERROR] Couldn't find " + NATIVE_LIB_NAME + ".dll" );
+                RFDHLog.error( "[ERROR] Couldn't " + native_lib_name + ".dll" );
             }
             catch ( Throwable t )
             {

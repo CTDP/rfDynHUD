@@ -350,4 +350,9 @@ class _rf1_AIWParser
         
         return ( new _rf1_Track( waypointsTrack, waypointsPitlane, pc.sector1Length, pc.sector2Length, pc.trackLength, maxWPLDPit, pc.minXPos, pc.maxXPos, pc.minYPos, pc.maxYPos, pc.minZPos, pc.maxZPos, pc.maxWidth ) );
     }
+    
+    public static void main( String[] args ) throws Throwable
+    {
+        parseTrackFromAIW( new File( "d:/R03_MoSport.AIW" ) );
+    }
 }

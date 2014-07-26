@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="C:/Spiele/rFactor2/Plugins/rfDynHUD/rfdynhud_gamedata_rfactor1.jar"/>
+    <jar path="C:/Spiele/rFactor2/Bin32/Plugins/rfDynHUD/rfdynhud_gamedata_rfactor1.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/rfdynhud/zzz_jardescs/rfdynhud_gamedata_rfactor1.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>

@@ -53,7 +53,7 @@ public class RFDynHUD
         //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
     }
     
-    public static final Version VERSION = new Version( 1, 4, 0, "Beta", 119 );
+    public static final Version VERSION = new Version( 1, 4, 0, "Beta", 120 );
     
     private final String gameId;
     
