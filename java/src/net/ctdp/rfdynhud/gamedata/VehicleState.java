@@ -56,7 +56,7 @@ public enum VehicleState
      * 
      * @param vsi the vehicle to get the state for
      * @param slowerFasterDelay the delay in seconds after lap start to display slower or faster state for
-     * @return
+     * @return the current {@link VehicleState} for the given vehicle.
      */
     public static final VehicleState get( VehicleScoringInfo vsi, float slowerFasterDelay )
     {

@@ -1623,7 +1623,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getCloudDarkness()}
      * 
-     * @return
+     * @return the cloud darkness.
      */
     @Deprecated
     public final float getCloudDarkness()
@@ -1634,7 +1634,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getRainingSeverity()}
      * 
-     * @return
+     * @return the rain severity.
      */
     @Deprecated
     public final float getRainingSeverity()
@@ -1645,7 +1645,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getAmbientTemperatureK()}
      * 
-     * @return
+     * @return the ambient temperature in °K.
      */
     @Deprecated
     public final float getAmbientTemperatureK()
@@ -1656,7 +1656,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getAmbientTemperatureC()}
      * 
-     * @return
+     * @return the ambient temperature in °C.
      */
     @Deprecated
     public final float getAmbientTemperatureC()
@@ -1667,7 +1667,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getAmbientTemperatureF()}
      * 
-     * @return
+     * @return the ambient temperature in °F.
      */
     @Deprecated
     public final float getAmbientTemperatureF()
@@ -1678,7 +1678,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getAmbientTemperature()}
      * 
-     * @return
+     * @return the ambient temperature.
      */
     @Deprecated
     public final float getAmbientTemperature()
@@ -1689,7 +1689,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getTrackTemperatureK()}
      * 
-     * @return
+     * @return the track temperature in °K.
      */
     @Deprecated
     public final float getTrackTemperatureK()
@@ -1700,7 +1700,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getTrackTemperatureC()}
      * 
-     * @return
+     * @return the track temperature in °C.
      */
     @Deprecated
     public final float getTrackTemperatureC()
@@ -1711,7 +1711,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getTrackTemperatureF()}
      * 
-     * @return
+     * @return the track temperature in °F.
      */
     @Deprecated
     public final float getTrackTemperatureF()
@@ -1722,7 +1722,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getTrackTemperature()}
      * 
-     * @return
+     * @return the track temperature.
      */
     @Deprecated
     public final float getTrackTemperature()
@@ -1777,7 +1777,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getOnPathWetness()}
      * 
-     * @return
+     * @return the on path wetness.
      */
     @Deprecated
     public final float getOnPathWetness()
@@ -1788,7 +1788,7 @@ public abstract class ScoringInfo
     /**
      * @deprecated use {@link WeatherInfo#getOffPathWetness()}
      * 
-     * @return
+     * @return the off path wetness.
      */
     @Deprecated
     public final float getOffPathWetness()

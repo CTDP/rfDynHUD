@@ -174,7 +174,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param height
      * @param bandOffsets
      * @param bb
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGBA( int width, int height, int[] bandOffsets, ByteBuffer bb )
     {
@@ -212,7 +212,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param width
      * @param height
      * @param pixelSize
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGBA( int width, int height, int pixelSize )
     {
@@ -260,7 +260,7 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param width
      * @param height
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGBA( int width, int height )
     {
@@ -274,7 +274,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param height
      * @param bandOffsets
      * @param bb
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGB( int width, int height, int[] bandOffsets, ByteBuffer bb )
     {
@@ -311,7 +311,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param width
      * @param height
      * @param pixelSize
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGB( int width, int height, int pixelSize )
     {
@@ -348,7 +348,7 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param width
      * @param height
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGB( int width, int height )
     {
@@ -405,7 +405,7 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param width
      * @param height
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageTwoBytes( int width, int height )
     {
@@ -448,7 +448,7 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param source
      * 
-     * @return
+     * @return the made image.
      */
     public static DirectBufferedImage makeDirectImageRGBA( BufferedImage source )
     {
@@ -514,7 +514,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param in
      * @param allowAlpha
      * 
-     * @return
+     * @return the image.
      * 
      * @throws java.io.IOException
      */
@@ -536,7 +536,7 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param in
      * 
-     * @return
+     * @return the image.
      * 
      * @throws java.io.IOException
      */
@@ -554,7 +554,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param url
      * @param allowAlpha
      * 
-     * @return
+     * @return the image.
      * 
      * @throws java.io.IOException
      */
@@ -577,7 +577,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param file
      * @param allowAlpha
      * 
-     * @return
+     * @return the image.
      * 
      * @throws java.io.IOException
      */
@@ -594,7 +594,7 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param file
      * 
-     * @return
+     * @return the image.
      * 
      * @throws java.io.IOException
      */
@@ -612,7 +612,7 @@ public class DirectBufferedImage extends BufferedImage
      * @param name
      * @param allowAlpha
      * 
-     * @return
+     * @return the image.
      * 
      * @throws java.io.IOException
      */

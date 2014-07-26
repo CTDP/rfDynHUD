@@ -773,7 +773,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
      * 
      * @param timestamp event timestamp in nano seconds
      * @param isEditorMode
-     * @return
+     * @return <code>true</code>, if track has changed, <code>false</code> otherwise.
      */
     protected boolean checkTrackChanged( long timestamp, boolean isEditorMode )
     {
@@ -944,7 +944,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * @param userObject a custom user object passed through to the sim specific implementation 
-     * @return
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onDrivingAidsUpdated( Object userObject )
     {
@@ -1193,7 +1193,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * @param userObject a custom user object passed through to the sim specific implementation 
-     * @return
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onWeatherInfoUpdated( Object userObject )
     {
@@ -1233,7 +1233,7 @@ public abstract class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * @param userObject a custom user object passed through to the sim specific implementation (could be an instance of {@link EditorPresets})
-     * @return
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onCommentaryRequestInfoUpdated( Object userObject )
     {

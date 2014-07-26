@@ -100,7 +100,8 @@ public class PluginINI
      * @param name
      * @param configPath
      * @param fallback
-     * @return
+     * 
+     * @return the folder.
      */
     private File getFolder( String name, String configPath, String fallback )
     {

@@ -248,7 +248,8 @@ public class FileUtils
      * @param file
      * @param charset_name
      * 
-     * @return
+     * @return the file contets as string.
+     * 
      * @throws IOException
      * @throws UnsupportedEncodingException 
      */
@@ -262,7 +263,8 @@ public class FileUtils
      * @param file
      * @param charset
      * 
-     * @return
+     * @return the file contets as string.
+     * 
      * @throws IOException
      */
     public static String getFileAsString( File file, Charset charset ) throws IOException

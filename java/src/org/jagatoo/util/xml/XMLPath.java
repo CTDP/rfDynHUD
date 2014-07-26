@@ -151,7 +151,7 @@ public class XMLPath
      * @param compareIgnoringCase
      * @param elements
      * 
-     * @return
+     * @return <code>true</code>, if the current path is at the given position, <code>false</code> otherwise.
      */
     public final boolean isAt( boolean compareIgnoringCase, String... elements )
     {
@@ -187,7 +187,7 @@ public class XMLPath
      * @param doEqualsTest
      * @param objects
      * 
-     * @return
+     * @return <code>true</code>, if the current path is at the given position, <code>false</code> otherwise.
      */
     public final boolean isAtByObjects( boolean doEqualsTest, String... objects )
     {

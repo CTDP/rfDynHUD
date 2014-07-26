@@ -58,7 +58,7 @@ public abstract class AbstractServerCommunicator extends AbstractCommunicator
      * @param code
      * @param in
      * 
-     * @return
+     * @return <code>true</code>, if the datagram was recognized, <code>false</code> otherwise.
      * 
      * @throws IOException
      */

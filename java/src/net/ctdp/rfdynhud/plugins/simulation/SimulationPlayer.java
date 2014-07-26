@@ -41,9 +41,9 @@ public class SimulationPlayer
     public static interface PlaybackControl
     {
         /**
-         * Gets a time scale factor. A value of <= 0 will make timing get totally ignored.
+         * Gets a time scale factor. A value <= 0 will make timing get totally ignored.
          * 
-         * @return
+         * @return a time scale factor.
          */
         public float getTimeScale();
         

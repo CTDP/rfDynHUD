@@ -46,7 +46,7 @@ public class BackgroundColorBorderRenderer implements BorderRenderer
     /**
      * 
      * @param backgroundColor
-     * @return
+     * @return the background image for the specified color.
      */
     public TextureImage2D getImage( Color backgroundColor )
     {

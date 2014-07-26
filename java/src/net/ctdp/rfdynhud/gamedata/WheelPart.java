@@ -54,11 +54,11 @@ public enum WheelPart
     }
     
     /**
-     * Gets {@value WheelPart#OUTSIDE} for the left wheels and {@value WheelPart#INSIDE} for the right wheels.
+     * Gets {@value #OUTSIDE} for the left wheels and {@value #INSIDE} for the right wheels.
      * 
      * @param wheel
      * 
-     * @return {@value WheelPart#OUTSIDE} for the left wheels and {@value WheelPart#INSIDE} for the right wheels.
+     * @return {@value #OUTSIDE} for the left wheels and {@value #INSIDE} for the right wheels.
      */
     public static final WheelPart getLeftPart( Wheel wheel )
     {
@@ -79,11 +79,11 @@ public enum WheelPart
     }
     
     /**
-     * Gets {@value WheelPart#INSIDE} for the left wheels and {@value WheelPart#OUTSIDE} for the right wheels.
+     * Gets {@value #INSIDE} for the left wheels and {@value #OUTSIDE} for the right wheels.
      * 
      * @param wheel
      * 
-     * @return {@value WheelPart#INSIDE} for the left wheels and {@value WheelPart#OUTSIDE} for the right wheels.
+     * @return {@value #INSIDE} for the left wheels and {@value #OUTSIDE} for the right wheels.
      */
     public static final WheelPart getRightPart( Wheel wheel )
     {
