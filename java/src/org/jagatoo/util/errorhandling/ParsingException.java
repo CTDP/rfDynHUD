@@ -39,18 +39,46 @@ public class ParsingException extends RuntimeException
 {
     private static final long serialVersionUID = 8739835886126935739L;
     
-    public ParsingException()
+    private final long lineNo;
+    
+    public final long getLineNo()
+    {
+        return ( lineNo );
+    }
+    
+    public ParsingException( long lineNo )
     {
         super();
+        
+        this.lineNo = lineNo;
+    }
+    
+    public ParsingException( long lineNo, String s )
+    {
+        super( s );
+        
+        this.lineNo = lineNo;
+    }
+    
+    public ParsingException( long lineNo, Throwable cause )
+    {
+        super( cause );
+        
+        this.lineNo = lineNo;
+    }
+    
+    public ParsingException()
+    {
+        this( -1L );
     }
     
     public ParsingException( String s )
     {
-        super( s );
+        this( -1L, s );
     }
     
     public ParsingException( Throwable cause )
     {
-        super( cause );
+        this( -1L, cause );
     }
 }

@@ -57,6 +57,9 @@ class _rf1_ProfileInfo extends ProfileInfo
     
     private Integer formationLapFlag = null;
     
+    private String raceCastEmail = null; // The email you are registered with on racecast.rfactor.net
+    private String raceCastPassword = null; // Your password on racecast.rfactor.net
+    
     /**
      * {@inheritDoc}
      */
@@ -104,6 +107,9 @@ class _rf1_ProfileInfo extends ProfileInfo
         
         lastUsedTrackFile = null;
         formationLapFlag = 1;
+        
+        raceCastEmail = null;
+        raceCastPassword = null;
     }
     
     /**
@@ -430,6 +436,28 @@ class _rf1_ProfileInfo extends ProfileInfo
         
         // Unreachable code!
         return ( null );
+    }
+    
+    /**
+     * Gets the email you are registered with on racecast.rfactor.net
+     * 
+     * @return the email you are registered with on racecast.rfactor.net
+     */
+    @Override
+    public final String getRaceCastEmail()
+    {
+        return ( raceCastEmail );
+    }
+    
+    /**
+     * Gets your password on racecast.rfactor.net
+     * 
+     * @return Your password on racecast.rfactor.net
+     */
+    @Override
+    public final String getRaceCastPassword()
+    {
+        return ( raceCastPassword );
     }
     
     

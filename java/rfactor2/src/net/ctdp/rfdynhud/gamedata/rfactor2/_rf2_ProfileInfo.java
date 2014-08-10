@@ -19,6 +19,8 @@ package net.ctdp.rfdynhud.gamedata.rfactor2;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.input.InputMappings;
@@ -26,7 +28,9 @@ import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
+import org.jagatoo.util.json.JSONParser;
+import org.jagatoo.util.json.ParseMeta;
+import org.jagatoo.util.json.TempList;
 
 /**
  * Model of the current player's profile information
@@ -73,7 +77,7 @@ class _rf2_ProfileInfo extends ProfileInfo
         File plrFile = null;
         for ( File p : profileCandidates )
         {
-            File plr = new File( p, p.getName() + ".PLR" );
+            File plr = new File( p, p.getName() + ".JSON" );
             if ( plr.exists() && plr.isFile() )
             {
                 if ( plrFile == null )
@@ -128,149 +132,179 @@ class _rf2_ProfileInfo extends ProfileInfo
         
         try
         {
-            new AbstractIniParser()
+            new JSONParser()
             {
                 @Override
-                protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
+                protected Object newObject( ParseMeta meta, String name )
                 {
-                    if ( group == null )
-                    {
-                    }
-                    else if ( group.equalsIgnoreCase( "SCENE" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "Scene File" ) )
-                        {
-                            lastUsedTrackFile = new File( value );
-                            
-                            if ( !lastUsedTrackFile.isAbsolute() )
-                                lastUsedTrackFile = new File( fileSystem.getGameFolder(), value );
-                        }
-                    }
-                    else if ( group.equalsIgnoreCase( "DRIVER" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "RaceCast Email" ) )
-                        {
-                            raceCastEmail = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "RaceCast Password" ) )
-                        {
-                            raceCastPassword = value;
-                        }
-                        /*
-                        else if ( key.equalsIgnoreCase( "Vehicle File" ) )
-                        {
-                            vehFile = new File( fileSystem.getGameFolder(), value );
-                        }
-                        */
-                        else if ( key.equalsIgnoreCase( "Team" ) )
-                        {
-                            teamName = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Nationality" ) )
-                        {
-                            nationality = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Birth Date" ) )
-                        {
-                            birthDate = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Location" ) )
-                        {
-                            location = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Game Description" ) )
-                        {
-                            value = value.trim();
-                            if ( value.toLowerCase().endsWith( ".rfm" ) )
-                                modName = value.substring( 0, value.length() - 4 );
-                            else
-                                modName = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Helmet" ) )
-                        {
-                            helmet = value;
-                        }
-                        else if ( key.equalsIgnoreCase( "Unique ID" ) )
-                        {
-                            uniqueID = Integer.parseInt( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Starting Driver" ) )
-                        {
-                            startingDriver = Integer.parseInt( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "AI Controls Driver" ) )
-                        {
-                            aiControlsDriver = Integer.parseInt( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Driver Hotswap Delay" ) )
-                        {
-                            driverHotswapDelay = Float.parseFloat( value );
-                        }
-                    }
-                    else if ( group.equalsIgnoreCase( "Game Options" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "MULTI Race Length" ) )
-                        {
-                            multiRaceLength = Float.valueOf( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "Show Extra Lap" ) )
-                        {
-                            try
-                            {
-                                int index = Integer.parseInt( value );
-                                
-                                showCurrentLap = ( index != 0 );
-                            }
-                            catch ( Throwable t )
-                            {
-                                RFDHLog.debug( "Unable to parse \"Show Extra Lap\" from PLR file. Defaulting to 'true'." );
-                                showCurrentLap = true;
-                            }
-                        }
-                        else if ( key.equalsIgnoreCase( "Measurement Units" ) )
-                        {
-                            try
-                            {
-                                int index = Integer.parseInt( value );
-                                
-                                measurementUnits = MeasurementUnits.values()[index];
-                            }
-                            catch ( Throwable t )
-                            {
-                                RFDHLog.debug( "Unable to parse \"Measurement Units\" from PLR file. Defaulting to METRIC." );
-                                measurementUnits = MeasurementUnits.METRIC;
-                            }
-                        }
-                        else if ( key.equalsIgnoreCase( "Speed Units" ) )
-                        {
-                            try
-                            {
-                                int index = Integer.parseInt( value );
-                                
-                                speedUnits = SpeedUnits.values()[index];
-                            }
-                            catch ( Throwable t )
-                            {
-                                RFDHLog.debug( "Unable to parse \"Speed Units\" from PLR file. Defaulting to KPH." );
-                                speedUnits = SpeedUnits.KMH;
-                            }
-                        }
-                    }
-                    else if ( group.equalsIgnoreCase( "Race Conditions" ) )
-                    {
-                        if ( key.equalsIgnoreCase( "MULTI Reconnaissance" ) )
-                        {
-                            numReconLaps = Integer.valueOf( value );
-                        }
-                        else if ( key.equalsIgnoreCase( "MULTI Formation Lap" ) )
-                        {
-                            formationLapFlag = Integer.valueOf( value );
-                        }
-                    }
-                    
-                    return ( true );
+                    return ( name );
                 }
-            }.parse( plrFile );
+                
+                @Override
+                protected void addToObject( ParseMeta meta, String objectName, Object object, String childName, Object childValue )
+                {
+                    if ( childName.equalsIgnoreCase( "RaceCast Email" ) )
+                        System.out.println( ">>>>>>>>>> " + meta.getStackSize() + ", " + objectName + ", " + childName );
+                    
+                    if ( meta.getStackSize() == 2 )
+                    {
+                        final String setting = objectName;
+                        
+                        if ( setting.equalsIgnoreCase( "SCENE" ) )
+                        {
+                            if ( childName.equalsIgnoreCase( "Scene File" ) )
+                            {
+                                lastUsedTrackFile = new File( (String)childValue );
+                                
+                                if ( !lastUsedTrackFile.isAbsolute() )
+                                    lastUsedTrackFile = new File( fileSystem.getGameFolder(), (String)childValue );
+                            }
+                        }
+                        else if ( setting.equalsIgnoreCase( "DRIVER" ) )
+                        {
+                            /*
+                            if ( childName.equalsIgnoreCase( "Vehicle File" ) )
+                            {
+                                vehFile = new File( fileSystem.getGameFolder(), (String)childValue );
+                            }
+                            */
+                            if ( childName.equalsIgnoreCase( "Team" ) )
+                            {
+                                teamName = (String)childValue;
+                            }
+                            else if ( childName.equalsIgnoreCase( "Nationality" ) )
+                            {
+                                nationality = (String)childValue;
+                            }
+                            else if ( childName.equalsIgnoreCase( "Birth Date" ) )
+                            {
+                                birthDate = (String)childValue;
+                            }
+                            else if ( childName.equalsIgnoreCase( "Location" ) )
+                            {
+                                location = (String)childValue;
+                            }
+                            else if ( childName.equalsIgnoreCase( "Game Description" ) )
+                            {
+                                String value = ( (String)childValue ).trim();
+                                if ( value.toLowerCase().endsWith( ".rfm" ) )
+                                    modName = value.substring( 0, value.length() - 4 );
+                                else
+                                    modName = (String)childValue;
+                            }
+                            else if ( childName.equalsIgnoreCase( "Helmet" ) )
+                            {
+                                helmet = (String)childValue;
+                            }
+                            else if ( childName.equalsIgnoreCase( "Unique ID" ) )
+                            {
+                                uniqueID = ( (Number)childValue ).intValue();
+                            }
+                            else if ( childName.equalsIgnoreCase( "Starting Driver" ) )
+                            {
+                                startingDriver = ( (Number)childValue ).intValue();
+                            }
+                            else if ( childName.equalsIgnoreCase( "AI Controls Driver" ) )
+                            {
+                                aiControlsDriver = ( (Number)childValue ).intValue();
+                            }
+                            else if ( childName.equalsIgnoreCase( "Driver Hotswap Delay" ) )
+                            {
+                                driverHotswapDelay = ( (Number)childValue ).floatValue();
+                            }
+                        }
+                        else if ( setting.equalsIgnoreCase( "Game Options" ) )
+                        {
+                            if ( childName.equalsIgnoreCase( "MULTI Race Length" ) )
+                            {
+                                multiRaceLength = ( (Number)childValue ).floatValue();
+                            }
+                            else if ( childName.equalsIgnoreCase( "Show Extra Lap" ) )
+                            {
+                                if ( childValue instanceof Number )
+                                {
+                                    showCurrentLap = ( ( (Number)childValue ).intValue() != 0 );
+                                }
+                                else if ( childValue instanceof Boolean )
+                                {
+                                    showCurrentLap = (Boolean)childValue;
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        int index = Integer.parseInt( String.valueOf( childValue ) );
+                                        
+                                        showCurrentLap = ( index != 0 );
+                                    }
+                                    catch ( Throwable t )
+                                    {
+                                        RFDHLog.debug( "Unable to parse \"Show Extra Lap\" from PLR file. Defaulting to 'true'." );
+                                        showCurrentLap = true;
+                                    }
+                                }
+                            }
+                            else if ( childName.equalsIgnoreCase( "Measurement Units" ) )
+                            {
+                                try
+                                {
+                                    int index = ( (Number)childValue ).intValue();
+                                    
+                                    measurementUnits = MeasurementUnits.values()[index];
+                                }
+                                catch ( Throwable t )
+                                {
+                                    RFDHLog.debug( "Unable to parse \"Measurement Units\" from PLR file. Defaulting to METRIC." );
+                                    measurementUnits = MeasurementUnits.METRIC;
+                                }
+                            }
+                            else if ( childName.equalsIgnoreCase( "Speed Units" ) )
+                            {
+                                if ( childValue instanceof Number )
+                                {
+                                    int index = ( (Number)childValue ).intValue();
+                                    
+                                    speedUnits = SpeedUnits.values()[index];
+                                }
+                                else if ( childValue instanceof Boolean )
+                                {
+                                    Boolean bool = (Boolean)childValue;
+                                    
+                                    speedUnits = SpeedUnits.values()[bool ? 1 : 0];
+                                }
+                                else
+                                {
+                                    RFDHLog.debug( "Unable to parse \"Speed Units\" from PLR file. Defaulting to 'KMH'." );
+                                    speedUnits = SpeedUnits.KMH;
+                                }
+                            }
+                        }
+                        else if ( setting.equalsIgnoreCase( "Race Conditions" ) )
+                        {
+                            if ( childName.equalsIgnoreCase( "MULTI Reconnaissance" ) )
+                            {
+                                numReconLaps = ( (Number)childValue ).intValue();
+                            }
+                            else if ( childName.equalsIgnoreCase( "MULTI Formation Lap" ) )
+                            {
+                                formationLapFlag = ( (Number)childValue ).intValue();
+                            }
+                        }
+                    }
+                }
+                
+                @Override
+                protected Object[] newArray( ParseMeta meta, String name, int size )
+                {
+                    return ( null );
+                }
+                
+                @Override
+                protected int addToArray( ParseMeta meta, TempList list, String arrayName, Object value )
+                {
+                    return ( 0 );
+                }
+            }.parse( plrFile, "UTF-8" );
             
             this.plrFile = plrFile;
             this.profileFolder = plrFile.getParentFile();
@@ -312,79 +346,120 @@ class _rf2_ProfileInfo extends ProfileInfo
      * {@inheritDoc}
      */
     @Override
-    public String[] validateInputBindings( InputMappings mappings )
+    public String[] validateInputBindings( final InputMappings mappings )
     {
-        File controller_ini = new File( getProfileFolder(), "Controller.ini" );
+        File controller_ini = new File( getProfileFolder(), "Controller.JSON" );
         if ( !controller_ini.exists() )
             return ( null );
         
-        String[] warning = null;
+        final ArrayList<String> warnings = new ArrayList<String>();
         
-        String value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Increment Boost", null );
-        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        try
         {
-            if ( !mappings.isActionMapped( KnownInputActions.IncBoost ) )
+            new JSONParser()
             {
-                String message = "No Input Binding for IncBoost, but bound in rFactor.";
-                RFDHLog.exception( "Warning: ", message );
-                //if ( warning == null )
-                    warning = new String[] { message };
-            }
+                @Override
+                protected Object newObject( ParseMeta meta, String name )
+                {
+                    return ( name );
+                }
+                
+                private boolean equals( Object childValue, int a, int b )
+                {
+                    if ( !( childValue instanceof Integer[] ) )
+                        return ( false );
+                    
+                    Integer[] value = (Integer[])childValue;
+                    
+                    if ( value.length != 2 )
+                        return ( false );
+                    
+                    if ( value[0] != a )
+                        return ( false );
+                    
+                    if ( value[1] != b )
+                        return ( false );
+                    
+                    return ( true );
+                }
+                
+                @Override
+                protected void addToObject( ParseMeta meta, String objectName, Object object, String childName, Object childValue )
+                {
+                    if ( meta.getStackSize() == 2 )
+                    {
+                        if ( objectName.equalsIgnoreCase( "Input" ) )
+                        {
+                            if ( childName.equalsIgnoreCase( "Control - Increment Boost" ) && !equals( childValue, 0, 89 ) )
+                            {
+                                if ( !mappings.isActionMapped( KnownInputActions.IncBoost ) )
+                                {
+                                    String message = "No Input Binding for IncBoost, but bound in rFactor.";
+                                    RFDHLog.exception( "Warning: ", message );
+                                    warnings.add( message );
+                                }
+                            }
+                            else if ( childName.equalsIgnoreCase( "Control - Decrement Boost" ) && !equals( childValue, 0, 89 ) )
+                            {
+                                if ( !mappings.isActionMapped( KnownInputActions.DecBoost ) )
+                                {
+                                    String message = "No Input Binding for DecBoost, but bound in rFactor.";
+                                    RFDHLog.exception( "Warning: ", message );
+                                    warnings.add( message );
+                                }
+                            }
+                            else if ( childName.equalsIgnoreCase( "Control - Temporary Boost" ) && !equals( childValue, 0, 89 ) )
+                            {
+                                if ( !mappings.isActionMapped( KnownInputActions.TempBoost ) )
+                                {
+                                    String message = "No Input Binding for TempBoost, but bound in rFactor.";
+                                    RFDHLog.exception( "Warning: ", message );
+                                    warnings.add( message );
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                @Override
+                protected Object[] newArray( ParseMeta meta, String name, int size )
+                {
+                    if ( meta.getStackSize() == 2 )
+                    {
+                        if ( meta.getNameStackObject( 1 ).equalsIgnoreCase( "Input" ) )
+                            return ( new Object[ size ] );
+                    }
+                    
+                    return ( null );
+                }
+                
+                /*
+                @Override
+                protected int addToArray( ParseMeta meta, TempList list, String arrayName, Object value )
+                {
+                    return ( 0 );
+                }
+                */
+            }.parse( controller_ini, "UTF-8" );
         }
-        
-        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Decrement Boost", null );
-        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        catch ( IOException e )
         {
-            if ( !mappings.isActionMapped( KnownInputActions.DecBoost ) )
-            {
-                String message = "No Input Binding for DecBoost, but bound in rFactor.";
-                RFDHLog.exception( "Warning: ", message );
-                if ( warning == null )
-                {
-                    warning = new String[] { message };
-                }
-                else
-                {
-                    String[] tmp = new String[ warning.length + 1 ];
-                    System.arraycopy( warning, 0, tmp, 0, warning.length );
-                    warning = tmp;
-                    warning[warning.length - 1] = message;
-                }
-            }
+            RFDHLog.exception( e );
         }
-        
-        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Temporary Boost", null );
-        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        catch ( ParsingException e )
         {
-            if ( !mappings.isActionMapped( KnownInputActions.TempBoost ) )
-            {
-                String message = "No Input Binding for TempBoost, but bound in rFactor.";
-                RFDHLog.exception( "Warning: ", message );
-                if ( warning == null )
-                {
-                    warning = new String[] { message };
-                }
-                else
-                {
-                    String[] tmp = new String[ warning.length + 1 ];
-                    System.arraycopy( warning, 0, tmp, 0, warning.length );
-                    warning = tmp;
-                    warning[warning.length - 1] = message;
-                }
-            }
+            RFDHLog.exception( e );
         }
         
-        if ( warning != null )
-        {
-            String[] tmp = new String[ warning.length + 3 ];
-            System.arraycopy( warning, 0, tmp, 0, warning.length );
-            warning = tmp;
-            warning[warning.length - 3] = "Engine wear display will be wrong.";
-            warning[warning.length - 2] = "Edit the Input Bindings in the editor (Tools->Edit Input Bindings)";
-            warning[warning.length - 1] = "and add proper bindings.";
-        }
+        if ( warnings.isEmpty() )
+            return ( null );
         
-        return ( warning );
+        String[] warnings2 = warnings.toArray( new String[ warnings.size() + 3 ] );
+        warnings2[warnings2.length - 3] = "Engine wear display will be wrong.";
+        warnings2[warnings2.length - 2] = "Edit the Input Bindings in the editor (Tools->Edit Input Bindings)";
+        warnings2[warnings2.length - 1] = "and add proper bindings.";
+        
+        return ( warnings2 );
     }
     
     /**

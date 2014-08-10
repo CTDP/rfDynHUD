@@ -39,9 +39,9 @@ public abstract class ProfileInfo
         IMPERIAL,
         ;
         
-        public static final String TEMPERATURE_UNIT_GLYPHS_KELVIN = "°K";
-        public static final String TEMPERATURE_UNIT_GLYPHS_CELSIUS = "°C";
-        public static final String TEMPERATURE_UNIT_GLYPHS_FAHRENHEIT = "°F";
+        public static final String TEMPERATURE_UNIT_GLYPHS_KELVIN = "ï¿½K";
+        public static final String TEMPERATURE_UNIT_GLYPHS_CELSIUS = "ï¿½C";
+        public static final String TEMPERATURE_UNIT_GLYPHS_FAHRENHEIT = "ï¿½F";
         
         public static final String SPACE_UNIT_GLYPHS_LITERS = "L";
         public static final String SPACE_UNIT_GLYPHS_GALLONS = "gal";
@@ -276,8 +276,6 @@ public abstract class ProfileInfo
     
     private long updateId = 0L;
     
-    protected String raceCastEmail = null; // The email you are registered with on racecast.rfactor.net
-    protected String raceCastPassword = null; // Your password on racecast.rfactor.net
     protected String teamName = null;
     protected String nationality = null;
     protected String birthDate = null;
@@ -305,8 +303,6 @@ public abstract class ProfileInfo
     
     protected void reset()
     {
-        raceCastEmail = null;
-        raceCastPassword = null;
         teamName = "N/A";
         nationality = null;
         birthDate = null;
@@ -322,7 +318,7 @@ public abstract class ProfileInfo
         showCurrentLap = true;
         numReconLaps = 0;
         measurementUnits = MeasurementUnits.METRIC;
-        speedUnits = SpeedUnits.KPH;
+        speedUnits = SpeedUnits.KMH;
     }
     
     /**
@@ -381,23 +377,23 @@ public abstract class ProfileInfo
     public abstract String[] validateInputBindings( InputMappings mappings );
     
     /**
-     * Gets the email you are registered with on racecast.rfactor.net
-     * 
-     * @return the email you are registered with on racecast.rfactor.net
+     * @deprecated only valid for rf1
+     * @return
      */
-    public final String getRaceCastEmail()
+    @Deprecated
+    public String getRaceCastEmail()
     {
-        return ( raceCastEmail );
+        return ( null );
     }
     
     /**
-     * Gets your password on racecast.rfactor.net
-     * 
-     * @return Your password on racecast.rfactor.net
+     * @deprecated only valid for rf1
+     * @return
      */
-    public final String getRaceCastPassword()
+    @Deprecated
+    public String getRaceCastPassword()
     {
-        return ( raceCastPassword );
+        return ( null );
     }
     
     /**
